@@ -524,7 +524,7 @@ export function ChatPanel({ currentFile, currentRepo }: ChatPanelProps) {
   return (
     <div className="chat-panel">
       <div className="chat-header">
-        <h3>AI Assistant</h3>
+        <h3>AI Assistant{currentRepo && ` - ${currentRepo.name}`}</h3>
         <span className="chat-status">Ready</span>
       </div>
 

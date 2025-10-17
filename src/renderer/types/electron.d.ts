@@ -13,7 +13,7 @@ export interface ElectronAPI {
   readDir: (dirPath: string) => Promise<DirEntry[] | null>;
   readFile: (filePath: string) => Promise<string | null>;
   writeFile: (filePath: string, content: string) => Promise<boolean>;
-  sendChatMessage: (messages: Array<{ role: string; content: string }>, context?: { filePath?: string; fileContent?: string }) => Promise<string>;
+  sendChatMessage: (messages: Array<{ role: string; content: string }>, context?: { filePath?: string; fileContent?: string; repoPath?: string }) => Promise<string>;
   executeCommand: (command: string, cwd?: string) => Promise<{
     success: boolean;
     stdout: string;

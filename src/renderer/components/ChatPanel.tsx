@@ -15,6 +15,7 @@ interface Message {
       stderr: string;
       exitCode?: number;
     };
+    collapsed?: boolean;
   };
 }
 
@@ -36,8 +37,11 @@ export function ChatPanel({ currentFile, currentRepo }: ChatPanelProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState('');
+  const [historyIndex, setHistoryIndex] = useState(-1);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const inputHistory = useRef<string[]>([]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -103,6 +107,97 @@ export function ChatPanel({ currentFile, currentRepo }: ChatPanelProps) {
     };
   }, []);
 
+  const handleCancel = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    setIsProcessing(false);
+  };
+
+  const handleContinue = async () => {
+    if (isProcessing) return;
+
+    const continueMessage: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: 'Continue',
+      timestamp: new Date(),
+    };
+
+    const newMessages = [...messages, continueMessage];
+    setMessages(newMessages);
+    setIsProcessing(true);
+    abortControllerRef.current = new AbortController();
+
+    try {
+      // Get current file content and repo context
+      let context: { filePath?: string; fileContent?: string; repoPath?: string } = {};
+
+      if (currentRepo?.path) {
+        context.repoPath = currentRepo.path;
+      }
+
+      if (currentFile?.path) {
+        const fileContent = await window.electronAPI.readFile(currentFile.path);
+        if (fileContent) {
+          context.filePath = currentFile.path;
+          context.fileContent = fileContent;
+        }
+      }
+
+      // Build conversation history
+      const apiMessages = newMessages
+        .filter(msg => msg.id !== '1')
+        .map(msg => {
+          if (msg.role === 'command' && msg.command?.output) {
+            return {
+              role: 'assistant' as const,
+              content: `Command executed: ${msg.command.command}\n\nOutput:\n${msg.command.output.stdout || ''}${msg.command.output.stderr ? '\nError: ' + msg.command.output.stderr : ''}`
+            };
+          }
+          return {
+            role: msg.role as 'user' | 'assistant',
+            content: msg.content
+          };
+        });
+
+      const response = await window.electronAPI.sendChatMessage(apiMessages, context);
+
+      const aiMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: response,
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, aiMessage]);
+
+      // Tool execution happens server-side now
+    } catch (error: any) {
+      console.error('AI error:', error);
+      if (error.name === 'AbortError') {
+        const cancelMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: 'Request cancelled.',
+          timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, cancelMessage]);
+      } else {
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: `Error: ${error instanceof Error ? error.message : 'Failed to get AI response'}`,
+          timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, errorMessage]);
+      }
+    } finally {
+      setIsProcessing(false);
+      abortControllerRef.current = null;
+    }
+  };
+
   const handleSend = async () => {
     if (!input.trim() || isProcessing) return;
 
@@ -113,21 +208,29 @@ export function ChatPanel({ currentFile, currentRepo }: ChatPanelProps) {
       timestamp: new Date(),
     };
 
+    // Add to history
+    inputHistory.current.push(input.trim());
+    setHistoryIndex(-1);
+
     const newMessages = [...messages, userMessage];
     setMessages(newMessages);
     setInput('');
     setIsProcessing(true);
+    abortControllerRef.current = new AbortController();
 
     try {
-      // Get current file content if available
-      let context;
+      // Get current file content and repo context
+      let context: { filePath?: string; fileContent?: string; repoPath?: string } = {};
+
+      if (currentRepo?.path) {
+        context.repoPath = currentRepo.path;
+      }
+
       if (currentFile?.path) {
         const fileContent = await window.electronAPI.readFile(currentFile.path);
         if (fileContent) {
-          context = {
-            filePath: currentFile.path,
-            fileContent: fileContent
-          };
+          context.filePath = currentFile.path;
+          context.fileContent = fileContent;
         }
       }
 
@@ -158,26 +261,31 @@ export function ChatPanel({ currentFile, currentRepo }: ChatPanelProps) {
       };
       setMessages(prev => [...prev, aiMessage]);
 
-      // Auto-execute commands in bash code blocks
-      const codeBlockRegex = /```(?:bash|shell|sh)?\n(.*?)\n```/gs;
-      const matches = [...response.matchAll(codeBlockRegex)];
-
-      for (const match of matches) {
-        const command = match[1].trim();
-        // Auto-run all commands suggested by AI in the repo directory
-        await handleRunCommand(command, currentRepo?.path);
-      }
-    } catch (error) {
+      // Tool execution now happens server-side via Anthropic Tool Use API
+      // AI autonomously calls read_file, write_file, execute_command tools
+      // and continues until task is complete
+    } catch (error: any) {
       console.error('AI error:', error);
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: `Error: ${error instanceof Error ? error.message : 'Failed to get AI response. Check your API key in .env'}`,
-        timestamp: new Date(),
-      };
-      setMessages(prev => [...prev, errorMessage]);
+      if (error.name === 'AbortError') {
+        const cancelMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: 'Request cancelled.',
+          timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, cancelMessage]);
+      } else {
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: `Error: ${error instanceof Error ? error.message : 'Failed to get AI response. Check your API key in .env'}`,
+          timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, errorMessage]);
+      }
     } finally {
       setIsProcessing(false);
+      abortControllerRef.current = null;
     }
   };
 
@@ -185,6 +293,104 @@ export function ChatPanel({ currentFile, currentRepo }: ChatPanelProps) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (inputHistory.current.length === 0) return;
+
+      const newIndex = historyIndex === -1
+        ? inputHistory.current.length - 1
+        : Math.max(0, historyIndex - 1);
+
+      setHistoryIndex(newIndex);
+      setInput(inputHistory.current[newIndex]);
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (historyIndex === -1) return;
+
+      const newIndex = historyIndex + 1;
+
+      if (newIndex >= inputHistory.current.length) {
+        setHistoryIndex(-1);
+        setInput('');
+      } else {
+        setHistoryIndex(newIndex);
+        setInput(inputHistory.current[newIndex]);
+      }
+    }
+  };
+
+  const toggleCommandOutput = (messageId: string) => {
+    setMessages(prev => prev.map(msg =>
+      msg.id === messageId && msg.command
+        ? {
+            ...msg,
+            command: {
+              ...msg.command,
+              collapsed: !msg.command.collapsed
+            }
+          }
+        : msg
+    ));
+  };
+
+  const popoutCommandOutput = (command: string, output: string) => {
+    // Open in new window (future enhancement)
+    console.log('Popout:', command, output);
+    alert(`Command: ${command}\n\nOutput:\n${output}`);
+  };
+
+  const handleFileEdit = async (filePath: string, content: string) => {
+    const editMessage: Message = {
+      id: Date.now().toString(),
+      role: 'command',
+      content: `Editing: ${filePath}`,
+      timestamp: new Date(),
+      command: {
+        command: `Edit file: ${filePath}`,
+        collapsed: true
+      }
+    };
+
+    setMessages(prev => [...prev, editMessage]);
+    setIsProcessing(true);
+
+    try {
+      const success = await window.electronAPI.writeFile(filePath, content);
+
+      setMessages(prev => prev.map(msg =>
+        msg.id === editMessage.id
+          ? {
+              ...msg,
+              command: {
+                ...msg.command!,
+                output: {
+                  success,
+                  stdout: success ? 'File saved successfully' : '',
+                  stderr: success ? '' : 'Failed to save file',
+                }
+              }
+            }
+          : msg
+      ));
+    } catch (error) {
+      console.error('File edit error:', error);
+      setMessages(prev => prev.map(msg =>
+        msg.id === editMessage.id
+          ? {
+              ...msg,
+              command: {
+                ...msg.command!,
+                output: {
+                  success: false,
+                  stdout: '',
+                  stderr: error instanceof Error ? error.message : 'Unknown error',
+                }
+              }
+            }
+          : msg
+      ));
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -196,7 +402,8 @@ export function ChatPanel({ currentFile, currentRepo }: ChatPanelProps) {
       timestamp: new Date(),
       command: {
         command,
-        cwd
+        cwd,
+        collapsed: true // Start collapsed
       }
     };
 
@@ -335,17 +542,40 @@ export function ChatPanel({ currentFile, currentRepo }: ChatPanelProps) {
                     <code>{message.command.command}</code>
                   </div>
                   {message.command.output && (
-                    <div className={`command-output ${message.command.output.success ? 'success' : 'error'}`}>
-                      {message.command.output.stdout && (
-                        <pre className="stdout">{message.command.output.stdout}</pre>
+                    <>
+                      <div className="command-output-controls">
+                        <button
+                          className="command-control-button"
+                          onClick={() => toggleCommandOutput(message.id)}
+                          title={message.command.collapsed ? "Expand output" : "Collapse output"}
+                        >
+                          {message.command.collapsed ? '▶ Show' : '▼ Hide'}
+                        </button>
+                        <button
+                          className="command-control-button"
+                          onClick={() => popoutCommandOutput(
+                            message.command!.command,
+                            `${message.command!.output?.stdout || ''}\n${message.command!.output?.stderr || ''}`
+                          )}
+                          title="Open in popup"
+                        >
+                          ⤢ Popout
+                        </button>
+                      </div>
+                      {!message.command.collapsed && (
+                        <div className={`command-output ${message.command.output.success ? 'success' : 'error'}`}>
+                          {message.command.output.stdout && (
+                            <pre className="stdout">{message.command.output.stdout}</pre>
+                          )}
+                          {message.command.output.stderr && (
+                            <pre className="stderr">{message.command.output.stderr}</pre>
+                          )}
+                          {message.command.output.exitCode !== undefined && (
+                            <div className="exit-code">Exit code: {message.command.output.exitCode}</div>
+                          )}
+                        </div>
                       )}
-                      {message.command.output.stderr && (
-                        <pre className="stderr">{message.command.output.stderr}</pre>
-                      )}
-                      {message.command.output.exitCode !== undefined && (
-                        <div className="exit-code">Exit code: {message.command.output.exitCode}</div>
-                      )}
-                    </div>
+                    </>
                   )}
                 </div>
               ) : (
@@ -407,21 +637,32 @@ export function ChatPanel({ currentFile, currentRepo }: ChatPanelProps) {
           )}
         </div>
         <div className="action-buttons">
-          <button
-            className="chat-run"
-            onClick={() => handleRunCommand(input.trim(), currentRepo?.path)}
-            disabled={!input.trim() || isProcessing}
-            title="Run as shell command"
-          >
-            ⚡ Run
-          </button>
-          <button
-            className="chat-send"
-            onClick={handleSend}
-            disabled={!input.trim() || isProcessing}
-          >
-            Send
-          </button>
+          {isProcessing ? (
+            <button
+              className="chat-cancel"
+              onClick={handleCancel}
+            >
+              ✕ Cancel
+            </button>
+          ) : (
+            <>
+              <button
+                className="chat-run"
+                onClick={() => handleRunCommand(input.trim(), currentRepo?.path)}
+                disabled={!input.trim() || isProcessing}
+                title="Run as shell command"
+              >
+                ⚡ Run
+              </button>
+              <button
+                className="chat-send"
+                onClick={handleSend}
+                disabled={!input.trim() || isProcessing}
+              >
+                Send
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

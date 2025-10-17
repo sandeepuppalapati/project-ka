@@ -298,6 +298,22 @@
   cursor: not-allowed;
 }
 
+.chat-cancel {
+  background-color: #f14c4c;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.chat-cancel:hover {
+  background-color: #d43f3f;
+}
+
 /* Command message styling */
 .command-message {
   background-color: #2d2d30;
@@ -327,10 +343,36 @@
   font-size: 0.875rem;
 }
 
+.command-output-controls {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #252526;
+  border-top: 1px solid #3e3e42;
+}
+
+.command-control-button {
+  background-color: #3c3c3c;
+  color: #cccccc;
+  border: 1px solid #3e3e42;
+  padding: 0.25rem 0.75rem;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.command-control-button:hover {
+  background-color: #4e4e4e;
+  border-color: #0e639c;
+}
+
 .command-output {
   padding: 0.75rem 1rem;
   font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
   font-size: 0.875rem;
+  border-top: 1px solid #3e3e42;
 }
 
 .command-output.success {

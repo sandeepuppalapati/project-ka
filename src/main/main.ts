@@ -341,8 +341,8 @@ ipcMain.handle('shell:execute', async (_event, command: string, cwd?: string) =>
   }
 });
 
-// AI Chat handler
-ipcMain.handle('ai:chat', async (_event, messages: Array<{ role: string; content: string }>, context?: { filePath?: string; fileContent?: string }) => {
+// AI Chat handler with Tool Use
+ipcMain.handle('ai:chat', async (_event, messages: Array<{ role: string; content: string }>, context?: { filePath?: string; fileContent?: string; repoPath?: string }) => {
   try {
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
@@ -351,36 +351,181 @@ ipcMain.handle('ai:chat', async (_event, messages: Array<{ role: string; content
 
     const anthropic = new Anthropic({ apiKey });
 
-    // Build messages with context if provided
-    const baseSystemMessage = `You are an AI coding assistant integrated into an IDE. You can help users with:
-- Code analysis and debugging
-- Writing and editing code
-- Running shell commands to test, build, or check status
-- Git operations
+    // Define tools available to AI
+    const tools = [
+      {
+        name: 'read_file',
+        description: 'Read the contents of a file',
+        input_schema: {
+          type: 'object' as const,
+          properties: {
+            file_path: {
+              type: 'string',
+              description: 'Absolute path to the file to read'
+            }
+          },
+          required: ['file_path']
+        }
+      },
+      {
+        name: 'write_file',
+        description: 'Write content to a file (creates or overwrites)',
+        input_schema: {
+          type: 'object' as const,
+          properties: {
+            file_path: {
+              type: 'string',
+              description: 'Absolute path to the file to write'
+            },
+            content: {
+              type: 'string',
+              description: 'Content to write to the file'
+            }
+          },
+          required: ['file_path', 'content']
+        }
+      },
+      {
+        name: 'execute_command',
+        description: 'Execute a shell command',
+        input_schema: {
+          type: 'object' as const,
+          properties: {
+            command: {
+              type: 'string',
+              description: 'Shell command to execute'
+            },
+            cwd: {
+              type: 'string',
+              description: 'Working directory for command execution (optional)'
+            }
+          },
+          required: ['command']
+        }
+      }
+    ];
 
-When you need to run a command, format it in a bash code block like this:
-\`\`\`bash
-npm test
-\`\`\`
+    const systemMessage = `You are an AI coding assistant integrated into an IDE. You can:
+- Read and write files using tools
+- Execute shell commands using tools
+- Analyze code and debug issues
+- Work autonomously to complete multi-step tasks
 
-IMPORTANT: All commands in bash code blocks are automatically executed immediately. You will see the output in the next message. Do NOT ask the user to click any buttons or run commands manually - just include the command and it will execute automatically.`;
+${context?.repoPath ? `\n\nThe user's current repository path is: ${context.repoPath}\nWhen executing commands, use this as the working directory (cwd parameter).` : ''}
 
-    const systemMessage = context?.fileContent
-      ? `${baseSystemMessage}\n\nThe user is currently viewing/editing this file:\n\nFile: ${context.filePath}\n\n\`\`\`\n${context.fileContent}\n\`\`\``
-      : baseSystemMessage;
+${context?.fileContent ? `\n\nThe user is currently viewing/editing this file:\nFile: ${context.filePath}\n\n\`\`\`\n${context.fileContent}\n\`\`\`` : ''}
 
-    const response = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 4096,
-      system: systemMessage,
-      messages: messages.map(msg => ({
-        role: msg.role as 'user' | 'assistant',
-        content: msg.content
-      }))
-    });
+Work autonomously - call tools as needed to complete tasks. Continue until the task is done.`;
 
-    const textContent = response.content.find(block => block.type === 'text');
-    return textContent ? textContent.text : 'No response';
+    let conversationMessages = messages.map(msg => ({
+      role: msg.role as 'user' | 'assistant',
+      content: msg.content
+    }));
+
+    let finalResponse = '';
+    let iterations = 0;
+    const maxIterations = 10; // Prevent infinite loops
+
+    // Tool execution loop
+    while (iterations < maxIterations) {
+      iterations++;
+
+      const response = await anthropic.messages.create({
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: 4096,
+        system: systemMessage,
+        messages: conversationMessages,
+        tools: tools
+      });
+
+      // Collect text content
+      const textBlocks = response.content.filter(block => block.type === 'text');
+      for (const block of textBlocks) {
+        if (block.type === 'text') {
+          finalResponse += block.text + '\n';
+        }
+      }
+
+      // Check if AI wants to use tools
+      const toolUseBlocks = response.content.filter(block => block.type === 'tool_use');
+
+      if (toolUseBlocks.length === 0) {
+        // No more tools to call, we're done
+        break;
+      }
+
+      // Execute tools and collect results
+      const toolResults: any[] = [];
+
+      for (const toolBlock of toolUseBlocks) {
+        if (toolBlock.type !== 'tool_use') continue;
+
+        const toolName = toolBlock.name;
+        const toolInput = toolBlock.input as any;
+        const toolUseId = toolBlock.id;
+
+        let result: any;
+
+        try {
+          switch (toolName) {
+            case 'read_file':
+              const fileContent = await fs.readFile(toolInput.file_path, 'utf-8');
+              result = { success: true, content: fileContent };
+              finalResponse += `\n📄 Read: ${toolInput.file_path}\n`;
+              break;
+
+            case 'write_file':
+              await fs.writeFile(toolInput.file_path, toolInput.content, 'utf-8');
+              result = { success: true, message: 'File written successfully' };
+              finalResponse += `\n✏️ Wrote: ${toolInput.file_path}\n`;
+              break;
+
+            case 'execute_command':
+              try {
+                const { stdout, stderr } = await execAsync(toolInput.command, {
+                  cwd: toolInput.cwd || process.cwd(),
+                  maxBuffer: 1024 * 1024 * 10,
+                });
+                result = { success: true, stdout: stdout.trim(), stderr: stderr.trim() };
+                finalResponse += `\n⚡ Ran: ${toolInput.command}\n`;
+              } catch (error: any) {
+                result = {
+                  success: false,
+                  stdout: error.stdout?.trim() || '',
+                  stderr: error.stderr?.trim() || error.message,
+                  exitCode: error.code
+                };
+                finalResponse += `\n⚡ Ran: ${toolInput.command} (failed)\n`;
+              }
+              break;
+
+            default:
+              result = { error: 'Unknown tool' };
+          }
+        } catch (error: any) {
+          result = { error: error.message };
+        }
+
+        toolResults.push({
+          type: 'tool_result',
+          tool_use_id: toolUseId,
+          content: JSON.stringify(result)
+        });
+      }
+
+      // Add assistant message and tool results to conversation
+      conversationMessages.push({
+        role: 'assistant',
+        content: response.content as any
+      });
+
+      conversationMessages.push({
+        role: 'user',
+        content: toolResults as any
+      });
+    }
+
+    return finalResponse.trim() || 'Task completed';
   } catch (error) {
     console.error('AI chat error:', error);
     throw error;

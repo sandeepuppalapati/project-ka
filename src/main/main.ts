@@ -475,17 +475,38 @@ Work autonomously - call tools as needed to complete tasks. Continue until the t
     let iterations = 0;
     const maxIterations = 10; // Prevent infinite loops
 
-    // Tool execution loop
+    // Tool execution loop with streaming
     while (iterations < maxIterations) {
       iterations++;
 
-      const response = await anthropic.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+      // Use streaming API
+      const stream = await anthropic.messages.stream({
+        model: 'claude-sonnet-4-5-20250929',
         max_tokens: 4096,
         system: systemMessage,
         messages: conversationMessages,
         tools: tools
       });
+
+      let currentText = '';
+      let currentToolUses: any[] = [];
+
+      // Send stream chunks to renderer
+      for await (const chunk of stream) {
+        if (chunk.type === 'content_block_delta') {
+          if (chunk.delta.type === 'text_delta') {
+            currentText += chunk.delta.text;
+            // Send text chunk to renderer
+            _event.sender.send('ai:stream-chunk', { type: 'text', content: chunk.delta.text });
+          }
+        } else if (chunk.type === 'content_block_start') {
+          if (chunk.content_block.type === 'tool_use') {
+            currentToolUses.push(chunk.content_block);
+          }
+        }
+      }
+
+      const response = await stream.finalMessage();
 
       // Collect text content
       const textBlocks = response.content.filter(block => block.type === 'text');
@@ -518,18 +539,23 @@ Work autonomously - call tools as needed to complete tasks. Continue until the t
         try {
           switch (toolName) {
             case 'read_file':
+              _event.sender.send('ai:stream-chunk', { type: 'tool', tool: 'read_file', status: 'executing', params: toolInput });
               const fileContent = await fs.readFile(toolInput.file_path, 'utf-8');
               result = { success: true, content: fileContent };
               finalResponse += `\n📄 Read: ${toolInput.file_path}\n`;
+              _event.sender.send('ai:stream-chunk', { type: 'tool', tool: 'read_file', status: 'complete', params: toolInput });
               break;
 
             case 'write_file':
+              _event.sender.send('ai:stream-chunk', { type: 'tool', tool: 'write_file', status: 'executing', params: { file_path: toolInput.file_path } });
               await fs.writeFile(toolInput.file_path, toolInput.content, 'utf-8');
               result = { success: true, message: 'File written successfully' };
               finalResponse += `\n✏️ Wrote: ${toolInput.file_path}\n`;
+              _event.sender.send('ai:stream-chunk', { type: 'tool', tool: 'write_file', status: 'complete', params: { file_path: toolInput.file_path } });
               break;
 
             case 'execute_command':
+              _event.sender.send('ai:stream-chunk', { type: 'tool', tool: 'execute_command', status: 'executing', params: toolInput });
               try {
                 const { stdout, stderr } = await execAsync(toolInput.command, {
                   cwd: toolInput.cwd || process.cwd(),
@@ -537,6 +563,7 @@ Work autonomously - call tools as needed to complete tasks. Continue until the t
                 });
                 result = { success: true, stdout: stdout.trim(), stderr: stderr.trim() };
                 finalResponse += `\n⚡ Ran: ${toolInput.command}\n`;
+                _event.sender.send('ai:stream-chunk', { type: 'tool', tool: 'execute_command', status: 'complete', params: toolInput, result: { stdout: stdout.trim() } });
               } catch (error: any) {
                 result = {
                   success: false,
@@ -545,6 +572,7 @@ Work autonomously - call tools as needed to complete tasks. Continue until the t
                   exitCode: error.code
                 };
                 finalResponse += `\n⚡ Ran: ${toolInput.command} (failed)\n`;
+                _event.sender.send('ai:stream-chunk', { type: 'tool', tool: 'execute_command', status: 'error', params: toolInput, error: error.message });
               }
               break;
 
@@ -553,6 +581,7 @@ Work autonomously - call tools as needed to complete tasks. Continue until the t
           }
         } catch (error: any) {
           result = { error: error.message };
+          _event.sender.send('ai:stream-chunk', { type: 'tool', tool: toolName, status: 'error', error: error.message });
         }
 
         toolResults.push({
@@ -574,9 +603,13 @@ Work autonomously - call tools as needed to complete tasks. Continue until the t
       });
     }
 
+    // Send completion event
+    _event.sender.send('ai:stream-chunk', { type: 'done' });
+
     return finalResponse.trim() || 'Task completed';
   } catch (error) {
     console.error('AI chat error:', error);
+    _event.sender.send('ai:stream-chunk', { type: 'error', error: error instanceof Error ? error.message : 'Unknown error' });
     throw error;
   }
 });

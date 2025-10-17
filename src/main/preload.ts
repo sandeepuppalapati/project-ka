@@ -27,6 +27,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // AI APIs
   sendChatMessage: (messages: Array<{ role: string; content: string }>, context?: { filePath?: string; fileContent?: string; repoPath?: string }) =>
     ipcRenderer.invoke('ai:chat', messages, context),
+  onStreamChunk: (callback: (chunk: any) => void) => {
+    ipcRenderer.on('ai:stream-chunk', (_event, chunk) => callback(chunk));
+    return () => ipcRenderer.removeAllListeners('ai:stream-chunk');
+  },
 
   // Shell APIs
   executeCommand: (command: string, cwd?: string) => ipcRenderer.invoke('shell:execute', command, cwd),

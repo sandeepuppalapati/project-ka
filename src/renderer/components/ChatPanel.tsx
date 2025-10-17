@@ -50,6 +50,7 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [historyIndex, setHistoryIndex] = useState(-1);
+  const [isStreaming, setIsStreaming] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -62,6 +63,86 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Set up streaming listener
+  useEffect(() => {
+    const cleanup = window.electronAPI.onStreamChunk((chunk) => {
+      if (chunk.type === 'text') {
+        setIsStreaming(true);
+        // Append text chunk to the last assistant message
+        setMessages(prev => {
+          const lastMsg = prev[prev.length - 1];
+          if (lastMsg && lastMsg.role === 'assistant' && !lastMsg.content.includes('✅')) {
+            // Update existing streaming message
+            return [
+              ...prev.slice(0, -1),
+              {
+                ...lastMsg,
+                content: lastMsg.content + chunk.content,
+              }
+            ];
+          } else {
+            // Create new assistant message for streaming
+            return [
+              ...prev,
+              {
+                id: Date.now().toString(),
+                role: 'assistant' as const,
+                content: chunk.content || '',
+                timestamp: new Date(),
+              }
+            ];
+          }
+        });
+      } else if (chunk.type === 'tool') {
+        // Show tool execution status with better formatting
+        let toolDisplay = '';
+
+        if (chunk.status === 'executing') {
+          const params = chunk.params ? JSON.stringify(chunk.params).substring(0, 80) : '';
+          toolDisplay = `\n\n🔧 **${chunk.tool}** (${params}${params.length >= 80 ? '...' : ''})`;
+        } else if (chunk.status === 'complete') {
+          toolDisplay = `\n✅ **${chunk.tool}** completed`;
+        } else if (chunk.status === 'error') {
+          toolDisplay = `\n❌ **${chunk.tool}** failed: ${chunk.error}`;
+        }
+
+        setMessages(prev => {
+          const lastMsg = prev[prev.length - 1];
+          if (lastMsg && lastMsg.role === 'assistant') {
+            // Append tool status to current message
+            return [
+              ...prev.slice(0, -1),
+              {
+                ...lastMsg,
+                content: lastMsg.content + toolDisplay,
+              }
+            ];
+          }
+          return prev;
+        });
+      } else if (chunk.type === 'done') {
+        // Streaming complete - stop processing
+        setIsStreaming(false);
+        setIsProcessing(false);
+      } else if (chunk.type === 'error') {
+        // Handle streaming error
+        setMessages(prev => [
+          ...prev,
+          {
+            id: Date.now().toString(),
+            role: 'assistant' as const,
+            content: `Error: ${chunk.error}`,
+            timestamp: new Date(),
+          }
+        ]);
+        setIsStreaming(false);
+        setIsProcessing(false);
+      }
+    });
+
+    return cleanup;
+  }, []);
 
   useEffect(() => {
     // Initialize Web Speech API
@@ -187,17 +268,8 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
           };
         });
 
-      const response = await window.electronAPI.sendChatMessage(apiMessages, context);
-
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: response,
-        timestamp: new Date(),
-      };
-      setMessages(prev => [...prev, aiMessage]);
-
-      // Tool execution happens server-side now
+      // Streaming will handle adding the response message via onStreamChunk listener
+      await window.electronAPI.sendChatMessage(apiMessages, context);
     } catch (error: any) {
       console.error('AI error:', error);
       if (error.name === 'AbortError') {
@@ -289,19 +361,8 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
           };
         });
 
-      const response = await window.electronAPI.sendChatMessage(apiMessages, context);
-
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: response,
-        timestamp: new Date(),
-      };
-      setMessages(prev => [...prev, aiMessage]);
-
-      // Tool execution now happens server-side via Anthropic Tool Use API
-      // AI autonomously calls read_file, write_file, execute_command tools
-      // and continues until task is complete
+      // Streaming will handle adding the response message via onStreamChunk listener
+      await window.electronAPI.sendChatMessage(apiMessages, context);
     } catch (error: any) {
       console.error('AI error:', error);
       if (error.name === 'AbortError') {
@@ -507,14 +568,19 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
       const command = match[1].trim();
       parts.push(
         <div key={`code-${match.index}`} className="inline-command-block">
-          <pre><code>{command}</code></pre>
-          <button
-            className="inline-run-button"
-            onClick={() => handleRunCommand(command, currentRepo?.path)}
-            disabled={isProcessing}
-          >
-            ⚡ Run
-          </button>
+          <div className="command-header">
+            <span className="command-label">Shell Command</span>
+          </div>
+          <div className="command-body">
+            <pre><code>{command}</code></pre>
+            <button
+              className="inline-run-button"
+              onClick={() => handleRunCommand(command, currentRepo?.path)}
+              disabled={isProcessing}
+            >
+              ⚡ Run
+            </button>
+          </div>
         </div>
       );
 
@@ -627,8 +693,9 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
           </>
         ) : (
           // Regular chat: show local messages
-          messages.map(message => (
-          <div key={message.id} className={`message ${message.role}`}>
+          <>
+          {messages.map((message, idx) => (
+          <div key={message.id} className={`message ${message.role} ${isStreaming && idx === messages.length - 1 && message.role === 'assistant' ? 'streaming' : ''}`}>
             <div className="message-avatar">
               {message.role === 'user' ? '👤' : message.role === 'command' ? '⚡' : '🤖'}
             </div>
@@ -686,7 +753,7 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
               </div>
             </div>
           </div>
-        )))}
+        ))}
         {!isBridge && isProcessing && (
           <div className="message assistant">
             <div className="message-avatar">🤖</div>
@@ -698,6 +765,8 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
               </div>
             </div>
           </div>
+        )}
+        </>
         )}
         <div ref={messagesEndRef} />
       </div>

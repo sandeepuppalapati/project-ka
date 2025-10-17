@@ -395,19 +395,21 @@
 
 /* Command message styling */
 .command-message {
-  background-color: #2d2d30;
-  border-radius: 8px;
+  background-color: #0d1117;
+  border-radius: 6px;
   overflow: hidden;
-  border: 1px solid #3e3e42;
+  border: 1px solid #30363d;
+  border-left: 3px solid #58a6ff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .command-input {
-  background-color: #1e1e1e;
+  background-color: #161b22;
   padding: 0.75rem 1rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  border-bottom: 1px solid #3e3e42;
+  border-bottom: 1px solid #30363d;
 }
 
 .command-prompt {
@@ -417,7 +419,7 @@
 }
 
 .command-input code {
-  color: #cccccc;
+  color: #c9d1d9;
   font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
   font-size: 0.875rem;
 }
@@ -426,40 +428,43 @@
   display: flex;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background-color: #252526;
-  border-top: 1px solid #3e3e42;
+  background-color: #161b22;
+  border-top: 1px solid #30363d;
 }
 
 .command-control-button {
-  background-color: #3c3c3c;
-  color: #cccccc;
-  border: 1px solid #3e3e42;
+  background-color: #21262d;
+  color: #c9d1d9;
+  border: 1px solid #30363d;
   padding: 0.25rem 0.75rem;
-  border-radius: 3px;
+  border-radius: 4px;
   cursor: pointer;
   font-size: 0.75rem;
   font-weight: 500;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
 }
 
 .command-control-button:hover {
-  background-color: #4e4e4e;
-  border-color: #0e639c;
+  background-color: #30363d;
+  border-color: #58a6ff;
 }
 
 .command-output {
   padding: 0.75rem 1rem;
   font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
   font-size: 0.875rem;
-  border-top: 1px solid #3e3e42;
+  border-top: 1px solid #30363d;
+  background-color: #0d1117;
 }
 
 .command-output.success {
-  background-color: rgba(106, 153, 85, 0.1);
+  background-color: rgba(46, 160, 67, 0.1);
+  border-left: 3px solid #238636;
 }
 
 .command-output.error {
-  background-color: rgba(241, 76, 76, 0.1);
+  background-color: rgba(248, 81, 73, 0.1);
+  border-left: 3px solid #f85149;
 }
 
 .command-output pre {
@@ -485,15 +490,42 @@
 
 /* Inline command blocks in AI messages */
 .inline-command-block {
-  background-color: #1e1e1e;
-  border: 1px solid #3e3e42;
-  border-radius: 4px;
-  margin: 0.5rem 0;
+  background-color: #0d1117;
+  border: 1px solid #30363d;
+  border-left: 3px solid #6a9955;
+  border-radius: 6px;
+  margin: 0.75rem 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.inline-command-block .command-header {
+  background-color: #161b22;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #30363d;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.inline-command-block .command-label {
+  font-size: 0.7rem;
+  color: #8b949e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.inline-command-block .command-body {
   padding: 0.75rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
+  background-color: #0d1117;
 }
 
 .inline-command-block pre {
@@ -501,7 +533,7 @@
   flex: 1;
   font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
   font-size: 0.875rem;
-  color: #cccccc;
+  color: #c9d1d9;
   white-space: pre-wrap;
   word-wrap: break-word;
 }
@@ -511,7 +543,7 @@
 }
 
 .inline-run-button {
-  background-color: #6a9955;
+  background-color: #238636;
   color: white;
   border: none;
   padding: 0.5rem 1rem;
@@ -519,13 +551,15 @@
   cursor: pointer;
   font-size: 0.75rem;
   font-weight: 600;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .inline-run-button:hover:not(:disabled) {
-  background-color: #7fb069;
+  background-color: #2ea043;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .inline-run-button:disabled {
@@ -545,6 +579,77 @@
   color: #4ec9b0;
   margin-bottom: 0.25rem;
   font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+}
+
+/* Streaming text indicator */
+.message.assistant.streaming .message-text {
+  position: relative;
+}
+
+.message.assistant.streaming .message-text::after {
+  content: '▊';
+  color: #4ec9b0;
+  animation: blink 1s infinite;
+  margin-left: 2px;
+}
+
+@keyframes blink {
+  0%, 49% {
+    opacity: 1;
+  }
+  50%, 100% {
+    opacity: 0;
+  }
+}
+
+/* Tool execution status */
+.tool-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  font-size: 0.75rem;
+  margin: 0.25rem 0;
+  border-left: 3px solid;
+}
+
+.tool-status.executing {
+  background-color: rgba(78, 201, 176, 0.15);
+  border-color: #4ec9b0;
+  color: #4ec9b0;
+}
+
+.tool-status.complete {
+  background-color: rgba(106, 153, 85, 0.15);
+  border-color: #6a9955;
+  color: #6a9955;
+}
+
+.tool-status.error {
+  background-color: rgba(241, 76, 76, 0.15);
+  border-color: #f14c4c;
+  color: #f14c4c;
+}
+
+.tool-status .spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(78, 201, 176, 0.3);
+  border-top-color: #4ec9b0;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Smooth text appearance during streaming */
+.message.assistant .message-text {
+  animation: fadeIn 0.2s ease-in;
 }
 
 /* Scrollbar styling */

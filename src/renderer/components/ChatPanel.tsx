@@ -86,6 +86,46 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
 
   useChatMessagesPersistence(tabId, persistedMessages, handleMessagesLoad);
 
+  const handleClearChat = () => {
+    if (isBridge) {
+      // Bridge clear: offer to clear all chats
+      const clearAll = confirm('Clear Bridge messages?\n\nClick OK to clear Bridge only, or Cancel to clear ALL chats (Bridge + all agents).');
+      if (clearAll === false) {
+        // User clicked Cancel = clear everything
+        if (confirm('This will clear the Bridge AND all agent chats. Continue?')) {
+          // Clear bridge messages
+          bridge.messages.length = 0;
+          localStorage.removeItem('bridge_messages');
+
+          // Clear all chat messages
+          const allMessages = localStorage.getItem('chat_messages');
+          if (allMessages) {
+            localStorage.removeItem('chat_messages');
+          }
+
+          // Reset current bridge messages
+          setMessages([getWelcomeMessage()]);
+
+          alert('All chats cleared! Refresh the page to see the changes in agent tabs.');
+        }
+      } else {
+        // User clicked OK = clear bridge only
+        bridge.messages.length = 0;
+        localStorage.removeItem('bridge_messages');
+        setMessages([getWelcomeMessage()]);
+      }
+    } else {
+      // Agent chat: just clear this agent's chat
+      if (confirm('Clear all messages in this chat? This cannot be undone.')) {
+        setMessages([getWelcomeMessage()]);
+        // Clear from localStorage
+        const allMessages = JSON.parse(localStorage.getItem('chat_messages') || '{}');
+        delete allMessages[tabId];
+        localStorage.setItem('chat_messages', JSON.stringify(allMessages));
+      }
+    }
+  };
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -688,6 +728,13 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
               📤 Bridge
             </button>
           )}
+          <button
+            className="clear-chat-btn"
+            onClick={handleClearChat}
+            title="Clear all messages"
+          >
+            🗑️ Clear
+          </button>
           <span className="chat-status">{isBridge ? 'Coordinating' : 'Ready'}</span>
         </div>
       </div>

@@ -46,6 +46,25 @@
   transform: translateY(-1px);
 }
 
+.clear-chat-btn {
+  background-color: #3e3e42;
+  color: #cccccc;
+  border: 1px solid #555;
+  padding: 0.4rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.clear-chat-btn:hover {
+  background-color: #f14c4c;
+  border-color: #f14c4c;
+  color: white;
+  transform: translateY(-1px);
+}
+
 .chat-status {
   font-size: 0.75rem;
   color: #6a9955;

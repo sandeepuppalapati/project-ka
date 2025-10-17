@@ -3,7 +3,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels'
 import './App.css'
 import { RepoManager } from './components/RepoManager'
 import { FileTree } from './components/FileTree'
-import { ChatPanel } from './components/ChatPanel'
+import { ChatTabs } from './components/ChatTabs'
 import { FileViewer } from './components/FileViewer'
 import { GitPanel } from './components/GitPanel'
 import { TabBar } from './components/TabBar'
@@ -215,9 +215,9 @@ function App() {
                   {/* Chat */}
                   <Panel defaultSize={40} minSize={25}>
                     <div className="chat-section">
-                      <ChatPanel
+                      <ChatTabs
+                        repos={repos}
                         currentFile={currentFile}
-                        currentRepo={currentRepo}
                       />
                     </div>
                   </Panel>

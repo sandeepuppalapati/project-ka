@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import './ChatPanel.css';
+import { useBridge, BridgeMessage } from '../contexts/BridgeContext';
 
 interface Message {
   id: string;
@@ -19,17 +20,28 @@ interface Message {
   };
 }
 
-interface ChatPanelProps {
-  currentFile: { path: string; name: string } | null;
-  currentRepo: { id: string; path: string; name: string } | null;
+interface Repository {
+  id: string;
+  path: string;
+  name: string;
 }
 
-export function ChatPanel({ currentFile, currentRepo }: ChatPanelProps) {
+interface ChatPanelProps {
+  currentFile: { path: string; name: string } | null;
+  currentRepo: Repository | null;
+  isBridge: boolean;
+  allRepos: Repository[];
+}
+
+export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: ChatPanelProps) {
+  const bridge = useBridge();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
       role: 'assistant',
-      content: 'Hello! I\'m your AI coding assistant. I can help you work across multiple repositories. Try typing or using voice input!',
+      content: isBridge
+        ? '🌐 Welcome to the Bridge! This is where AI agents coordinate across repositories. Agents will post status updates, ask questions, and collaborate here.'
+        : `Hello! I'm the AI agent for ${currentRepo?.name || 'this repository'}. I can help you with code changes, debugging, and more. I can also communicate with other agents via the Bridge.`,
       timestamp: new Date(),
     }
   ]);
@@ -495,6 +507,25 @@ export function ChatPanel({ currentFile, currentRepo }: ChatPanelProps) {
     return parts.length > 0 ? parts : content;
   };
 
+  const handlePostToBridge = () => {
+    // Find the last assistant message
+    const lastAssistantMessage = [...messages].reverse().find(m => m.role === 'assistant');
+    if (!lastAssistantMessage || !currentRepo) return;
+
+    bridge.postToBridge({
+      agentId: currentRepo.id,
+      agentName: `${currentRepo.name} Agent`,
+      type: 'info',
+      content: lastAssistantMessage.content,
+      metadata: {
+        repoPath: currentRepo.path,
+      }
+    });
+
+    // Show confirmation
+    alert(`Posted to Bridge from ${currentRepo.name} Agent`);
+  };
+
   const toggleVoiceInput = async () => {
     if (!recognitionRef.current) {
       alert('Voice input is not supported in your browser. Try Chrome or Edge.');
@@ -524,12 +555,53 @@ export function ChatPanel({ currentFile, currentRepo }: ChatPanelProps) {
   return (
     <div className="chat-panel">
       <div className="chat-header">
-        <h3>AI Assistant{currentRepo && ` - ${currentRepo.name}`}</h3>
-        <span className="chat-status">Ready</span>
+        <h3>{isBridge ? '🌐 Bridge' : `🤖 ${currentRepo?.name || 'AI Agent'}`}</h3>
+        <div className="chat-header-actions">
+          {!isBridge && currentRepo && (
+            <button
+              className="post-to-bridge-btn"
+              onClick={handlePostToBridge}
+              title="Post last AI response to Bridge"
+            >
+              📤 Bridge
+            </button>
+          )}
+          <span className="chat-status">{isBridge ? 'Coordinating' : 'Ready'}</span>
+        </div>
       </div>
 
       <div className="chat-messages">
-        {messages.map(message => (
+        {isBridge ? (
+          // Bridge tab: show bridge messages
+          <>
+            <div className="message assistant">
+              <div className="message-avatar">🌐</div>
+              <div className="message-content">
+                <div className="message-text">
+                  {messages[0].content}
+                </div>
+              </div>
+            </div>
+            {bridge.messages.map(bridgeMsg => (
+              <div key={bridgeMsg.id} className="message assistant bridge-message">
+                <div className="message-avatar">📡</div>
+                <div className="message-content">
+                  <div className="bridge-agent-label">
+                    [{bridgeMsg.agentName}]
+                  </div>
+                  <div className="message-text">
+                    {bridgeMsg.content}
+                  </div>
+                  <div className="message-time">
+                    {bridgeMsg.timestamp.toLocaleTimeString()}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </>
+        ) : (
+          // Regular chat: show local messages
+          messages.map(message => (
           <div key={message.id} className={`message ${message.role}`}>
             <div className="message-avatar">
               {message.role === 'user' ? '👤' : message.role === 'command' ? '⚡' : '🤖'}
@@ -588,8 +660,8 @@ export function ChatPanel({ currentFile, currentRepo }: ChatPanelProps) {
               </div>
             </div>
           </div>
-        ))}
-        {isProcessing && (
+        )))}
+        {!isBridge && isProcessing && (
           <div className="message assistant">
             <div className="message-avatar">🤖</div>
             <div className="message-content">
@@ -605,6 +677,23 @@ export function ChatPanel({ currentFile, currentRepo }: ChatPanelProps) {
       </div>
 
       <div className="chat-input-container">
+        {/* Show recent bridge activity for repo agents */}
+        {!isBridge && bridge.messages.length > 0 && (
+          <div className="bridge-activity">
+            <div className="bridge-activity-header">
+              <span>🌐 Recent Bridge Activity</span>
+              <span className="bridge-activity-count">{bridge.messages.length} messages</span>
+            </div>
+            <div className="bridge-activity-messages">
+              {bridge.getRecentMessages(3).map(msg => (
+                <div key={msg.id} className="bridge-activity-item">
+                  <span className="bridge-activity-agent">[{msg.agentName}]</span>
+                  <span className="bridge-activity-content">{msg.content.substring(0, 60)}...</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         {currentRepo && (
           <div className="chat-context-bar">
             <span className="context-label">📁</span>

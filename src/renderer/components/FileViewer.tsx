@@ -1,13 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
 import Editor from '@monaco-editor/react';
 import './FileViewer.css';
 
 interface FileViewerProps {
   filePath: string | null;
   fileName: string | null;
+  onDirtyChange?: (isDirty: boolean) => void;
 }
 
-export function FileViewer({ filePath, fileName }: FileViewerProps) {
+export interface FileViewerRef {
+  save: () => void;
+}
+
+export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
+  ({ filePath, fileName, onDirtyChange }, ref) => {
   const [content, setContent] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
@@ -45,15 +51,23 @@ export function FileViewer({ filePath, fileName }: FileViewerProps) {
     const success = await window.electronAPI.writeFile(filePath, content);
     if (success) {
       setIsDirty(false);
+      onDirtyChange?.(false);
     } else {
       alert('Failed to save file');
     }
   };
 
+  // Expose save function to parent via ref
+  useImperativeHandle(ref, () => ({
+    save: handleSave
+  }));
+
   const handleEditorChange = (value: string | undefined) => {
     if (value !== undefined) {
       setContent(value);
-      setIsDirty(true);
+      const newIsDirty = true;
+      setIsDirty(newIsDirty);
+      onDirtyChange?.(newIsDirty);
     }
   };
 
@@ -128,4 +142,4 @@ export function FileViewer({ filePath, fileName }: FileViewerProps) {
       )}
     </div>
   );
-}
+});

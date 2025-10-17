@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels'
 import './App.css'
 import { RepoManager } from './components/RepoManager'
@@ -6,6 +6,9 @@ import { FileTree } from './components/FileTree'
 import { ChatPanel } from './components/ChatPanel'
 import { FileViewer } from './components/FileViewer'
 import { GitPanel } from './components/GitPanel'
+import { TabBar } from './components/TabBar'
+import { QuickOpen } from './components/QuickOpen'
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 
 interface Repository {
   id: string;
@@ -13,10 +16,19 @@ interface Repository {
   name: string;
 }
 
+interface Tab {
+  id: string;
+  path: string;
+  name: string;
+  isDirty: boolean;
+}
+
 function App() {
   const [repos, setRepos] = useState<Repository[]>([]);
   const [showRepoManager, setShowRepoManager] = useState(true);
-  const [selectedFile, setSelectedFile] = useState<{ path: string; name: string } | null>(null);
+  const [tabs, setTabs] = useState<Tab[]>([]);
+  const [activeTabId, setActiveTabId] = useState<string | null>(null);
+  const [showQuickOpen, setShowQuickOpen] = useState(false);
 
   const handleReposChanged = (newRepos: Repository[]) => {
     setRepos(newRepos);
@@ -26,11 +38,91 @@ function App() {
   };
 
   const handleFileSelect = (filePath: string, fileName: string) => {
-    setSelectedFile({ path: filePath, name: fileName });
+    // Check if tab already exists
+    const existingTab = tabs.find(tab => tab.path === filePath);
+
+    if (existingTab) {
+      setActiveTabId(existingTab.id);
+    } else {
+      // Create new tab
+      const newTab: Tab = {
+        id: `tab-${Date.now()}`,
+        path: filePath,
+        name: fileName,
+        isDirty: false
+      };
+      setTabs([...tabs, newTab]);
+      setActiveTabId(newTab.id);
+    }
   };
+
+  const handleTabClick = (tabId: string) => {
+    setActiveTabId(tabId);
+  };
+
+  const handleTabClose = (tabId: string) => {
+    const newTabs = tabs.filter(tab => tab.id !== tabId);
+    setTabs(newTabs);
+
+    if (activeTabId === tabId && newTabs.length > 0) {
+      setActiveTabId(newTabs[newTabs.length - 1].id);
+    } else if (newTabs.length === 0) {
+      setActiveTabId(null);
+    }
+  };
+
+  const handleFileDirtyChange = (isDirty: boolean) => {
+    if (activeTabId) {
+      setTabs(tabs.map(tab =>
+        tab.id === activeTabId ? { ...tab, isDirty } : tab
+      ));
+    }
+  };
+
+  const activeTab = tabs.find(tab => tab.id === activeTabId);
+  const currentFile = activeTab ? { path: activeTab.path, name: activeTab.name } : null;
+  const fileViewerRef = useRef<{ save: () => void }>(null);
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    onSave: () => {
+      if (activeTabId) {
+        fileViewerRef.current?.save();
+      }
+    },
+    onCloseTab: () => {
+      if (activeTabId) {
+        handleTabClose(activeTabId);
+      }
+    },
+    onNextTab: () => {
+      if (tabs.length > 0 && activeTabId) {
+        const currentIndex = tabs.findIndex(t => t.id === activeTabId);
+        const nextIndex = (currentIndex + 1) % tabs.length;
+        setActiveTabId(tabs[nextIndex].id);
+      }
+    },
+    onPrevTab: () => {
+      if (tabs.length > 0 && activeTabId) {
+        const currentIndex = tabs.findIndex(t => t.id === activeTabId);
+        const prevIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+        setActiveTabId(tabs[prevIndex].id);
+      }
+    },
+    onQuickOpen: () => {
+      setShowQuickOpen(true);
+    },
+  });
 
   return (
     <div className="app">
+      {showQuickOpen && (
+        <QuickOpen
+          repos={repos}
+          onFileSelect={handleFileSelect}
+          onClose={() => setShowQuickOpen(false)}
+        />
+      )}
       <header className="app-header">
         <h1>AI IDE</h1>
         <p className="motto">For AI by AI</p>
@@ -86,9 +178,17 @@ function App() {
                   {/* Editor */}
                   <Panel defaultSize={60} minSize={30}>
                     <div className="editor-section">
+                      <TabBar
+                        tabs={tabs}
+                        activeTabId={activeTabId}
+                        onTabClick={handleTabClick}
+                        onTabClose={handleTabClose}
+                      />
                       <FileViewer
-                        filePath={selectedFile?.path || null}
-                        fileName={selectedFile?.name || null}
+                        ref={fileViewerRef}
+                        filePath={currentFile?.path || null}
+                        fileName={currentFile?.name || null}
+                        onDirtyChange={handleFileDirtyChange}
                       />
                     </div>
                   </Panel>
@@ -98,7 +198,7 @@ function App() {
                   {/* Chat */}
                   <Panel defaultSize={40} minSize={25}>
                     <div className="chat-section">
-                      <ChatPanel currentFile={selectedFile} />
+                      <ChatPanel currentFile={currentFile} />
                     </div>
                   </Panel>
                 </PanelGroup>

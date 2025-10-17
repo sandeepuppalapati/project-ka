@@ -1,0 +1,57 @@
+import { useEffect } from 'react';
+
+interface KeyboardShortcuts {
+  onSave?: () => void;
+  onCloseTab?: () => void;
+  onNextTab?: () => void;
+  onPrevTab?: () => void;
+  onQuickOpen?: () => void;
+}
+
+export function useKeyboardShortcuts({
+  onSave,
+  onCloseTab,
+  onNextTab,
+  onPrevTab,
+  onQuickOpen,
+}: KeyboardShortcuts) {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+      const modifier = isMac ? e.metaKey : e.ctrlKey;
+
+      // Cmd/Ctrl + S: Save
+      if (modifier && e.key === 's') {
+        e.preventDefault();
+        onSave?.();
+      }
+
+      // Cmd/Ctrl + W: Close tab
+      if (modifier && e.key === 'w') {
+        e.preventDefault();
+        onCloseTab?.();
+      }
+
+      // Cmd/Ctrl + Tab: Next tab
+      if (modifier && e.key === 'Tab' && !e.shiftKey) {
+        e.preventDefault();
+        onNextTab?.();
+      }
+
+      // Cmd/Ctrl + Shift + Tab: Previous tab
+      if (modifier && e.key === 'Tab' && e.shiftKey) {
+        e.preventDefault();
+        onPrevTab?.();
+      }
+
+      // Cmd/Ctrl + P: Quick open
+      if (modifier && e.key === 'p') {
+        e.preventDefault();
+        onQuickOpen?.();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onSave, onCloseTab, onNextTab, onPrevTab, onQuickOpen]);
+}

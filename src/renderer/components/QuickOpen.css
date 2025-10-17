@@ -1,0 +1,124 @@
+.quick-open-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 10vh;
+  z-index: 1000;
+}
+
+.quick-open-modal {
+  background-color: #2d2d30;
+  border: 1px solid #3e3e42;
+  border-radius: 6px;
+  width: 600px;
+  max-height: 500px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.quick-open-input {
+  width: 100%;
+  background-color: #1e1e1e;
+  border: none;
+  border-bottom: 1px solid #3e3e42;
+  padding: 1rem;
+  color: #cccccc;
+  font-size: 1rem;
+  outline: none;
+}
+
+.quick-open-input::placeholder {
+  color: #858585;
+}
+
+.quick-open-results {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 400px;
+}
+
+.file-result {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid #2d2d30;
+  transition: background-color 0.1s;
+}
+
+.file-result:hover,
+.file-result.selected {
+  background-color: #37373d;
+}
+
+.file-result-name {
+  font-size: 0.875rem;
+  color: #fff;
+  margin-bottom: 0.25rem;
+}
+
+.file-result-path {
+  font-size: 0.75rem;
+  color: #858585;
+}
+
+.no-results {
+  padding: 2rem;
+  text-align: center;
+  color: #858585;
+  font-size: 0.875rem;
+}
+
+.quick-open-footer {
+  padding: 0.75rem 1rem;
+  background-color: #252526;
+  border-top: 1px solid #3e3e42;
+  font-size: 0.75rem;
+  color: #858585;
+  text-align: center;
+}
+
+.quick-open-footer kbd {
+  background-color: #3c3c3c;
+  border: 1px solid #3e3e42;
+  border-radius: 3px;
+  padding: 0.125rem 0.375rem;
+  font-family: monospace;
+  font-size: 0.75rem;
+  margin: 0 0.25rem;
+}
+
+/* Scrollbar */
+.quick-open-results::-webkit-scrollbar {
+  width: 10px;
+}
+
+.quick-open-results::-webkit-scrollbar-track {
+  background: #2d2d30;
+}
+
+.quick-open-results::-webkit-scrollbar-thumb {
+  background: #424242;
+  border-radius: 5px;
+}
+
+.quick-open-results::-webkit-scrollbar-thumb:hover {
+  background: #4e4e4e;
+}

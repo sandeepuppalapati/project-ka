@@ -1,6 +1,3 @@
-# Design documents (temporary - remove when ready to commit)
-docs/*.md
-
 # Conversations
 .claude/
 

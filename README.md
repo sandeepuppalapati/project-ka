@@ -10,45 +10,70 @@ An AI-first IDE where AI agents perform coding tasks based on voice and text com
 
 ### Core Design Documents
 
-1. **[DESIGN_QUESTIONS.md](docs/DESIGN_QUESTIONS.md)**
+1. **[INITIAL_BRAINSTORM.md](docs/INITIAL_BRAINSTORM.md)** ✅ **← START HERE**
+   - Original brainstorming session (2025-10-15)
+   - Key decisions and rationale
+   - Evolution from idea to implementation
+   - User quotes and insights
+
+2. **[MOTTO.md](docs/MOTTO.md)** ✅
+   - "For AI by AI" - Core philosophy
+   - Design principles and vision
+   - What makes this IDE different
+   - User personas and success stories
+
+3. **[DESIGN_QUESTIONS.md](docs/DESIGN_QUESTIONS.md)** ✅
    - Initial design questions and answers
    - User requirements and decisions
    - Vision and scope
 
-2. **[ARCHITECTURE.md](docs/ARCHITECTURE.md)**
+4. **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** ✅
    - System architecture overview
-   - Component design
+   - Component design and data flow
    - Technology stack
-   - Data flow diagrams
+   - IPC API reference
    - Performance considerations
 
-3. **[AI_AGENTS_DESIGN.md](docs/AI_AGENTS_DESIGN.md)**
-   - Multi-agent system architecture
-   - Agent types and hierarchies
+5. **[AI_AGENTS_DESIGN.md](docs/AI_AGENTS_DESIGN.md)** ✅
+   - Single agent implementation (current)
+   - Multi-agent system design (planned)
    - Agent communication protocols
-   - Task management and orchestration
-   - Context management across repos
+   - Task orchestration strategies
 
-4. **[REPOSITORY_MANAGEMENT.md](docs/REPOSITORY_MANAGEMENT.md)**
+6. **[REPOSITORY_MANAGEMENT.md](docs/REPOSITORY_MANAGEMENT.md)** ✅
    - Multi-repository project model
    - Git integration and workflows
-   - Branch management strategy
-   - Session persistence
-   - Cross-repo coordination
+   - Branch management strategies
+   - Session persistence (planned)
+   - Cross-repo coordination (planned)
 
-5. **[VOICE_INPUT_DESIGN.md](docs/VOICE_INPUT_DESIGN.md)**
+7. **[VOICE_INPUT_DESIGN.md](docs/VOICE_INPUT_DESIGN.md)** ✅
    - Voice input modes (PTT, always-on, hybrid)
-   - Speech-to-text integration
+   - Web Speech API integration
    - Technical term handling
-   - Real-time transcription UI
-   - Privacy and security
+   - Privacy and security considerations
 
-6. **[SECURITY_PROTECTION.md](docs/SECURITY_PROTECTION.md)**
-   - Code protection strategies
+8. **[SECURITY_PROTECTION.md](docs/SECURITY_PROTECTION.md)** ✅
+   - Multi-layer protection strategy
    - License validation system
-   - Obfuscation and anti-tampering
-   - Distribution control
-   - Legal protection
+   - Code obfuscation approach
+   - Business model considerations
+
+9. **[OPEN_SOURCE_STRATEGY.md](docs/OPEN_SOURCE_STRATEGY.md)** ✅ **← DECISION NEEDED**
+   - Fully open source vs open core vs closed
+   - Revenue models and monetization
+   - License structure and CLA
+   - Community management strategy
+   - Recommendation: Open Core model
+
+### Implementation Documents
+
+10. **[TOOL_USE_IMPLEMENTATION.md](docs/TOOL_USE_IMPLEMENTATION.md)** ✅
+   - Anthropic Tool Use API integration
+   - Autonomous AI agent architecture
+   - Multi-step workflow execution
+   - Tool execution loop details
+   - Comparison with Claude Code
 
 ---
 
@@ -171,54 +196,62 @@ Unlike traditional IDEs:
 
 ## 📋 Development Phases
 
-### Phase 1: Foundation (Design - Current Phase)
+### Phase 1: Foundation ✅ Complete
 - ✅ Design system architecture
 - ✅ Define core features and workflows
 - ✅ Design AI agent model
 - ✅ Design repository management
 - ✅ Design voice input system
 - ✅ Design security strategy
-- ⏳ Create technical specifications
 
-### Phase 2: Core MVP
-- Basic Electron + React setup
-- Single repository support
-- Simple text-based AI interaction
-- Basic code viewing
-- Manual commit workflow
+### Phase 2: Core MVP ✅ Complete
+- ✅ Electron + React + TypeScript setup
+- ✅ Multi-repository support
+- ✅ AI chat with Anthropic API
+- ✅ File tree and tabs
+- ✅ Git integration (status, commit, push)
+- ✅ Command execution in chat
 
-### Phase 3: Multi-Agent System
-- AI agent engine implementation
-- Agent hierarchy and groups
-- Inter-agent communication
-- Task orchestration
-- Streaming responses
+### Phase 3: Autonomous AI Agent ✅ Complete (2025-10-17)
+- ✅ **Anthropic Tool Use API** - AI can call read_file, write_file, execute_command
+- ✅ **Autonomous workflows** - Multi-step tasks without manual intervention
+- ✅ **Tool execution loop** - AI continues until task complete (max 10 iterations)
+- ✅ **Error recovery** - AI adjusts strategy based on tool failures
+- ✅ **"For AI by AI" vision** - True autonomous operation
+- ⏳ Streaming responses (planned enhancement)
 
-### Phase 4: Multi-Repository
-- Multi-repo project model
-- Repository manager implementation
-- Cross-repo context
-- Linked commits
-- Session persistence
+### Phase 4: Multi-Repository ⏳ In Progress
+- ✅ Multi-repo project model (basic)
+- ✅ Repository manager implementation
+- ⏳ Cross-repo context (AI needs repo awareness)
+- ⏳ Linked commits across repos
+- ⏳ Session persistence
 
-### Phase 5: Voice Integration
-- Voice input implementation
+### Phase 5: Voice Integration ⏳ Planned
+- Voice input implementation (Web Speech API ready, disabled in UI)
 - Speech-to-text integration
 - Technical term correction
 - Real-time transcription UI
 - Voice command parsing
 
-### Phase 6: Security & Distribution
+### Phase 6: Enhanced Features ⏳ Planned
+- Streaming tool execution feedback
+- Git tools (native git_status, git_commit, etc.)
+- Repository context awareness for AI
+- File watcher and auto-reload
+- Code editor improvements
+
+### Phase 7: Security & Distribution ⏳ Planned
 - Code obfuscation setup
 - License validation system
 - Hardware fingerprinting
 - Code signing
 - Auto-update mechanism
 
-### Phase 7: Polish & Launch
+### Phase 8: Polish & Launch ⏳ Planned
 - UI/UX refinement
 - Performance optimization
-- Documentation
+- Complete documentation
 - Testing and QA
 - Beta program
 - Public launch
@@ -324,5 +357,27 @@ Unlike traditional IDEs:
 
 ---
 
-*Last Updated: 2025-10-15*
-*Status: Design Phase - No Implementation Yet*
+## 🎉 Recent Achievements (2025-10-17)
+
+### Tool Use API Implementation
+- Migrated from manual code block parsing to **Anthropic Tool Use API**
+- AI now works **fully autonomously** on multi-step tasks
+- **No more manual "continue"** - AI sees tool results and continues automatically
+- Matches Claude Code's autonomous operation model
+
+### Features Re-implemented After Revert
+- ✅ Cancel button for AI requests (AbortController)
+- ✅ Arrow key history navigation (↑/↓)
+- ✅ Collapsed command output (expand/popout buttons)
+- ✅ AI file editing capabilities (via Tool Use)
+- ✅ Smart autonomous workflow execution
+
+### Current Status
+- **Working**: Basic autonomous AI agent IDE
+- **Testing**: Need to validate multi-step workflows
+- **Next**: Add streaming, improve UX, recreate design docs
+
+---
+
+*Last Updated: 2025-10-17*
+*Status: Phase 3 Complete - Autonomous AI Agent Working*

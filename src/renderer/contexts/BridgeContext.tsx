@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useCallback } from 'react';
+import {
+  useBridgeMessagesPersistence,
+  serializeBridgeMessage,
+  deserializeBridgeMessage,
+  type PersistedBridgeMessage
+} from '../hooks/usePersistence';
 
 export interface BridgeMessage {
   id: string;
@@ -23,6 +29,17 @@ const BridgeContext = createContext<BridgeContextType | undefined>(undefined);
 
 export function BridgeProvider({ children }: { children: ReactNode }) {
   const [messages, setMessages] = useState<BridgeMessage[]>([]);
+
+  // Load messages from localStorage
+  const handleMessagesLoad = useCallback((loadedMessages: PersistedBridgeMessage[]) => {
+    if (loadedMessages.length > 0) {
+      setMessages(loadedMessages.map(deserializeBridgeMessage));
+    }
+  }, []);
+
+  // Persist messages
+  const persistedMessages: PersistedBridgeMessage[] = messages.map(serializeBridgeMessage);
+  useBridgeMessagesPersistence(persistedMessages, handleMessagesLoad);
 
   const postToBridge = (message: Omit<BridgeMessage, 'id' | 'timestamp'>) => {
     const newMessage: BridgeMessage = {

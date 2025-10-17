@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels'
 import './App.css'
 import { RepoManager } from './components/RepoManager'
@@ -9,6 +9,7 @@ import { GitPanel } from './components/GitPanel'
 import { TabBar } from './components/TabBar'
 import { QuickOpen } from './components/QuickOpen'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
+import { useRepositoriesPersistence, useWorkspacePersistence } from './hooks/usePersistence'
 
 interface Repository {
   id: string;
@@ -29,7 +30,40 @@ function App() {
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [showQuickOpen, setShowQuickOpen] = useState(false);
+  const [activeChatTab, setActiveChatTab] = useState<string>('bridge');
   const gitPanelRef = useRef<{ refresh: () => void }>(null);
+
+  // Restore repositories from localStorage
+  const handleReposLoad = useCallback((loadedRepos: Repository[]) => {
+    setRepos(loadedRepos);
+    if (loadedRepos.length > 0) {
+      setShowRepoManager(false);
+    }
+  }, []);
+
+  // Restore workspace from localStorage
+  const handleWorkspaceLoad = useCallback((workspace: any) => {
+    if (workspace.openTabs && workspace.openTabs.length > 0) {
+      setTabs(workspace.openTabs);
+      setActiveTabId(workspace.activeTabId);
+    }
+    if (workspace.activeChatTab) {
+      setActiveChatTab(workspace.activeChatTab);
+    }
+  }, []);
+
+  // Persist repositories
+  useRepositoriesPersistence(repos, handleReposLoad);
+
+  // Persist workspace state
+  useWorkspacePersistence(
+    {
+      activeTabId,
+      activeChatTab,
+      openTabs: tabs,
+    },
+    handleWorkspaceLoad
+  );
 
   const handleReposChanged = (newRepos: Repository[]) => {
     setRepos(newRepos);
@@ -218,6 +252,8 @@ function App() {
                       <ChatTabs
                         repos={repos}
                         currentFile={currentFile}
+                        activeTabId={activeChatTab}
+                        onTabChange={setActiveChatTab}
                       />
                     </div>
                   </Panel>

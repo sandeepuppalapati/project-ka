@@ -1,6 +1,12 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import './ChatPanel.css';
 import { useBridge, BridgeMessage } from '../contexts/BridgeContext';
+import {
+  useChatMessagesPersistence,
+  serializeMessage,
+  deserializeMessage,
+  type PersistedMessage
+} from '../hooks/usePersistence';
 
 interface Message {
   id: string;
@@ -35,16 +41,21 @@ interface ChatPanelProps {
 
 export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: ChatPanelProps) {
   const bridge = useBridge();
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      role: 'assistant',
-      content: isBridge
-        ? '🌐 Welcome to the Bridge! This is where AI agents coordinate across repositories. Agents will post status updates, ask questions, and collaborate here.'
-        : `Hello! I'm the AI agent for ${currentRepo?.name || 'this repository'}. I can help you with code changes, debugging, and more. I can also communicate with other agents via the Bridge.`,
-      timestamp: new Date(),
-    }
-  ]);
+
+  // Generate unique tab ID for persistence
+  const tabId = isBridge ? 'bridge' : `repo-${currentRepo?.id || 'unknown'}`;
+
+  // Welcome message
+  const getWelcomeMessage = (): Message => ({
+    id: '1',
+    role: 'assistant',
+    content: isBridge
+      ? '🌐 Welcome to the Bridge! This is where AI agents coordinate across repositories. Agents will post status updates, ask questions, and collaborate here.'
+      : `Hello! I'm the AI agent for ${currentRepo?.name || 'this repository'}. I can help you with code changes, debugging, and more. I can also communicate with other agents via the Bridge.`,
+    timestamp: new Date(),
+  });
+
+  const [messages, setMessages] = useState<Message[]>([getWelcomeMessage()]);
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -55,6 +66,25 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
   const recognitionRef = useRef<any>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const inputHistory = useRef<string[]>([]);
+
+  // Load messages from localStorage
+  const handleMessagesLoad = useCallback((loadedMessages: PersistedMessage[]) => {
+    if (loadedMessages.length > 0) {
+      setMessages(loadedMessages.map(deserializeMessage));
+    }
+  }, []);
+
+  // Persist messages (convert to serializable format)
+  const persistedMessages: PersistedMessage[] = messages.map(msg => ({
+    ...serializeMessage(msg),
+    commandOutput: msg.command?.output ? {
+      command: msg.command.command,
+      success: msg.command.output.success,
+      output: msg.command.output.stdout || msg.command.output.stderr,
+    } : undefined,
+  }));
+
+  useChatMessagesPersistence(tabId, persistedMessages, handleMessagesLoad);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -766,9 +796,9 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
             </div>
           </div>
         )}
+        <div ref={messagesEndRef} />
         </>
         )}
-        <div ref={messagesEndRef} />
       </div>
 
       <div className="chat-input-container">

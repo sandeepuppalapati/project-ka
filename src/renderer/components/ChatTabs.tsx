@@ -11,6 +11,8 @@ interface Repository {
 interface ChatTabsProps {
   repos: Repository[];
   currentFile: { path: string; name: string } | null;
+  activeTabId?: string;
+  onTabChange?: (tabId: string) => void;
 }
 
 type TabType = 'bridge' | 'repo';
@@ -24,8 +26,12 @@ interface ChatTab {
   repo?: Repository;
 }
 
-export function ChatTabs({ repos, currentFile }: ChatTabsProps) {
-  const [activeTabId, setActiveTabId] = useState<string>('bridge');
+export function ChatTabs({ repos, currentFile, activeTabId: controlledActiveTabId, onTabChange }: ChatTabsProps) {
+  const [internalActiveTabId, setInternalActiveTabId] = useState<string>('bridge');
+
+  // Use controlled or internal state
+  const activeTabId = controlledActiveTabId !== undefined ? controlledActiveTabId : internalActiveTabId;
+  const setActiveTabId = onTabChange || setInternalActiveTabId;
 
   // Build tabs: Bridge first, then one per repo
   const tabs: ChatTab[] = [

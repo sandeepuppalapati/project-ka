@@ -1,0 +1,276 @@
+.git-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #252526;
+  overflow: hidden;
+}
+
+.git-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background-color: #2d2d30;
+  border-bottom: 1px solid #3e3e42;
+}
+
+.git-header h3 {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.refresh-button {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.refresh-button:hover {
+  opacity: 1;
+}
+
+.repo-selector {
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #3e3e42;
+}
+
+.repo-selector select {
+  width: 100%;
+  background-color: #3c3c3c;
+  color: #cccccc;
+  border: 1px solid #3e3e42;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.git-content {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.changed-files {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 200px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background-color: #2d2d30;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #cccccc;
+  border-bottom: 1px solid #3e3e42;
+}
+
+.stage-all-button {
+  background-color: #0e639c;
+  color: white;
+  border: none;
+  padding: 0.25rem 0.75rem;
+  border-radius: 3px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.stage-all-button:hover {
+  background-color: #1177bb;
+}
+
+.no-changes {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: #858585;
+  font-size: 0.875rem;
+}
+
+.file-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #2d2d30;
+  transition: background-color 0.1s;
+}
+
+.file-item:hover {
+  background-color: #2a2d2e;
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.file-icon {
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.file-name {
+  font-size: 0.875rem;
+  color: #cccccc;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-status {
+  font-size: 0.75rem;
+  margin-left: auto;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.stage-button {
+  background-color: #3c3c3c;
+  color: #6a9955;
+  border: 1px solid #3e3e42;
+  border-radius: 3px;
+  width: 24px;
+  height: 24px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.stage-button:hover {
+  background-color: #6a9955;
+  color: white;
+  border-color: #6a9955;
+}
+
+.unstage-button {
+  background-color: #3c3c3c;
+  color: #f14c4c;
+  border: 1px solid #3e3e42;
+  border-radius: 3px;
+  width: 24px;
+  height: 24px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.unstage-button:hover {
+  background-color: #f14c4c;
+  color: white;
+  border-color: #f14c4c;
+}
+
+.commit-section {
+  padding: 1rem;
+  background-color: #1e1e1e;
+  border-top: 1px solid #3e3e42;
+}
+
+.commit-message {
+  width: 100%;
+  background-color: #3c3c3c;
+  border: 1px solid #3e3e42;
+  border-radius: 4px;
+  padding: 0.75rem;
+  color: #cccccc;
+  font-size: 0.875rem;
+  font-family: inherit;
+  resize: none;
+  outline: none;
+  margin-bottom: 0.75rem;
+  transition: border-color 0.2s;
+}
+
+.commit-message:focus {
+  border-color: #0e639c;
+}
+
+.commit-message::placeholder {
+  color: #858585;
+}
+
+.commit-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.commit-button,
+.push-button {
+  flex: 1;
+  background-color: #0e639c;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.commit-button:hover:not(:disabled),
+.push-button:hover:not(:disabled) {
+  background-color: #1177bb;
+}
+
+.commit-button:disabled,
+.push-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.push-button {
+  background-color: #3c3c3c;
+}
+
+.push-button:hover:not(:disabled) {
+  background-color: #4e4e4e;
+}
+
+/* Scrollbar */
+.changed-files::-webkit-scrollbar,
+.git-content::-webkit-scrollbar {
+  width: 10px;
+}
+
+.changed-files::-webkit-scrollbar-track,
+.git-content::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+
+.changed-files::-webkit-scrollbar-thumb,
+.git-content::-webkit-scrollbar-thumb {
+  background: #424242;
+  border-radius: 5px;
+}
+
+.changed-files::-webkit-scrollbar-thumb:hover,
+.git-content::-webkit-scrollbar-thumb:hover {
+  background: #4e4e4e;
+}

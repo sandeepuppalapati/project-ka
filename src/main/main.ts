@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs/promises';
 import git from 'isomorphic-git';
+import http from 'isomorphic-git/http/node';
 import Anthropic from '@anthropic-ai/sdk';
 import * as dotenv from 'dotenv';
 
@@ -131,6 +132,146 @@ ipcMain.handle('git:currentBranch', async (_event, repoPath: string) => {
   } catch (error) {
     console.error('Git branch error:', error);
     return null;
+  }
+});
+
+// Get file status for individual files
+ipcMain.handle('git:fileStatus', async (_event, repoPath: string, filePath: string) => {
+  try {
+    const status = await git.status({
+      fs,
+      dir: repoPath,
+      filepath: filePath.replace(repoPath + '/', '')
+    });
+    return status; // Returns: "ignored", "unmodified", "*modified", "*deleted", "*added", etc.
+  } catch (error) {
+    console.error('Git file status error:', error);
+    return 'unknown';
+  }
+});
+
+// Get changed files list
+ipcMain.handle('git:statusMatrix', async (_event, repoPath: string) => {
+  try {
+    const status = await git.statusMatrix({
+      fs,
+      dir: repoPath,
+    });
+
+    return status.map(([filepath, head, workdir, stage]) => {
+      // head: 0=absent, 1=present
+      // workdir: 0=absent, 1=identical, 2=different
+      // stage: 0=absent, 1=identical, 2=different, 3=added
+
+      let fileStatus: string;
+
+      if (head === 1 && workdir === 2 && stage === 1) {
+        fileStatus = 'modified'; // Modified but not staged
+      } else if (head === 1 && workdir === 2 && stage === 2) {
+        fileStatus = 'staged'; // Modified and staged
+      } else if (head === 0 && workdir === 2 && stage === 0) {
+        fileStatus = 'untracked'; // New file, not staged
+      } else if (head === 0 && workdir === 2 && stage === 3) {
+        fileStatus = 'staged'; // New file, staged
+      } else if (head === 1 && workdir === 0) {
+        fileStatus = 'deleted'; // Deleted
+      } else if (stage === 3) {
+        fileStatus = 'staged'; // Staged for addition
+      } else {
+        fileStatus = 'unmodified';
+      }
+
+      return { filepath, status: fileStatus };
+    });
+  } catch (error) {
+    console.error('Git status matrix error:', error);
+    return null;
+  }
+});
+
+// Stage file
+ipcMain.handle('git:add', async (_event, repoPath: string, filepath: string) => {
+  try {
+    // Clean the filepath - remove repo path if it's included
+    let cleanPath = filepath;
+    if (filepath.startsWith(repoPath)) {
+      cleanPath = filepath.substring(repoPath.length + 1);
+    }
+
+    console.log('Git add - repo:', repoPath, 'file:', cleanPath);
+
+    await git.add({
+      fs,
+      dir: repoPath,
+      filepath: cleanPath
+    });
+
+    console.log('Git add successful');
+    return true;
+  } catch (error) {
+    console.error('Git add error:', error);
+    return false;
+  }
+});
+
+// Unstage file (reset from index)
+ipcMain.handle('git:remove', async (_event, repoPath: string, filepath: string) => {
+  try {
+    // Clean the filepath - remove repo path if it's included
+    let cleanPath = filepath;
+    if (filepath.startsWith(repoPath)) {
+      cleanPath = filepath.substring(repoPath.length + 1);
+    }
+
+    console.log('Git unstage - repo:', repoPath, 'file:', cleanPath);
+
+    // Use resetIndex to unstage without deleting the file
+    await git.resetIndex({
+      fs,
+      dir: repoPath,
+      filepath: cleanPath
+    });
+
+    console.log('Git unstage successful');
+    return true;
+  } catch (error) {
+    console.error('Git unstage error:', error);
+    return false;
+  }
+});
+
+// Commit changes
+ipcMain.handle('git:commit', async (_event, repoPath: string, message: string) => {
+  try {
+    const sha = await git.commit({
+      fs,
+      dir: repoPath,
+      message,
+      author: {
+        name: 'AI IDE User',
+        email: 'user@ai-ide.local'
+      }
+    });
+    return sha;
+  } catch (error) {
+    console.error('Git commit error:', error);
+    return null;
+  }
+});
+
+// Push changes
+ipcMain.handle('git:push', async (_event, repoPath: string) => {
+  try {
+    await git.push({
+      fs,
+      http,
+      dir: repoPath,
+      remote: 'origin',
+    });
+    return true;
+  } catch (error) {
+    console.error('Git push error:', error);
+    return false;
   }
 });
 

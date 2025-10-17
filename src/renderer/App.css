@@ -63,34 +63,55 @@
 }
 
 .sidebar {
-  width: 300px;
+  height: 100%;
   background-color: #252526;
-  border-right: 1px solid #3e3e42;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.file-trees-container {
+  height: 100%;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
 }
 
-.main-content {
-  flex: 1;
-  display: flex;
-  overflow: hidden;
-}
-
 .editor-section {
-  flex: 2;
+  height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-right: 1px solid #3e3e42;
 }
 
 .chat-section {
-  flex: 1;
+  height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  min-width: 400px;
+}
+
+/* Resize handles */
+.resize-handle-vertical {
+  width: 4px;
+  background-color: #3e3e42;
+  cursor: col-resize;
+  transition: background-color 0.2s;
+}
+
+.resize-handle-vertical:hover {
+  background-color: #0e639c;
+}
+
+.resize-handle-horizontal {
+  height: 4px;
+  background-color: #3e3e42;
+  cursor: row-resize;
+  transition: background-color 0.2s;
+}
+
+.resize-handle-horizontal:hover {
+  background-color: #0e639c;
 }
 
 .app-footer {

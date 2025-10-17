@@ -1,9 +1,11 @@
 import { useState } from 'react'
+import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels'
 import './App.css'
 import { RepoManager } from './components/RepoManager'
 import { FileTree } from './components/FileTree'
 import { ChatPanel } from './components/ChatPanel'
 import { FileViewer } from './components/FileViewer'
+import { GitPanel } from './components/GitPanel'
 
 interface Repository {
   id: string;
@@ -49,27 +51,59 @@ function App() {
           </div>
         ) : (
           <div className="ide-layout">
-            <aside className="sidebar">
-              {repos.map(repo => (
-                <FileTree
-                  key={repo.id}
-                  repoPath={repo.path}
-                  repoName={repo.name}
-                  onFileSelect={handleFileSelect}
-                />
-              ))}
-            </aside>
-            <section className="main-content">
-              <div className="editor-section">
-                <FileViewer
-                  filePath={selectedFile?.path || null}
-                  fileName={selectedFile?.name || null}
-                />
-              </div>
-              <div className="chat-section">
-                <ChatPanel currentFile={selectedFile} />
-              </div>
-            </section>
+            <PanelGroup direction="horizontal">
+              {/* Sidebar */}
+              <Panel defaultSize={20} minSize={15} maxSize={40}>
+                <aside className="sidebar">
+                  <PanelGroup direction="vertical">
+                    {/* Git Panel */}
+                    <Panel defaultSize={40} minSize={20} maxSize={60}>
+                      <GitPanel repos={repos} />
+                    </Panel>
+                    <PanelResizeHandle className="resize-handle-horizontal" />
+                    {/* File Trees */}
+                    <Panel minSize={30}>
+                      <div className="file-trees-container">
+                        {repos.map(repo => (
+                          <FileTree
+                            key={repo.id}
+                            repoPath={repo.path}
+                            repoName={repo.name}
+                            onFileSelect={handleFileSelect}
+                          />
+                        ))}
+                      </div>
+                    </Panel>
+                  </PanelGroup>
+                </aside>
+              </Panel>
+
+              <PanelResizeHandle className="resize-handle-vertical" />
+
+              {/* Main Content */}
+              <Panel minSize={30}>
+                <PanelGroup direction="horizontal">
+                  {/* Editor */}
+                  <Panel defaultSize={60} minSize={30}>
+                    <div className="editor-section">
+                      <FileViewer
+                        filePath={selectedFile?.path || null}
+                        fileName={selectedFile?.name || null}
+                      />
+                    </div>
+                  </Panel>
+
+                  <PanelResizeHandle className="resize-handle-vertical" />
+
+                  {/* Chat */}
+                  <Panel defaultSize={40} minSize={25}>
+                    <div className="chat-section">
+                      <ChatPanel currentFile={selectedFile} />
+                    </div>
+                  </Panel>
+                </PanelGroup>
+              </Panel>
+            </PanelGroup>
           </div>
         )}
       </main>

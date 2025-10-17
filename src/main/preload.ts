@@ -12,6 +12,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   isRepo: (repoPath: string) => ipcRenderer.invoke('git:isRepo', repoPath),
   getGitStatus: (repoPath: string) => ipcRenderer.invoke('git:status', repoPath),
   getCurrentBranch: (repoPath: string) => ipcRenderer.invoke('git:currentBranch', repoPath),
+  getFileStatus: (repoPath: string, filePath: string) => ipcRenderer.invoke('git:fileStatus', repoPath, filePath),
+  getStatusMatrix: (repoPath: string) => ipcRenderer.invoke('git:statusMatrix', repoPath),
+  gitAdd: (repoPath: string, filepath: string) => ipcRenderer.invoke('git:add', repoPath, filepath),
+  gitRemove: (repoPath: string, filepath: string) => ipcRenderer.invoke('git:remove', repoPath, filepath),
+  gitCommit: (repoPath: string, message: string) => ipcRenderer.invoke('git:commit', repoPath, message),
+  gitPush: (repoPath: string) => ipcRenderer.invoke('git:push', repoPath),
 
   // File System APIs
   readDir: (dirPath: string) => ipcRenderer.invoke('fs:readDir', dirPath),

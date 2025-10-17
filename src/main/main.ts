@@ -342,7 +342,23 @@ ipcMain.handle('shell:execute', async (_event, command: string, cwd?: string) =>
 });
 
 // AI Chat handler with Tool Use
-ipcMain.handle('ai:chat', async (_event, messages: Array<{ role: string; content: string }>, context?: { filePath?: string; fileContent?: string; repoPath?: string }) => {
+interface BridgeMessage {
+  agentName: string;
+  content: string;
+  timestamp: Date;
+}
+
+interface ChatContext {
+  filePath?: string;
+  fileContent?: string;
+  repoPath?: string;
+  repoName?: string;
+  isBridge?: boolean;
+  allRepos?: Array<{ id: string; path: string; name: string }>;
+  bridgeMessages?: BridgeMessage[];
+}
+
+ipcMain.handle('ai:chat', async (_event, messages: Array<{ role: string; content: string }>, context?: ChatContext) => {
   try {
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
@@ -405,17 +421,50 @@ ipcMain.handle('ai:chat', async (_event, messages: Array<{ role: string; content
       }
     ];
 
-    const systemMessage = `You are an AI coding assistant integrated into an IDE. You can:
+    // Build system message based on context
+    let systemMessage = '';
+
+    if (context?.isBridge) {
+      // Bridge coordinator prompt
+      systemMessage = `You are the Bridge - a coordination layer for multiple AI agents working across different repositories in a multi-repo project.
+
+Your role:
+- Help decompose cross-repo tasks and suggest which agents should handle them
+- Summarize multi-agent work for the user
+- Facilitate communication between agents
+- You don't modify code yourself - you coordinate other agents
+
+Available repositories in this project:
+${context.allRepos?.map(r => `- ${r.name} (${r.path})`).join('\n') || 'None'}
+
+You can see messages from agents in the bridge. Help users understand agent collaboration and suggest coordination strategies.`;
+    } else {
+      // Repo-specific agent prompt
+      systemMessage = `You are an AI agent responsible for the "${context?.repoName || 'repository'}" codebase.
+
+You can:
 - Read and write files using tools
 - Execute shell commands using tools
 - Analyze code and debug issues
 - Work autonomously to complete multi-step tasks
 
-${context?.repoPath ? `\n\nThe user's current repository path is: ${context.repoPath}\nWhen executing commands, use this as the working directory (cwd parameter).` : ''}
+Your repository path: ${context?.repoPath || 'Not set'}
+When executing commands, use this as the working directory (cwd parameter).
 
 ${context?.fileContent ? `\n\nThe user is currently viewing/editing this file:\nFile: ${context.filePath}\n\n\`\`\`\n${context.fileContent}\n\`\`\`` : ''}
 
+**Multi-Agent Environment:**
+You are part of a multi-repository project with other AI agents. There is a "Bridge" (group chat) where agents can coordinate.
+
+${context?.allRepos && context.allRepos.length > 1 ? `\nOther repositories in this project:\n${context.allRepos.filter(r => r.path !== context.repoPath).map(r => `- ${r.name} Agent (handles ${r.name} repo)`).join('\n')}` : ''}
+
+${context?.bridgeMessages && context.bridgeMessages.length > 0 ? `\n**Recent Bridge Activity** (latest first, what other agents are doing):\n${context.bridgeMessages.slice().reverse().map((m, idx) => `${idx + 1}. [${m.agentName}]: ${m.content.substring(0, 200)}${m.content.length > 200 ? '...' : ''}`).join('\n')}` : ''}
+
+When you complete tasks or need coordination, the user can post your updates to the Bridge using the "Post to Bridge" button.
+
 Work autonomously - call tools as needed to complete tasks. Continue until the task is done.`;
+    }
+
 
     let conversationMessages = messages.map(msg => ({
       role: msg.role as 'user' | 'assistant',

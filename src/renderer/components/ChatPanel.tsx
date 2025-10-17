@@ -143,11 +143,15 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
     abortControllerRef.current = new AbortController();
 
     try {
-      // Get current file content and repo context
-      let context: { filePath?: string; fileContent?: string; repoPath?: string } = {};
+      // Build context with bridge awareness
+      const context: any = {
+        isBridge,
+        allRepos,
+      };
 
-      if (currentRepo?.path) {
+      if (currentRepo) {
         context.repoPath = currentRepo.path;
+        context.repoName = currentRepo.name;
       }
 
       if (currentFile?.path) {
@@ -156,6 +160,15 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
           context.filePath = currentFile.path;
           context.fileContent = fileContent;
         }
+      }
+
+      // Include recent bridge messages for repo agents
+      if (!isBridge && bridge.messages.length > 0) {
+        context.bridgeMessages = bridge.getRecentMessages(5).map(m => ({
+          agentName: m.agentName,
+          content: m.content,
+          timestamp: m.timestamp,
+        }));
       }
 
       // Build conversation history
@@ -231,11 +244,15 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
     abortControllerRef.current = new AbortController();
 
     try {
-      // Get current file content and repo context
-      let context: { filePath?: string; fileContent?: string; repoPath?: string } = {};
+      // Build context with bridge awareness
+      const context: any = {
+        isBridge,
+        allRepos,
+      };
 
-      if (currentRepo?.path) {
+      if (currentRepo) {
         context.repoPath = currentRepo.path;
+        context.repoName = currentRepo.name;
       }
 
       if (currentFile?.path) {
@@ -244,6 +261,15 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
           context.filePath = currentFile.path;
           context.fileContent = fileContent;
         }
+      }
+
+      // Include recent bridge messages for repo agents
+      if (!isBridge && bridge.messages.length > 0) {
+        context.bridgeMessages = bridge.getRecentMessages(5).map(m => ({
+          agentName: m.agentName,
+          content: m.content,
+          timestamp: m.timestamp,
+        }));
       }
 
       // Build conversation history for API (exclude system messages, convert command messages to assistant context)

@@ -66,14 +66,59 @@ An AI-first IDE where AI agents perform coding tasks based on voice and text com
    - Community management strategy
    - Recommendation: Open Core model
 
+### Strategy & Planning Documents
+
+10. **[COMMUNITY_FIRST_STRATEGY.md](docs/COMMUNITY_FIRST_STRATEGY.md)** ✅
+   - Community-first launch approach
+   - 3-month MVP timeline with weekly breakdown
+   - Launch checklist and action plan
+   - Success metrics (stars, contributors, impact)
+
+11. **[IMPLEMENTATION_ROADMAP.md](docs/IMPLEMENTATION_ROADMAP.md)** ✅
+   - Detailed 7-phase implementation plan
+   - Weekly breakdown (Week 1-12)
+   - Milestones and decision points
+   - Scope protection rules
+
+12. **[REALITY_CHECK.md](docs/REALITY_CHECK.md)** ✅
+   - Honest assessment of challenges
+   - Major pitfalls (scope creep = biggest risk)
+   - Success likelihood analysis
+   - Red flags to watch for
+
+13. **[COST_ANALYSIS_SOLO_CLAUDE.md](docs/COST_ANALYSIS_SOLO_CLAUDE.md)** ✅
+   - Solo developer cost breakdown
+   - $450-650 total budget for Year 1
+   - Development timeline with Claude Code
+   - Working schedule options
+
+14. **[COST_ANALYSIS.md](docs/COST_ANALYSIS.md)** ✅
+   - General cost analysis (all scenarios)
+   - Development costs vs team vs startup
+   - Runtime costs (BYOK vs hosted)
+   - Revenue models and break-even analysis
+
 ### Implementation Documents
 
-10. **[TOOL_USE_IMPLEMENTATION.md](docs/TOOL_USE_IMPLEMENTATION.md)** ✅
+15. **[TOOL_USE_IMPLEMENTATION.md](docs/TOOL_USE_IMPLEMENTATION.md)** ✅
    - Anthropic Tool Use API integration
    - Autonomous AI agent architecture
    - Multi-step workflow execution
    - Tool execution loop details
    - Comparison with Claude Code
+
+16. **[GIT_HOOKS.md](docs/GIT_HOOKS.md)** ✅
+   - Git hooks strategy for development
+   - Pre-commit, commit-msg, pre-push hooks
+   - Husky setup and configuration
+   - Recommendation: defer until post-MVP
+
+17. **[PROJECT_CONTEXT.md](docs/PROJECT_CONTEXT.md)** ✅
+   - Session summary and project journey
+   - Current technical state
+   - Progress tracking (Week 3/12)
+   - Key decisions and learnings
+   - How to resume work
 
 ---
 

@@ -12,13 +12,15 @@
 
 ### 🔴 P0 - Must Have (Blocks Launch)
 
-**1. Session Persistence** ⏳ NOT STARTED
-- [ ] Save chat history per tab (Bridge + per-repo)
-- [ ] Persist workspace state (open repos, active file)
-- [ ] Restore on app restart
-- [ ] Handle migration/versioning of saved state
-- **Estimated time**: 4-6 hours
-- **Why critical**: Losing work on restart = dealbreaker UX
+**1. Session Persistence** ✅ COMPLETE (Day 1)
+- [x] Save chat history per tab (Bridge + per-repo)
+- [x] Persist workspace state (open repos, active file)
+- [x] Restore on app restart
+- [x] Handle migration/versioning of saved state
+- [x] Auto-save with debouncing (500ms-1s)
+- [x] Clear chat functionality with smart options
+- **Actual time**: 4 hours
+- **Status**: ✅ All chat history and workspace state persists across restarts!
 
 **2. Autonomous Agent Coordination** ⏳ INFRASTRUCTURE DONE, BEHAVIOR MISSING
 - [ ] Agents detect when they need help from other agents
@@ -171,7 +173,7 @@
 - [ ] Monaco editor doesn't auto-save (need to add save button/auto-save)
 - [ ] Chat messages don't show timestamps in UI (data exists, not displayed)
 - [ ] Bridge activity widget doesn't auto-update (need to refresh manually)
-- [ ] No way to delete/clear chat history
+- [x] No way to delete/clear chat history - ✅ FIXED (Clear button added)
 - [ ] No way to rename repositories in UI
 - [ ] File tree doesn't show git status per file (only repo-level)
 
@@ -213,14 +215,17 @@
 ## Timeline Estimate
 
 ### Day 2 (Oct 18):
-- [ ] Session persistence (4-6h)
+- [x] Session persistence (4h) ✅ DONE
+- [x] Clear chat functionality (1h) ✅ DONE
+- [ ] Autonomous agent coordination (6-8h) - MOVED TO DAY 2
 - [ ] Error handling improvements (3-4h)
-- **Total: 7-10 hours**
+- **Actual: 5 hours done, 9-12 hours remaining**
 
 ### Day 3 (Oct 19):
-- [ ] Autonomous agent coordination (6-8h)
-- [ ] Start E2E testing (2h)
-- **Total: 8-10 hours**
+- [ ] Finish autonomous coordination if needed
+- [ ] Start E2E testing (4-6h)
+- [ ] Git workflow polish (2-4h)
+- **Total: 6-10 hours**
 
 ### Day 4 (Oct 20):
 - [ ] Finish E2E testing & fix critical bugs (4-6h)

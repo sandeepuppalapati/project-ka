@@ -29,6 +29,7 @@ function App() {
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [showQuickOpen, setShowQuickOpen] = useState(false);
+  const gitPanelRef = useRef<{ refresh: () => void }>(null);
 
   const handleReposChanged = (newRepos: Repository[]) => {
     setRepos(newRepos);
@@ -77,6 +78,11 @@ function App() {
         tab.id === activeTabId ? { ...tab, isDirty } : tab
       ));
     }
+  };
+
+  const handleFileSaved = () => {
+    // Refresh git panel when file is saved
+    gitPanelRef.current?.refresh();
   };
 
   const activeTab = tabs.find(tab => tab.id === activeTabId);
@@ -150,7 +156,11 @@ function App() {
                   <PanelGroup direction="vertical">
                     {/* Git Panel */}
                     <Panel defaultSize={40} minSize={20} maxSize={60}>
-                      <GitPanel repos={repos} />
+                      <GitPanel
+                        ref={gitPanelRef}
+                        repos={repos}
+                        onFileSelect={handleFileSelect}
+                      />
                     </Panel>
                     <PanelResizeHandle className="resize-handle-horizontal" />
                     {/* File Trees */}
@@ -189,6 +199,7 @@ function App() {
                         filePath={currentFile?.path || null}
                         fileName={currentFile?.name || null}
                         onDirtyChange={handleFileDirtyChange}
+                        onSaved={handleFileSaved}
                       />
                     </div>
                   </Panel>

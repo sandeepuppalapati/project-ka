@@ -6,6 +6,7 @@ interface FileViewerProps {
   filePath: string | null;
   fileName: string | null;
   onDirtyChange?: (isDirty: boolean) => void;
+  onSaved?: () => void;
 }
 
 export interface FileViewerRef {
@@ -13,7 +14,7 @@ export interface FileViewerRef {
 }
 
 export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
-  ({ filePath, fileName, onDirtyChange }, ref) => {
+  ({ filePath, fileName, onDirtyChange, onSaved }, ref) => {
   const [content, setContent] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
@@ -52,6 +53,7 @@ export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
     if (success) {
       setIsDirty(false);
       onDirtyChange?.(false);
+      onSaved?.();
     } else {
       alert('Failed to save file');
     }

@@ -1,9 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
 import './GitPanel.css';
 
 interface GitPanelProps {
   repos: Array<{ id: string; path: string; name: string }>;
   onRefresh?: () => void;
+  onFileSelect?: (filePath: string, fileName: string) => void;
+}
+
+export interface GitPanelRef {
+  refresh: () => void;
 }
 
 interface ChangedFile {
@@ -12,7 +17,8 @@ interface ChangedFile {
   repoPath: string;
 }
 
-export function GitPanel({ repos, onRefresh }: GitPanelProps) {
+export const GitPanel = forwardRef<GitPanelRef, GitPanelProps>(
+  ({ repos, onRefresh, onFileSelect }, ref) => {
   const [changedFiles, setChangedFiles] = useState<ChangedFile[]>([]);
   const [commitMessage, setCommitMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -21,6 +27,11 @@ export function GitPanel({ repos, onRefresh }: GitPanelProps) {
   useEffect(() => {
     loadChangedFiles();
   }, [repos]);
+
+  // Expose refresh function to parent
+  useImperativeHandle(ref, () => ({
+    refresh: loadChangedFiles
+  }));
 
   const loadChangedFiles = async () => {
     const allFiles: ChangedFile[] = [];
@@ -191,7 +202,13 @@ export function GitPanel({ repos, onRefresh }: GitPanelProps) {
           ) : (
             currentRepoFiles.map((file, idx) => (
               <div key={idx} className="file-item">
-                <div className="file-info">
+                <div
+                  className="file-info"
+                  onClick={() => onFileSelect?.(
+                    `${file.repoPath}/${file.filepath}`,
+                    file.filepath.split('/').pop() || file.filepath
+                  )}
+                >
                   <span className="file-icon">{getStatusIcon(file.status)}</span>
                   <span className="file-name">{file.filepath}</span>
                   <span
@@ -251,4 +268,4 @@ export function GitPanel({ repos, onRefresh }: GitPanelProps) {
       </div>
     </div>
   );
-}
+});

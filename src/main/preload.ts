@@ -27,4 +27,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // AI APIs
   sendChatMessage: (messages: Array<{ role: string; content: string }>, context?: { filePath?: string; fileContent?: string }) =>
     ipcRenderer.invoke('ai:chat', messages, context),
+
+  // Shell APIs
+  executeCommand: (command: string, cwd?: string) => ipcRenderer.invoke('shell:execute', command, cwd),
 });

@@ -1,10 +1,14 @@
 import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs/promises';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 import git from 'isomorphic-git';
 import http from 'isomorphic-git/http/node';
 import Anthropic from '@anthropic-ai/sdk';
 import * as dotenv from 'dotenv';
+
+const execAsync = promisify(exec);
 
 // Load environment variables
 dotenv.config();
@@ -312,6 +316,31 @@ ipcMain.handle('fs:writeFile', async (_event, filePath: string, content: string)
   }
 });
 
+// Execute shell command
+ipcMain.handle('shell:execute', async (_event, command: string, cwd?: string) => {
+  try {
+    console.log('Executing command:', command, 'in:', cwd);
+    const { stdout, stderr } = await execAsync(command, {
+      cwd: cwd || process.cwd(),
+      maxBuffer: 1024 * 1024 * 10, // 10MB buffer
+    });
+
+    return {
+      success: true,
+      stdout: stdout.trim(),
+      stderr: stderr.trim(),
+    };
+  } catch (error: any) {
+    console.error('Command execution error:', error);
+    return {
+      success: false,
+      stdout: error.stdout?.trim() || '',
+      stderr: error.stderr?.trim() || error.message,
+      exitCode: error.code,
+    };
+  }
+});
+
 // AI Chat handler
 ipcMain.handle('ai:chat', async (_event, messages: Array<{ role: string; content: string }>, context?: { filePath?: string; fileContent?: string }) => {
   try {
@@ -323,9 +352,22 @@ ipcMain.handle('ai:chat', async (_event, messages: Array<{ role: string; content
     const anthropic = new Anthropic({ apiKey });
 
     // Build messages with context if provided
+    const baseSystemMessage = `You are an AI coding assistant integrated into an IDE. You can help users with:
+- Code analysis and debugging
+- Writing and editing code
+- Running shell commands to test, build, or check status
+- Git operations
+
+When you need to run a command, format it in a bash code block like this:
+\`\`\`bash
+npm test
+\`\`\`
+
+IMPORTANT: All commands in bash code blocks are automatically executed immediately. You will see the output in the next message. Do NOT ask the user to click any buttons or run commands manually - just include the command and it will execute automatically.`;
+
     const systemMessage = context?.fileContent
-      ? `You are an AI coding assistant integrated into an IDE. The user is currently viewing/editing this file:\n\nFile: ${context.filePath}\n\n\`\`\`\n${context.fileContent}\n\`\`\`\n\nHelp them with their questions about this code or any coding tasks.`
-      : 'You are an AI coding assistant integrated into an IDE. Help users with their coding questions and tasks.';
+      ? `${baseSystemMessage}\n\nThe user is currently viewing/editing this file:\n\nFile: ${context.filePath}\n\n\`\`\`\n${context.fileContent}\n\`\`\``
+      : baseSystemMessage;
 
     const response = await anthropic.messages.create({
       model: 'claude-3-5-sonnet-20241022',

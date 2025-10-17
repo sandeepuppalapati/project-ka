@@ -3,16 +3,27 @@ import './ChatPanel.css';
 
 interface Message {
   id: string;
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'command';
   content: string;
   timestamp: Date;
+  command?: {
+    command: string;
+    cwd?: string;
+    output?: {
+      success: boolean;
+      stdout: string;
+      stderr: string;
+      exitCode?: number;
+    };
+  };
 }
 
 interface ChatPanelProps {
   currentFile: { path: string; name: string } | null;
+  currentRepo: { id: string; path: string; name: string } | null;
 }
 
-export function ChatPanel({ currentFile }: ChatPanelProps) {
+export function ChatPanel({ currentFile, currentRepo }: ChatPanelProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -120,13 +131,22 @@ export function ChatPanel({ currentFile }: ChatPanelProps) {
         }
       }
 
-      // Build conversation history for API (exclude system messages)
+      // Build conversation history for API (exclude system messages, convert command messages to assistant context)
       const apiMessages = newMessages
         .filter(msg => msg.id !== '1') // Skip initial greeting
-        .map(msg => ({
-          role: msg.role,
-          content: msg.content
-        }));
+        .map(msg => {
+          if (msg.role === 'command' && msg.command?.output) {
+            // Convert command messages to assistant messages with output
+            return {
+              role: 'assistant' as const,
+              content: `Command executed: ${msg.command.command}\n\nOutput:\n${msg.command.output.stdout || ''}${msg.command.output.stderr ? '\nError: ' + msg.command.output.stderr : ''}`
+            };
+          }
+          return {
+            role: msg.role as 'user' | 'assistant',
+            content: msg.content
+          };
+        });
 
       const response = await window.electronAPI.sendChatMessage(apiMessages, context);
 
@@ -137,6 +157,16 @@ export function ChatPanel({ currentFile }: ChatPanelProps) {
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, aiMessage]);
+
+      // Auto-execute commands in bash code blocks
+      const codeBlockRegex = /```(?:bash|shell|sh)?\n(.*?)\n```/gs;
+      const matches = [...response.matchAll(codeBlockRegex)];
+
+      for (const match of matches) {
+        const command = match[1].trim();
+        // Auto-run all commands suggested by AI in the repo directory
+        await handleRunCommand(command, currentRepo?.path);
+      }
     } catch (error) {
       console.error('AI error:', error);
       const errorMessage: Message = {
@@ -156,6 +186,106 @@ export function ChatPanel({ currentFile }: ChatPanelProps) {
       e.preventDefault();
       handleSend();
     }
+  };
+
+  const handleRunCommand = async (command: string, cwd?: string) => {
+    const commandMessage: Message = {
+      id: Date.now().toString(),
+      role: 'command',
+      content: `Running: ${command}`,
+      timestamp: new Date(),
+      command: {
+        command,
+        cwd
+      }
+    };
+
+    setMessages(prev => [...prev, commandMessage]);
+    setInput('');
+    setIsProcessing(true);
+
+    try {
+      const result = await window.electronAPI.executeCommand(command, cwd);
+
+      // Update the command message with output
+      setMessages(prev => prev.map(msg =>
+        msg.id === commandMessage.id
+          ? {
+              ...msg,
+              command: {
+                ...msg.command!,
+                output: result
+              }
+            }
+          : msg
+      ));
+    } catch (error) {
+      console.error('Command execution error:', error);
+      setMessages(prev => prev.map(msg =>
+        msg.id === commandMessage.id
+          ? {
+              ...msg,
+              command: {
+                ...msg.command!,
+                output: {
+                  success: false,
+                  stdout: '',
+                  stderr: error instanceof Error ? error.message : 'Unknown error',
+                }
+              }
+            }
+          : msg
+      ));
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const renderMessageWithCommands = (content: string) => {
+    // Parse markdown code blocks and add run buttons
+    const parts: JSX.Element[] = [];
+    const codeBlockRegex = /```(?:bash|shell|sh)?\n(.*?)\n```/gs;
+    let lastIndex = 0;
+    let match;
+
+    while ((match = codeBlockRegex.exec(content)) !== null) {
+      // Add text before code block
+      if (match.index > lastIndex) {
+        parts.push(
+          <span key={`text-${lastIndex}`}>
+            {content.substring(lastIndex, match.index)}
+          </span>
+        );
+      }
+
+      // Add code block with run button
+      const command = match[1].trim();
+      parts.push(
+        <div key={`code-${match.index}`} className="inline-command-block">
+          <pre><code>{command}</code></pre>
+          <button
+            className="inline-run-button"
+            onClick={() => handleRunCommand(command, currentRepo?.path)}
+            disabled={isProcessing}
+          >
+            ⚡ Run
+          </button>
+        </div>
+      );
+
+      lastIndex = match.index + match[0].length;
+    }
+
+    // Add remaining text
+    if (lastIndex < content.length) {
+      parts.push(
+        <span key={`text-${lastIndex}`}>
+          {content.substring(lastIndex)}
+        </span>
+      );
+    }
+
+    return parts.length > 0 ? parts : content;
   };
 
   const toggleVoiceInput = async () => {
@@ -195,10 +325,34 @@ export function ChatPanel({ currentFile }: ChatPanelProps) {
         {messages.map(message => (
           <div key={message.id} className={`message ${message.role}`}>
             <div className="message-avatar">
-              {message.role === 'user' ? '👤' : '🤖'}
+              {message.role === 'user' ? '👤' : message.role === 'command' ? '⚡' : '🤖'}
             </div>
             <div className="message-content">
-              <div className="message-text">{message.content}</div>
+              {message.role === 'command' && message.command ? (
+                <div className="command-message">
+                  <div className="command-input">
+                    <span className="command-prompt">$</span>
+                    <code>{message.command.command}</code>
+                  </div>
+                  {message.command.output && (
+                    <div className={`command-output ${message.command.output.success ? 'success' : 'error'}`}>
+                      {message.command.output.stdout && (
+                        <pre className="stdout">{message.command.output.stdout}</pre>
+                      )}
+                      {message.command.output.stderr && (
+                        <pre className="stderr">{message.command.output.stderr}</pre>
+                      )}
+                      {message.command.output.exitCode !== undefined && (
+                        <div className="exit-code">Exit code: {message.command.output.exitCode}</div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="message-text">
+                  {renderMessageWithCommands(message.content)}
+                </div>
+              )}
               <div className="message-time">
                 {message.timestamp.toLocaleTimeString()}
               </div>
@@ -221,6 +375,14 @@ export function ChatPanel({ currentFile }: ChatPanelProps) {
       </div>
 
       <div className="chat-input-container">
+        {currentRepo && (
+          <div className="chat-context-bar">
+            <span className="context-label">📁</span>
+            <span className="context-path" title={currentRepo.path}>
+              {currentRepo.name}
+            </span>
+          </div>
+        )}
         {/* Voice button hidden until API integration is complete */}
         {/* <button
           className={`voice-button ${isRecording ? 'recording' : ''}`}
@@ -236,7 +398,7 @@ export function ChatPanel({ currentFile }: ChatPanelProps) {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Type or use voice input..."
+            placeholder="Type a message or command..."
             rows={3}
             disabled={isProcessing}
           />
@@ -244,13 +406,23 @@ export function ChatPanel({ currentFile }: ChatPanelProps) {
             <div className="transcript-preview">{transcript}</div>
           )}
         </div>
-        <button
-          className="chat-send"
-          onClick={handleSend}
-          disabled={!input.trim() || isProcessing}
-        >
-          Send
-        </button>
+        <div className="action-buttons">
+          <button
+            className="chat-run"
+            onClick={() => handleRunCommand(input.trim(), currentRepo?.path)}
+            disabled={!input.trim() || isProcessing}
+            title="Run as shell command"
+          >
+            ⚡ Run
+          </button>
+          <button
+            className="chat-send"
+            onClick={handleSend}
+            disabled={!input.trim() || isProcessing}
+          >
+            Send
+          </button>
+        </div>
       </div>
     </div>
   );

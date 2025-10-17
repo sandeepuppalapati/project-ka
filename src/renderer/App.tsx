@@ -87,6 +87,12 @@ function App() {
 
   const activeTab = tabs.find(tab => tab.id === activeTabId);
   const currentFile = activeTab ? { path: activeTab.path, name: activeTab.name } : null;
+
+  // Find which repo the current file belongs to, or default to first repo
+  const currentRepo = currentFile
+    ? repos.find(repo => currentFile.path.startsWith(repo.path))
+    : repos.length > 0 ? repos[0] : null;
+
   const fileViewerRef = useRef<{ save: () => void }>(null);
 
   // Keyboard shortcuts
@@ -209,7 +215,10 @@ function App() {
                   {/* Chat */}
                   <Panel defaultSize={40} minSize={25}>
                     <div className="chat-section">
-                      <ChatPanel currentFile={currentFile} />
+                      <ChatPanel
+                        currentFile={currentFile}
+                        currentRepo={currentRepo}
+                      />
                     </div>
                   </Panel>
                 </PanelGroup>

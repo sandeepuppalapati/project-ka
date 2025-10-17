@@ -131,8 +131,35 @@
   background-color: #252526;
   border-top: 1px solid #3e3e42;
   display: flex;
+  flex-direction: column;
   gap: 0.5rem;
-  align-items: flex-end;
+}
+
+.chat-context-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background-color: #1e1e1e;
+  border: 1px solid #3e3e42;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.context-label {
+  font-size: 1rem;
+}
+
+.context-path {
+  color: #6a9955;
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  font-size: 0.875rem;
+}
+
+.chat-input-container > .input-wrapper,
+.chat-input-container > .action-buttons {
+  display: flex;
+  gap: 0.5rem;
 }
 
 .voice-button {
@@ -219,17 +246,47 @@
   margin-bottom: -1px;
 }
 
-.chat-send {
-  background-color: #0e639c;
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-direction: column;
+}
+
+.chat-run {
+  background-color: #6a9955;
   color: white;
   border: none;
-  padding: 0.75rem 1.5rem;
+  padding: 0.5rem 1rem;
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.875rem;
   font-weight: 600;
   transition: background-color 0.2s;
-  align-self: flex-end;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  justify-content: center;
+}
+
+.chat-run:hover:not(:disabled) {
+  background-color: #7fb069;
+}
+
+.chat-run:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.chat-send {
+  background-color: #0e639c;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: background-color 0.2s;
 }
 
 .chat-send:hover:not(:disabled) {
@@ -237,6 +294,120 @@
 }
 
 .chat-send:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Command message styling */
+.command-message {
+  background-color: #2d2d30;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #3e3e42;
+}
+
+.command-input {
+  background-color: #1e1e1e;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 1px solid #3e3e42;
+}
+
+.command-prompt {
+  color: #6a9955;
+  font-weight: bold;
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+}
+
+.command-input code {
+  color: #cccccc;
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  font-size: 0.875rem;
+}
+
+.command-output {
+  padding: 0.75rem 1rem;
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  font-size: 0.875rem;
+}
+
+.command-output.success {
+  background-color: rgba(106, 153, 85, 0.1);
+}
+
+.command-output.error {
+  background-color: rgba(241, 76, 76, 0.1);
+}
+
+.command-output pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.command-output .stdout {
+  color: #cccccc;
+}
+
+.command-output .stderr {
+  color: #f14c4c;
+  margin-top: 0.5rem;
+}
+
+.command-output .exit-code {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #858585;
+}
+
+/* Inline command blocks in AI messages */
+.inline-command-block {
+  background-color: #1e1e1e;
+  border: 1px solid #3e3e42;
+  border-radius: 4px;
+  margin: 0.5rem 0;
+  padding: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.inline-command-block pre {
+  margin: 0;
+  flex: 1;
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  font-size: 0.875rem;
+  color: #cccccc;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.inline-command-block code {
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+}
+
+.inline-run-button {
+  background-color: #6a9955;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.inline-run-button:hover:not(:disabled) {
+  background-color: #7fb069;
+}
+
+.inline-run-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }

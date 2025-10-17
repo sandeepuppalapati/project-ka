@@ -14,6 +14,12 @@ export interface ElectronAPI {
   readFile: (filePath: string) => Promise<string | null>;
   writeFile: (filePath: string, content: string) => Promise<boolean>;
   sendChatMessage: (messages: Array<{ role: string; content: string }>, context?: { filePath?: string; fileContent?: string }) => Promise<string>;
+  executeCommand: (command: string, cwd?: string) => Promise<{
+    success: boolean;
+    stdout: string;
+    stderr: string;
+    exitCode?: number;
+  }>;
 }
 
 export interface GitStatus {

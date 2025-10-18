@@ -10,6 +10,7 @@ import { TabBar } from './components/TabBar'
 import { QuickOpen } from './components/QuickOpen'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useRepositoriesPersistence, useWorkspacePersistence } from './hooks/usePersistence'
+import { useBridge } from './contexts/BridgeContext'
 
 interface Repository {
   id: string;
@@ -32,6 +33,7 @@ function App() {
   const [showQuickOpen, setShowQuickOpen] = useState(false);
   const [activeChatTab, setActiveChatTab] = useState<string>('bridge');
   const gitPanelRef = useRef<{ refresh: () => void }>(null);
+  const bridge = useBridge();
 
   // Restore repositories from localStorage
   const handleReposLoad = useCallback((loadedRepos: Repository[]) => {
@@ -66,6 +68,24 @@ function App() {
   );
 
   const handleReposChanged = (newRepos: Repository[]) => {
+    // Check for newly added repos
+    const addedRepos = newRepos.filter(
+      newRepo => !repos.find(existingRepo => existingRepo.id === newRepo.id)
+    );
+
+    // Post intro message to bridge for each new repo
+    addedRepos.forEach(repo => {
+      bridge.postToBridge({
+        agentId: repo.id,
+        agentName: repo.name,
+        type: 'status',
+        content: `👋 Hello! I'm the AI agent for **${repo.name}**. I'm ready to help with code, debugging, and collaboration. Feel free to ask me questions or assign me tasks!`,
+        metadata: {
+          repoPath: repo.path,
+        },
+      });
+    });
+
     setRepos(newRepos);
     if (newRepos.length > 0) {
       setShowRepoManager(false);

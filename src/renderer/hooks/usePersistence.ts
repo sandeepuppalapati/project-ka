@@ -116,6 +116,8 @@ export function saveChatMessages(tabId: string, messages: PersistedMessage[]) {
   try {
     const allMessages = loadAllChatMessages();
     allMessages[tabId] = messages;
+    console.log(`[saveChatMessages] Saving ${messages.length} messages for tabId="${tabId}"`);
+    console.log(`[saveChatMessages] All tabs in storage:`, Object.keys(allMessages));
     localStorage.setItem(STORAGE_KEYS.CHAT_MESSAGES, JSON.stringify(allMessages));
   } catch (error) {
     console.error(`Failed to save chat messages for ${tabId}:`, error);
@@ -125,7 +127,10 @@ export function saveChatMessages(tabId: string, messages: PersistedMessage[]) {
 export function loadChatMessages(tabId: string): PersistedMessage[] {
   try {
     const allMessages = loadAllChatMessages();
-    return allMessages[tabId] || [];
+    const messages = allMessages[tabId] || [];
+    console.log(`[loadChatMessages] Loading ${messages.length} messages for tabId="${tabId}"`);
+    console.log(`[loadChatMessages] All tabs in storage:`, Object.keys(allMessages));
+    return messages;
   } catch (error) {
     console.error(`Failed to load chat messages for ${tabId}:`, error);
     return [];
@@ -224,6 +229,7 @@ export function useChatMessagesPersistence(
   useEffect(() => {
     if (!loadedRef.current) {
       const saved = loadChatMessages(tabIdRef.current);
+      console.log(`[usePersistence ${tabIdRef.current}] Loading ${saved.length} messages from localStorage`);
       if (saved.length > 0) {
         onLoad(saved);
       }
@@ -235,6 +241,7 @@ export function useChatMessagesPersistence(
   useEffect(() => {
     if (messages.length > 0 && loadedRef.current) {
       const timer = setTimeout(() => {
+        console.log(`[usePersistence ${tabIdRef.current}] Saving ${messages.length} messages to localStorage`);
         saveChatMessages(tabIdRef.current, messages);
       }, 1000); // Debounce 1s
 

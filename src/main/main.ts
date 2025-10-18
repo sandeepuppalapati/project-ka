@@ -358,7 +358,8 @@ interface ChatContext {
   bridgeMessages?: BridgeMessage[];
 }
 
-ipcMain.handle('ai:chat', async (_event, messages: Array<{ role: string; content: string }>, context?: ChatContext) => {
+ipcMain.handle('ai:chat', async (_event, messages: Array<{ role: string; content: string }>, context?: ChatContext, sessionId?: string) => {
+  console.log('[main.ts] Received sessionId:', sessionId);
   try {
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
@@ -539,7 +540,7 @@ Work autonomously - call tools as needed to complete tasks. Don't hesitate to co
           if (chunk.delta.type === 'text_delta') {
             currentText += chunk.delta.text;
             // Send text chunk to renderer
-            _event.sender.send('ai:stream-chunk', { type: 'text', content: chunk.delta.text });
+            _event.sender.send('ai:stream-chunk', { type: 'text', content: chunk.delta.text, sessionId });
           }
         } else if (chunk.type === 'content_block_start') {
           if (chunk.content_block.type === 'tool_use') {
@@ -581,23 +582,23 @@ Work autonomously - call tools as needed to complete tasks. Don't hesitate to co
         try {
           switch (toolName) {
             case 'read_file':
-              _event.sender.send('ai:stream-chunk', { type: 'tool', tool: 'read_file', status: 'executing', params: toolInput });
+              _event.sender.send('ai:stream-chunk', { type: 'tool', sessionId, tool: 'read_file', status: 'executing', params: toolInput });
               const fileContent = await fs.readFile(toolInput.file_path, 'utf-8');
               result = { success: true, content: fileContent };
               finalResponse += `\n📄 Read: ${toolInput.file_path}\n`;
-              _event.sender.send('ai:stream-chunk', { type: 'tool', tool: 'read_file', status: 'complete', params: toolInput });
+              _event.sender.send('ai:stream-chunk', { type: 'tool', sessionId, tool: 'read_file', status: 'complete', params: toolInput });
               break;
 
             case 'write_file':
-              _event.sender.send('ai:stream-chunk', { type: 'tool', tool: 'write_file', status: 'executing', params: { file_path: toolInput.file_path } });
+              _event.sender.send('ai:stream-chunk', { type: 'tool', sessionId, tool: 'write_file', status: 'executing', params: { file_path: toolInput.file_path } });
               await fs.writeFile(toolInput.file_path, toolInput.content, 'utf-8');
               result = { success: true, message: 'File written successfully' };
               finalResponse += `\n✏️ Wrote: ${toolInput.file_path}\n`;
-              _event.sender.send('ai:stream-chunk', { type: 'tool', tool: 'write_file', status: 'complete', params: { file_path: toolInput.file_path } });
+              _event.sender.send('ai:stream-chunk', { type: 'tool', sessionId, tool: 'write_file', status: 'complete', params: { file_path: toolInput.file_path } });
               break;
 
             case 'execute_command':
-              _event.sender.send('ai:stream-chunk', { type: 'tool', tool: 'execute_command', status: 'executing', params: toolInput });
+              _event.sender.send('ai:stream-chunk', { type: 'tool', sessionId, tool: 'execute_command', status: 'executing', params: toolInput });
               try {
                 const { stdout, stderr } = await execAsync(toolInput.command, {
                   cwd: toolInput.cwd || process.cwd(),
@@ -605,7 +606,7 @@ Work autonomously - call tools as needed to complete tasks. Don't hesitate to co
                 });
                 result = { success: true, stdout: stdout.trim(), stderr: stderr.trim() };
                 finalResponse += `\n⚡ Ran: ${toolInput.command}\n`;
-                _event.sender.send('ai:stream-chunk', { type: 'tool', tool: 'execute_command', status: 'complete', params: toolInput, result: { stdout: stdout.trim() } });
+                _event.sender.send('ai:stream-chunk', { type: 'tool', sessionId, tool: 'execute_command', status: 'complete', params: toolInput, result: { stdout: stdout.trim() } });
               } catch (error: any) {
                 result = {
                   success: false,
@@ -614,13 +615,13 @@ Work autonomously - call tools as needed to complete tasks. Don't hesitate to co
                   exitCode: error.code
                 };
                 finalResponse += `\n⚡ Ran: ${toolInput.command} (failed)\n`;
-                _event.sender.send('ai:stream-chunk', { type: 'tool', tool: 'execute_command', status: 'error', params: toolInput, error: error.message });
+                _event.sender.send('ai:stream-chunk', { type: 'tool', sessionId, tool: 'execute_command', status: 'error', params: toolInput, error: error.message });
               }
               break;
 
             case 'post_to_bridge':
               try {
-                _event.sender.send('ai:stream-chunk', { type: 'tool', tool: 'post_to_bridge', status: 'executing', params: toolInput });
+                _event.sender.send('ai:stream-chunk', { type: 'tool', sessionId, tool: 'post_to_bridge', status: 'executing', params: toolInput });
 
                 // Send bridge message to renderer
                 _event.sender.send('bridge:agent-post', {
@@ -636,19 +637,19 @@ Work autonomously - call tools as needed to complete tasks. Don't hesitate to co
                 };
 
                 finalResponse += `\n📢 Posted to Bridge: ${toolInput.message.substring(0, 100)}${toolInput.message.length > 100 ? '...' : ''}\n`;
-                _event.sender.send('ai:stream-chunk', { type: 'tool', tool: 'post_to_bridge', status: 'complete', params: toolInput });
+                _event.sender.send('ai:stream-chunk', { type: 'tool', sessionId, tool: 'post_to_bridge', status: 'complete', params: toolInput });
               } catch (error: any) {
                 result = {
                   success: false,
                   error: error.message
                 };
-                _event.sender.send('ai:stream-chunk', { type: 'tool', tool: 'post_to_bridge', status: 'error', error: error.message });
+                _event.sender.send('ai:stream-chunk', { type: 'tool', sessionId, tool: 'post_to_bridge', status: 'error', error: error.message });
               }
               break;
 
             case 'read_bridge':
               try {
-                _event.sender.send('ai:stream-chunk', { type: 'tool', tool: 'read_bridge', status: 'executing', params: toolInput });
+                _event.sender.send('ai:stream-chunk', { type: 'tool', sessionId, tool: 'read_bridge', status: 'executing', params: toolInput });
 
                 // Bridge messages are already provided in your system prompt under "Recent Bridge Activity"
                 // Check the context provided at the start of our conversation
@@ -658,13 +659,13 @@ Work autonomously - call tools as needed to complete tasks. Don't hesitate to co
                 };
 
                 finalResponse += `\n👁️ Checked Bridge messages\n`;
-                _event.sender.send('ai:stream-chunk', { type: 'tool', tool: 'read_bridge', status: 'complete', params: toolInput });
+                _event.sender.send('ai:stream-chunk', { type: 'tool', sessionId, tool: 'read_bridge', status: 'complete', params: toolInput });
               } catch (error: any) {
                 result = {
                   success: false,
                   error: error.message
                 };
-                _event.sender.send('ai:stream-chunk', { type: 'tool', tool: 'read_bridge', status: 'error', error: error.message });
+                _event.sender.send('ai:stream-chunk', { type: 'tool', sessionId, tool: 'read_bridge', status: 'error', error: error.message });
               }
               break;
 
@@ -673,7 +674,7 @@ Work autonomously - call tools as needed to complete tasks. Don't hesitate to co
           }
         } catch (error: any) {
           result = { error: error.message };
-          _event.sender.send('ai:stream-chunk', { type: 'tool', tool: toolName, status: 'error', error: error.message });
+          _event.sender.send('ai:stream-chunk', { type: 'tool', sessionId, tool: toolName, status: 'error', error: error.message });
         }
 
         toolResults.push({
@@ -696,12 +697,12 @@ Work autonomously - call tools as needed to complete tasks. Don't hesitate to co
     }
 
     // Send completion event
-    _event.sender.send('ai:stream-chunk', { type: 'done' });
+    _event.sender.send('ai:stream-chunk', { type: 'done', sessionId });
 
     return finalResponse.trim() || 'Task completed';
   } catch (error) {
     console.error('AI chat error:', error);
-    _event.sender.send('ai:stream-chunk', { type: 'error', error: error instanceof Error ? error.message : 'Unknown error' });
+    _event.sender.send('ai:stream-chunk', { type: 'error', sessionId, error: error instanceof Error ? error.message : 'Unknown error' });
     throw error;
   }
 });

@@ -1,5 +1,6 @@
 export interface StreamChunk {
   type: 'text' | 'tool' | 'done' | 'error';
+  sessionId?: string;
   content?: string;
   tool?: string;
   status?: 'executing' | 'complete' | 'error';
@@ -23,7 +24,7 @@ export interface ElectronAPI {
   readDir: (dirPath: string) => Promise<DirEntry[] | null>;
   readFile: (filePath: string) => Promise<string | null>;
   writeFile: (filePath: string, content: string) => Promise<boolean>;
-  sendChatMessage: (messages: Array<{ role: string; content: string }>, context?: { filePath?: string; fileContent?: string; repoPath?: string }) => Promise<string>;
+  sendChatMessage: (messages: Array<{ role: string; content: string }>, context?: { filePath?: string; fileContent?: string; repoPath?: string }, sessionId?: string) => Promise<string>;
   onStreamChunk: (callback: (chunk: StreamChunk) => void) => () => void;
   executeCommand: (command: string, cwd?: string) => Promise<{
     success: boolean;

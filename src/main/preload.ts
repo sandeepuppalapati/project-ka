@@ -25,8 +25,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   writeFile: (filePath: string, content: string) => ipcRenderer.invoke('fs:writeFile', filePath, content),
 
   // AI APIs
-  sendChatMessage: (messages: Array<{ role: string; content: string }>, context?: { filePath?: string; fileContent?: string; repoPath?: string }) =>
-    ipcRenderer.invoke('ai:chat', messages, context),
+  sendChatMessage: (messages: Array<{ role: string; content: string }>, context?: { filePath?: string; fileContent?: string; repoPath?: string }, sessionId?: string) =>
+    ipcRenderer.invoke('ai:chat', messages, context, sessionId),
   onStreamChunk: (callback: (chunk: any) => void) => {
     ipcRenderer.on('ai:stream-chunk', (_event, chunk) => callback(chunk));
     return () => ipcRenderer.removeAllListeners('ai:stream-chunk');

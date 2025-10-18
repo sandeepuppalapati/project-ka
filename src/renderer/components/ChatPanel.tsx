@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import './ChatPanel.css';
 import { useBridge, BridgeMessage } from '../contexts/BridgeContext';
 import {
@@ -42,20 +42,23 @@ interface ChatPanelProps {
 export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: ChatPanelProps) {
   const bridge = useBridge();
 
-  // Generate unique tab ID for persistence
+  // Generate unique tab ID for persistence - use useMemo to ensure stability
   const tabId = isBridge ? 'bridge' : `repo-${currentRepo?.id || 'unknown'}`;
 
-  // Welcome message
-  const getWelcomeMessage = (): Message => ({
+  // Generate unique session ID for this ChatPanel instance to filter streaming responses
+  const sessionIdRef = useRef(`session-${Date.now()}-${Math.random()}`);
+
+  // Welcome message - memoize to prevent recreation on each render
+  const welcomeMessage: Message = {
     id: '1',
     role: 'assistant',
     content: isBridge
       ? '🌐 Welcome to the Bridge! This is where AI agents coordinate across repositories. Agents will post status updates, ask questions, and collaborate here.'
       : `Hello! I'm the AI agent for ${currentRepo?.name || 'this repository'}. I can help you with code changes, debugging, and more. I can also communicate with other agents via the Bridge.`,
     timestamp: new Date(),
-  });
+  };
 
-  const [messages, setMessages] = useState<Message[]>([getWelcomeMessage()]);
+  const [messages, setMessages] = useState<Message[]>([welcomeMessage]);
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -69,20 +72,26 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
 
   // Load messages from localStorage
   const handleMessagesLoad = useCallback((loadedMessages: PersistedMessage[]) => {
+    console.log(`[ChatPanel ${tabId}] handleMessagesLoad called with ${loadedMessages.length} messages`);
+    console.log(`[ChatPanel ${tabId}] Message IDs:`, loadedMessages.map(m => m.id));
     if (loadedMessages.length > 0) {
-      setMessages(loadedMessages.map(deserializeMessage));
+      const deserialized = loadedMessages.map(deserializeMessage);
+      console.log(`[ChatPanel ${tabId}] Setting messages to:`, deserialized.map(m => ({ id: m.id, content: m.content.substring(0, 50) })));
+      setMessages(deserialized);
     }
-  }, []);
+  }, [tabId]);
 
-  // Persist messages (convert to serializable format)
-  const persistedMessages: PersistedMessage[] = messages.map(msg => ({
-    ...serializeMessage(msg),
-    commandOutput: msg.command?.output ? {
-      command: msg.command.command,
-      success: msg.command.output.success,
-      output: msg.command.output.stdout || msg.command.output.stderr,
-    } : undefined,
-  }));
+  // Persist messages (convert to serializable format) - memoized to prevent unnecessary saves
+  const persistedMessages = useMemo<PersistedMessage[]>(() => {
+    return messages.map(msg => ({
+      ...serializeMessage(msg),
+      commandOutput: msg.command?.output ? {
+        command: msg.command.command,
+        success: msg.command.output.success,
+        output: msg.command.output.stdout || msg.command.output.stderr,
+      } : undefined,
+    }));
+  }, [messages]);
 
   useChatMessagesPersistence(tabId, persistedMessages, handleMessagesLoad);
 
@@ -137,6 +146,14 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
   // Set up streaming listener
   useEffect(() => {
     const cleanup = window.electronAPI.onStreamChunk((chunk) => {
+      console.log(`[ChatPanel ${tabId}] Received chunk:`, { chunkSessionId: chunk.sessionId, mySessionId: sessionIdRef.current, type: chunk.type });
+
+      // Only process chunks for this ChatPanel's session
+      if (chunk.sessionId !== sessionIdRef.current) {
+        console.log(`[ChatPanel ${tabId}] Ignoring chunk - sessionId mismatch`);
+        return;
+      }
+
       if (chunk.type === 'text') {
         setIsStreaming(true);
         // Append text chunk to the last assistant message
@@ -339,7 +356,7 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
         });
 
       // Streaming will handle adding the response message via onStreamChunk listener
-      await window.electronAPI.sendChatMessage(apiMessages, context);
+      await window.electronAPI.sendChatMessage(apiMessages, context, sessionIdRef.current);
     } catch (error: any) {
       console.error('AI error:', error);
       if (error.name === 'AbortError') {
@@ -432,7 +449,7 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
         });
 
       // Streaming will handle adding the response message via onStreamChunk listener
-      await window.electronAPI.sendChatMessage(apiMessages, context);
+      await window.electronAPI.sendChatMessage(apiMessages, context, sessionIdRef.current);
     } catch (error: any) {
       console.error('AI error:', error);
       if (error.name === 'AbortError') {

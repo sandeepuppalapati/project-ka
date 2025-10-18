@@ -70,20 +70,22 @@ export function ChatTabs({ repos, currentFile, activeTabId: controlledActiveTabI
         ))}
       </div>
 
-      {/* Render only the active Chat Panel */}
+      {/* Render all Chat Panels but show only active one */}
       <div className="chat-tabs-content">
-        {tabs
-          .filter(tab => tab.id === activeTabId)
-          .map(tab => (
-            <div key={tab.id}>
-              <ChatPanel
-                currentFile={currentFile}
-                currentRepo={tab.repo || null}
-                isBridge={tab.type === 'bridge'}
-                allRepos={repos}
-              />
-            </div>
-          ))}
+        {tabs.map(tab => (
+          <div
+            key={tab.id}
+            style={{ display: activeTabId === tab.id ? 'block' : 'none' }}
+          >
+            <ChatPanel
+              key={tab.id} // Force unique instance per tab
+              currentFile={currentFile}
+              currentRepo={tab.repo || null}
+              isBridge={tab.type === 'bridge'}
+              allRepos={repos}
+            />
+          </div>
+        ))}
       </div>
     </div>
   );

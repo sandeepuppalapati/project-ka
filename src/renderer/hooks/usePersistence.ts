@@ -212,13 +212,14 @@ export function useChatMessagesPersistence(
   messages: PersistedMessage[],
   onLoad: (messages: PersistedMessage[]) => void
 ) {
-  // Load on mount
+  // Load on mount ONLY (don't reload when tabId changes)
   useEffect(() => {
     const saved = loadChatMessages(tabId);
     if (saved.length > 0) {
       onLoad(saved);
     }
-  }, [tabId, onLoad]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
 
   // Save on change (debounced)
   useEffect(() => {

@@ -238,6 +238,118 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
     return cleanup;
   }, []);
 
+  // Auto-respond when mentioned in bridge (for repo agents only)
+  const lastBridgeMessageIdRef = useRef<string | null>(null);
+
+  const handleAutoResponse = useCallback(async (bridgeMessage: BridgeMessage) => {
+    console.log(`[ChatPanel ${tabId}] Triggering auto-response to bridge message`);
+
+    // Add a system message indicating auto-response
+    const autoMessage: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: `[Auto-responding to Bridge message from ${bridgeMessage.agentName}]\n\nBridge question: "${bridgeMessage.content}"\n\nPlease analyze this question and provide a helpful response. Post your answer to the bridge using the post_to_bridge tool.`,
+      timestamp: new Date(),
+    };
+
+    setMessages(prev => [...prev, autoMessage]);
+    setIsProcessing(true);
+    abortControllerRef.current = new AbortController();
+
+    try {
+      // Build context with bridge awareness
+      const context: any = {
+        isBridge: false,
+        allRepos,
+      };
+
+      if (currentRepo) {
+        context.repoPath = currentRepo.path;
+        context.repoName = currentRepo.name;
+      }
+
+      if (currentFile?.path) {
+        const fileContent = await window.electronAPI.readFile(currentFile.path);
+        if (fileContent) {
+          context.filePath = currentFile.path;
+          context.fileContent = fileContent;
+        }
+      }
+
+      // Include recent bridge messages
+      context.bridgeMessages = bridge.getRecentMessages(5).map(m => ({
+        agentName: m.agentName,
+        content: m.content,
+        timestamp: m.timestamp,
+      }));
+
+      // Get current messages at time of call
+      const currentMessages = [...messages, autoMessage];
+
+      // Convert message history to API format
+      const apiMessages = currentMessages
+        .filter(msg => msg.id !== '1')
+        .map(msg => {
+          if (msg.role === 'command' && msg.command?.output) {
+            return {
+              role: 'assistant' as const,
+              content: `Command executed: ${msg.command.command}\n\nOutput:\n${msg.command.output.stdout || ''}${msg.command.output.stderr ? '\nError: ' + msg.command.output.stderr : ''}`
+            };
+          }
+          return {
+            role: msg.role as 'user' | 'assistant',
+            content: msg.content
+          };
+        });
+
+      // Streaming will handle adding the response message
+      await window.electronAPI.sendChatMessage(apiMessages, context, sessionIdRef.current);
+    } catch (error: any) {
+      console.error('Auto-response error:', error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: `Error auto-responding: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, errorMessage]);
+      setIsProcessing(false);
+    }
+  }, [tabId, allRepos, currentRepo, currentFile, messages, bridge]);
+
+  useEffect(() => {
+    if (isBridge || !currentRepo || isProcessing) return;
+
+    const recentMessages = bridge.getRecentMessages(1);
+    if (recentMessages.length === 0) return;
+
+    const latestMessage = recentMessages[0];
+
+    // Skip if we've already processed this message
+    if (latestMessage.id === lastBridgeMessageIdRef.current) return;
+
+    // Check if this agent is mentioned
+    const agentMentions = [
+      `@${currentRepo.name}`,
+      `@test-backend`,
+      `@test-frontend`,
+    ];
+
+    const isMentioned = agentMentions.some(mention =>
+      latestMessage.content.toLowerCase().includes(mention.toLowerCase())
+    );
+
+    if (isMentioned) {
+      console.log(`[ChatPanel ${tabId}] Agent mentioned in bridge! Auto-responding...`);
+      lastBridgeMessageIdRef.current = latestMessage.id;
+
+      // Trigger automatic response with a small delay to avoid race conditions
+      setTimeout(() => {
+        handleAutoResponse(latestMessage);
+      }, 500);
+    }
+  }, [bridge.messages, isBridge, currentRepo, isProcessing, handleAutoResponse, tabId]);
+
   useEffect(() => {
     // Initialize Web Speech API
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {

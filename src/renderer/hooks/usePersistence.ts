@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -212,25 +212,35 @@ export function useChatMessagesPersistence(
   messages: PersistedMessage[],
   onLoad: (messages: PersistedMessage[]) => void
 ) {
-  // Load on mount ONLY (don't reload when tabId changes)
+  const loadedRef = useRef(false);
+  const tabIdRef = useRef(tabId);
+
+  // Update ref when tabId changes
   useEffect(() => {
-    const saved = loadChatMessages(tabId);
-    if (saved.length > 0) {
-      onLoad(saved);
+    tabIdRef.current = tabId;
+  }, [tabId]);
+
+  // Load on mount ONLY
+  useEffect(() => {
+    if (!loadedRef.current) {
+      const saved = loadChatMessages(tabIdRef.current);
+      if (saved.length > 0) {
+        onLoad(saved);
+      }
+      loadedRef.current = true;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Only run once on mount
+  }, [onLoad]);
 
   // Save on change (debounced)
   useEffect(() => {
-    if (messages.length > 0) {
+    if (messages.length > 0 && loadedRef.current) {
       const timer = setTimeout(() => {
-        saveChatMessages(tabId, messages);
+        saveChatMessages(tabIdRef.current, messages);
       }, 1000); // Debounce 1s
 
       return () => clearTimeout(timer);
     }
-  }, [tabId, messages]);
+  }, [messages]);
 }
 
 // Hook for auto-saving bridge messages

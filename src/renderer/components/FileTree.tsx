@@ -24,6 +24,10 @@ export function FileTree({ repoPath, repoName, onFileSelect }: FileTreeProps) {
     loadDirectory(repoPath);
   }, [repoPath]);
 
+  const handleRefresh = () => {
+    loadDirectory(repoPath);
+  };
+
   const loadDirectory = async (dirPath: string) => {
     setLoading(true);
     try {
@@ -154,9 +158,19 @@ export function FileTree({ repoPath, repoName, onFileSelect }: FileTreeProps) {
 
   return (
     <div className={`file-tree ${isCollapsed ? 'collapsed' : ''}`}>
-      <div className="file-tree-header" onClick={() => setIsCollapsed(!isCollapsed)}>
-        <span className="collapse-icon">{isCollapsed ? '▶' : '▼'}</span>
-        <span>{repoName}</span>
+      <div className="file-tree-header">
+        <div onClick={() => setIsCollapsed(!isCollapsed)} style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+          <span className="collapse-icon">{isCollapsed ? '▶' : '▼'}</span>
+          <span>{repoName}</span>
+        </div>
+        <button
+          className="refresh-button"
+          onClick={(e) => { e.stopPropagation(); handleRefresh(); }}
+          title="Refresh file tree"
+          style={{ marginLeft: 'auto', padding: '2px 6px', fontSize: '12px', cursor: 'pointer' }}
+        >
+          ↻
+        </button>
       </div>
       {!isCollapsed && (
         <div className="file-tree-content">

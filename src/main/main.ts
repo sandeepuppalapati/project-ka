@@ -418,6 +418,38 @@ ipcMain.handle('ai:chat', async (_event, messages: Array<{ role: string; content
           },
           required: ['command']
         }
+      },
+      {
+        name: 'post_to_bridge',
+        description: 'Post a message to the Bridge for other agents to see. Use this when you need help from another agent, want to share status, or need information from another repository.',
+        input_schema: {
+          type: 'object' as const,
+          properties: {
+            message: {
+              type: 'string',
+              description: 'The message to post. Be specific about what you need. You can mention specific agents using @agent-name format.'
+            },
+            type: {
+              type: 'string',
+              enum: ['question', 'status', 'request', 'info'],
+              description: 'Type of message: question (asking for help), status (update on progress), request (asking agent to do something), info (sharing information)'
+            }
+          },
+          required: ['message', 'type']
+        }
+      },
+      {
+        name: 'read_bridge',
+        description: 'Read recent messages from the Bridge to see what other agents are doing or if anyone needs your help.',
+        input_schema: {
+          type: 'object' as const,
+          properties: {
+            count: {
+              type: 'number',
+              description: 'Number of recent messages to read (default: 5, max: 20)'
+            }
+          }
+        }
       }
     ];
 
@@ -447,6 +479,8 @@ You can:
 - Execute shell commands using tools
 - Analyze code and debug issues
 - Work autonomously to complete multi-step tasks
+- **Post to Bridge** to coordinate with other agents
+- **Read Bridge** to see what other agents are doing
 
 Your repository path: ${context?.repoPath || 'Not set'}
 When executing commands, use this as the working directory (cwd parameter).
@@ -460,9 +494,17 @@ ${context?.allRepos && context.allRepos.length > 1 ? `\nOther repositories in th
 
 ${context?.bridgeMessages && context.bridgeMessages.length > 0 ? `\n**Recent Bridge Activity** (latest first, what other agents are doing):\n${context.bridgeMessages.slice().reverse().map((m, idx) => `${idx + 1}. [${m.agentName}]: ${m.content.substring(0, 200)}${m.content.length > 200 ? '...' : ''}`).join('\n')}` : ''}
 
-When you complete tasks or need coordination, the user can post your updates to the Bridge using the "Post to Bridge" button.
+**Autonomous Coordination:**
+You should proactively use the bridge when:
+1. **You need information from another repo** - Post a question to the Bridge asking the relevant agent
+2. **You're stuck or blocked** - Ask for help from other agents or the user
+3. **You complete a major task** - Share status updates so others know what you've done
+4. **You discover important info** - Share findings that might help other agents
+5. **Someone asks you a question** - Monitor the bridge and respond when addressed
 
-Work autonomously - call tools as needed to complete tasks. Continue until the task is done.`;
+Use the \`post_to_bridge\` tool to send messages. Use \`read_bridge\` to check for new messages (though recent messages are already shown above).
+
+Work autonomously - call tools as needed to complete tasks. Don't hesitate to coordinate with other agents when it would help!`;
     }
 
 
@@ -573,6 +615,56 @@ Work autonomously - call tools as needed to complete tasks. Continue until the t
                 };
                 finalResponse += `\n⚡ Ran: ${toolInput.command} (failed)\n`;
                 _event.sender.send('ai:stream-chunk', { type: 'tool', tool: 'execute_command', status: 'error', params: toolInput, error: error.message });
+              }
+              break;
+
+            case 'post_to_bridge':
+              try {
+                _event.sender.send('ai:stream-chunk', { type: 'tool', tool: 'post_to_bridge', status: 'executing', params: toolInput });
+
+                // Send bridge message to renderer
+                _event.sender.send('bridge:agent-post', {
+                  from: context?.repoName || 'unknown',
+                  message: toolInput.message,
+                  type: toolInput.type || 'info',
+                  timestamp: new Date().toISOString()
+                });
+
+                result = {
+                  success: true,
+                  message: 'Posted to bridge successfully'
+                };
+
+                finalResponse += `\n📢 Posted to Bridge: ${toolInput.message.substring(0, 100)}${toolInput.message.length > 100 ? '...' : ''}\n`;
+                _event.sender.send('ai:stream-chunk', { type: 'tool', tool: 'post_to_bridge', status: 'complete', params: toolInput });
+              } catch (error: any) {
+                result = {
+                  success: false,
+                  error: error.message
+                };
+                _event.sender.send('ai:stream-chunk', { type: 'tool', tool: 'post_to_bridge', status: 'error', error: error.message });
+              }
+              break;
+
+            case 'read_bridge':
+              try {
+                _event.sender.send('ai:stream-chunk', { type: 'tool', tool: 'read_bridge', status: 'executing', params: toolInput });
+
+                // Bridge messages are already provided in your system prompt under "Recent Bridge Activity"
+                // Check the context provided at the start of our conversation
+                result = {
+                  success: true,
+                  message: 'Bridge messages are included in your system context. Check the "Recent Bridge Activity" section in your system prompt for the latest messages from other agents. Use post_to_bridge to add new messages.'
+                };
+
+                finalResponse += `\n👁️ Checked Bridge messages\n`;
+                _event.sender.send('ai:stream-chunk', { type: 'tool', tool: 'read_bridge', status: 'complete', params: toolInput });
+              } catch (error: any) {
+                result = {
+                  success: false,
+                  error: error.message
+                };
+                _event.sender.send('ai:stream-chunk', { type: 'tool', tool: 'read_bridge', status: 'error', error: error.message });
               }
               break;
 

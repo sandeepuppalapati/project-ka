@@ -35,3 +35,18 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Shell APIs
   executeCommand: (command: string, cwd?: string) => ipcRenderer.invoke('shell:execute', command, cwd),
 });
+
+// Expose a separate electron API for IPC event handling
+contextBridge.exposeInMainWorld('electron', {
+  ipcRenderer: {
+    on: (channel: string, func: (...args: any[]) => void) => {
+      ipcRenderer.on(channel, (_event, ...args) => func(...args));
+    },
+    removeListener: (channel: string, func: (...args: any[]) => void) => {
+      ipcRenderer.removeListener(channel, func);
+    },
+    invoke: (channel: string, ...args: any[]) => {
+      return ipcRenderer.invoke(channel, ...args);
+    },
+  }
+});

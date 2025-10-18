@@ -54,5 +54,12 @@ export interface FileStatus {
 declare global {
   interface Window {
     electronAPI: ElectronAPI;
+    electron: {
+      ipcRenderer: {
+        on: (channel: string, func: (...args: any[]) => void) => void;
+        removeListener: (channel: string, func: (...args: any[]) => void) => void;
+        invoke: (channel: string, ...args: any[]) => Promise<any>;
+      };
+    };
   }
 }

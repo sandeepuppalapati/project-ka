@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode, useCallback } from 'react';
+import { createContext, useContext, useState, ReactNode, useCallback, useEffect } from 'react';
 import {
   useBridgeMessagesPersistence,
   serializeBridgeMessage,
@@ -53,6 +53,24 @@ export function BridgeProvider({ children }: { children: ReactNode }) {
   const getRecentMessages = (count: number = 10) => {
     return messages.slice(-count);
   };
+
+  // Listen for agent posts from main process
+  useEffect(() => {
+    const handleAgentPost = (_event: any, data: { from: string; message: string; type: string; timestamp: string }) => {
+      postToBridge({
+        agentId: data.from,
+        agentName: `Agent ${data.from}`,
+        type: data.type as any,
+        content: data.message,
+      });
+    };
+
+    window.electron.ipcRenderer.on('bridge:agent-post', handleAgentPost);
+
+    return () => {
+      window.electron.ipcRenderer.removeListener('bridge:agent-post', handleAgentPost);
+    };
+  }, [postToBridge]);
 
   return (
     <BridgeContext.Provider value={{ messages, postToBridge, getRecentMessages }}>

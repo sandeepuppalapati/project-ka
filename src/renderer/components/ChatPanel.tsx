@@ -14,6 +14,7 @@ interface Message {
   role: 'user' | 'assistant' | 'command';
   content: string;
   timestamp: Date;
+  hidden?: boolean; // For internal system messages not shown in UI
   command?: {
     command: string;
     cwd?: string;
@@ -96,42 +97,65 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
 
   useChatMessagesPersistence(tabId, persistedMessages, handleMessagesLoad);
 
+  // Listen for storage events to sync clear operations across tabs/components
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'chat_messages' && e.newValue === null) {
+        // All chats were cleared
+        setMessages([welcomeMessage]);
+      } else if (e.key === 'chat_messages' && e.newValue) {
+        // Check if this tab's messages were cleared
+        const allMessages = JSON.parse(e.newValue);
+        if (!allMessages[tabId]) {
+          setMessages([welcomeMessage]);
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [tabId, welcomeMessage]);
+
   const handleClearChat = () => {
     if (isBridge) {
-      // Bridge clear: offer to clear all chats
-      const clearAll = confirm('Clear Bridge messages?\n\nClick OK to clear Bridge only, or Cancel to clear ALL chats (Bridge + all agents).');
-      if (clearAll === false) {
-        // User clicked Cancel = clear everything
-        if (confirm('This will clear the Bridge AND all agent chats. Continue?')) {
-          // Clear bridge messages
-          bridge.messages.length = 0;
-          localStorage.removeItem('bridge_messages');
-
-          // Clear all chat messages
-          const allMessages = localStorage.getItem('chat_messages');
-          if (allMessages) {
-            localStorage.removeItem('chat_messages');
-          }
-
-          // Reset current bridge messages
-          setMessages([getWelcomeMessage()]);
-
-          alert('All chats cleared! Refresh the page to see the changes in agent tabs.');
-        }
-      } else {
-        // User clicked OK = clear bridge only
+      // Bridge clear: clear bridge AND all agent chats (coordination context)
+      if (confirm('Clear Bridge and all agent chats?\n\nThis will reset all conversations across the entire workspace. This cannot be undone.')) {
+        // Clear bridge messages
         bridge.messages.length = 0;
         localStorage.removeItem('bridge_messages');
-        setMessages([getWelcomeMessage()]);
+
+        // Clear all chat messages
+        localStorage.removeItem('chat_messages');
+
+        // Reset current bridge messages
+        setMessages([welcomeMessage]);
+
+        // Trigger storage event manually for same-window components
+        window.dispatchEvent(new StorageEvent('storage', {
+          key: 'chat_messages',
+          newValue: null,
+          oldValue: localStorage.getItem('chat_messages'),
+          storageArea: localStorage,
+          url: window.location.href,
+        }));
       }
     } else {
       // Agent chat: just clear this agent's chat
       if (confirm('Clear all messages in this chat? This cannot be undone.')) {
-        setMessages([getWelcomeMessage()]);
+        setMessages([welcomeMessage]);
         // Clear from localStorage
         const allMessages = JSON.parse(localStorage.getItem('chat_messages') || '{}');
         delete allMessages[tabId];
         localStorage.setItem('chat_messages', JSON.stringify(allMessages));
+
+        // Trigger storage event manually for same-window components
+        window.dispatchEvent(new StorageEvent('storage', {
+          key: 'chat_messages',
+          newValue: JSON.stringify(allMessages),
+          oldValue: localStorage.getItem('chat_messages'),
+          storageArea: localStorage,
+          url: window.location.href,
+        }));
       }
     }
   };
@@ -244,15 +268,6 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
   const handleAutoResponse = useCallback(async (bridgeMessage: BridgeMessage) => {
     console.log(`[ChatPanel ${tabId}] Triggering auto-response to bridge message`);
 
-    // Add a system message indicating auto-response
-    const autoMessage: Message = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: `[Auto-responding to Bridge message from ${bridgeMessage.agentName}]\n\nBridge question: "${bridgeMessage.content}"\n\nPlease analyze this question and provide a helpful response. Post your answer to the bridge using the post_to_bridge tool.`,
-      timestamp: new Date(),
-    };
-
-    setMessages(prev => [...prev, autoMessage]);
     setIsProcessing(true);
     abortControllerRef.current = new AbortController();
 
@@ -283,24 +298,23 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
         timestamp: m.timestamp,
       }));
 
-      // Get current messages at time of call
-      const currentMessages = [...messages, autoMessage];
+      // Build API messages from current state
+      const apiMessages = [
+        {
+          role: 'user' as const,
+          content: `You were mentioned by ${bridgeMessage.agentName} in the Bridge:\n\n"${bridgeMessage.content}"\n\nAnalyze this message carefully:\n- If it's a QUESTION or REQUEST that needs your response → Use post_to_bridge to reply\n- If it's just an ACKNOWLEDGMENT or STATUS UPDATE → Simply respond "No response needed" (do NOT use post_to_bridge)\n\nBe brief and only respond when truly necessary.`,
+        }
+      ];
 
-      // Convert message history to API format
-      const apiMessages = currentMessages
-        .filter(msg => msg.id !== '1')
-        .map(msg => {
-          if (msg.role === 'command' && msg.command?.output) {
-            return {
-              role: 'assistant' as const,
-              content: `Command executed: ${msg.command.command}\n\nOutput:\n${msg.command.output.stdout || ''}${msg.command.output.stderr ? '\nError: ' + msg.command.output.stderr : ''}`
-            };
-          }
-          return {
-            role: msg.role as 'user' | 'assistant',
-            content: msg.content
-          };
-        });
+      // Add to UI as hidden message (for persistence but not display)
+      const autoMessage: Message = {
+        id: Date.now().toString(),
+        role: 'user',
+        content: apiMessages[0].content,
+        timestamp: new Date(),
+        hidden: true, // Don't show this internal trigger message
+      };
+      setMessages(prev => [...prev, autoMessage]);
 
       // Streaming will handle adding the response message
       await window.electronAPI.sendChatMessage(apiMessages, context, sessionIdRef.current);
@@ -315,7 +329,7 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
       setMessages(prev => [...prev, errorMessage]);
       setIsProcessing(false);
     }
-  }, [tabId, allRepos, currentRepo, currentFile, messages, bridge]);
+  }, [tabId, allRepos, currentRepo, currentFile, bridge]);
 
   useEffect(() => {
     if (isBridge || !currentRepo || isProcessing) return;
@@ -328,11 +342,15 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
     // Skip if we've already processed this message
     if (latestMessage.id === lastBridgeMessageIdRef.current) return;
 
+    // Skip if this agent is the author of the message (don't respond to self)
+    if (latestMessage.agentName === currentRepo.name || latestMessage.agentId === currentRepo.id) {
+      console.log(`[ChatPanel ${tabId}] Skipping own message in bridge`);
+      return;
+    }
+
     // Check if this agent is mentioned
     const agentMentions = [
       `@${currentRepo.name}`,
-      `@test-backend`,
-      `@test-frontend`,
     ];
 
     const isMentioned = agentMentions.some(mention =>
@@ -340,10 +358,10 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
     );
 
     if (isMentioned) {
-      console.log(`[ChatPanel ${tabId}] Agent mentioned in bridge! Auto-responding...`);
+      console.log(`[ChatPanel ${tabId}] Agent mentioned in bridge by ${latestMessage.agentName}! Auto-triggering...`);
       lastBridgeMessageIdRef.current = latestMessage.id;
 
-      // Trigger automatic response with a small delay to avoid race conditions
+      // Trigger automatic response - agent will decide if response is needed
       setTimeout(() => {
         handleAutoResponse(latestMessage);
       }, 500);
@@ -902,9 +920,9 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
             ))}
           </>
         ) : (
-          // Regular chat: show local messages
+          // Regular chat: show local messages (exclude hidden messages)
           <>
-          {messages.map((message, idx) => (
+          {messages.filter(m => !m.hidden).map((message, idx) => (
           <div key={message.id} className={`message ${message.role} ${isStreaming && idx === messages.length - 1 && message.role === 'assistant' ? 'streaming' : ''}`}>
             <div className="message-avatar">
               {message.role === 'user' ? '👤' : message.role === 'command' ? '⚡' : '🤖'}

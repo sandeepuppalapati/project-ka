@@ -493,7 +493,7 @@ You are part of a multi-repository project with other AI agents. There is a "Bri
 
 ${context?.allRepos && context.allRepos.length > 1 ? `\nOther repositories in this project:\n${context.allRepos.filter(r => r.path !== context.repoPath).map(r => `- ${r.name} Agent (handles ${r.name} repo)`).join('\n')}` : ''}
 
-${context?.bridgeMessages && context.bridgeMessages.length > 0 ? `\n**Recent Bridge Activity** (latest first, what other agents are doing):\n${context.bridgeMessages.slice().reverse().map((m, idx) => `${idx + 1}. [${m.agentName}]: ${m.content.substring(0, 200)}${m.content.length > 200 ? '...' : ''}`).join('\n')}` : ''}
+${context?.bridgeMessages && context.bridgeMessages.length > 0 ? `\n**Recent Bridge Activity** (latest first, messages from other agents):\n${context.bridgeMessages.filter((m: any) => m.agentName !== context.repoName).slice().reverse().map((m: any, idx: number) => `${idx + 1}. [${m.agentName}]: ${m.content.substring(0, 200)}${m.content.length > 200 ? '...' : ''}`).join('\n')}` : ''}
 
 **Autonomous Coordination:**
 You should proactively use the bridge when:

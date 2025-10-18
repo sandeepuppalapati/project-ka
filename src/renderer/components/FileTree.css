@@ -99,3 +99,27 @@
 .file-tree-content::-webkit-scrollbar-thumb:hover {
   background: #4e4e4e;
 }
+
+.file-tree-refresh-btn {
+  background: transparent;
+  border: none;
+  color: #858585;
+  font-size: 16px;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+}
+
+.file-tree-refresh-btn:hover {
+  background: #37373d;
+  color: #fff;
+}
+
+.file-tree-refresh-btn:active {
+  transform: rotate(180deg);
+}

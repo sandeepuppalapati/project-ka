@@ -164,10 +164,9 @@ export function FileTree({ repoPath, repoName, onFileSelect }: FileTreeProps) {
           <span>{repoName}</span>
         </div>
         <button
-          className="refresh-button"
+          className="file-tree-refresh-btn"
           onClick={(e) => { e.stopPropagation(); handleRefresh(); }}
           title="Refresh file tree"
-          style={{ marginLeft: 'auto', padding: '2px 6px', fontSize: '12px', cursor: 'pointer' }}
         >
           ↻
         </button>

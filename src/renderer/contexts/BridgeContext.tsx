@@ -56,13 +56,17 @@ export function BridgeProvider({ children }: { children: ReactNode }) {
 
   // Listen for agent posts from main process
   useEffect(() => {
-    const handleAgentPost = (_event: any, data: { from: string; message: string; type: string; timestamp: string }) => {
-      postToBridge({
+    const handleAgentPost = (data: { from: string; message: string; type: string; timestamp: string }) => {
+      console.log('[BridgeContext] Received agent post:', data);
+      const newMessage: BridgeMessage = {
         agentId: data.from,
-        agentName: `Agent ${data.from}`,
+        agentName: `${data.from}`,
         type: data.type as any,
         content: data.message,
-      });
+        id: `bridge-${Date.now()}-${Math.random()}`,
+        timestamp: new Date(data.timestamp),
+      };
+      setMessages(prev => [...prev, newMessage]);
     };
 
     window.electron.ipcRenderer.on('bridge:agent-post', handleAgentPost);
@@ -70,7 +74,7 @@ export function BridgeProvider({ children }: { children: ReactNode }) {
     return () => {
       window.electron.ipcRenderer.removeListener('bridge:agent-post', handleAgentPost);
     };
-  }, [postToBridge]);
+  }, []);
 
   return (
     <BridgeContext.Provider value={{ messages, postToBridge, getRecentMessages }}>

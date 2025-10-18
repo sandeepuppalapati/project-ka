@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import ReactMarkdown from 'react-markdown';
 import './ChatPanel.css';
 import { useBridge, BridgeMessage } from '../contexts/BridgeContext';
 import {
@@ -143,8 +144,13 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
     scrollToBottom();
   }, [messages]);
 
-  // Set up streaming listener
+  // Set up streaming listener (skip for Bridge tab)
   useEffect(() => {
+    if (isBridge) {
+      // Bridge doesn't use AI streaming
+      return;
+    }
+
     const cleanup = window.electronAPI.onStreamChunk((chunk) => {
       console.log(`[ChatPanel ${tabId}] Received chunk:`, { chunkSessionId: chunk.sessionId, mySessionId: sessionIdRef.current, type: chunk.type });
 
@@ -159,7 +165,8 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
         // Append text chunk to the last assistant message
         setMessages(prev => {
           const lastMsg = prev[prev.length - 1];
-          if (lastMsg && lastMsg.role === 'assistant' && !lastMsg.content.includes('✅')) {
+          // Always append to the last assistant message during streaming
+          if (lastMsg && lastMsg.role === 'assistant') {
             // Update existing streaming message
             return [
               ...prev.slice(0, -1),
@@ -169,7 +176,7 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
               }
             ];
           } else {
-            // Create new assistant message for streaming
+            // Create new assistant message for streaming (only if last msg is not assistant)
             return [
               ...prev,
               {
@@ -635,55 +642,52 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
   };
 
   const renderMessageWithCommands = (content: string) => {
-    // Parse markdown code blocks and add run buttons
-    const parts: JSX.Element[] = [];
-    const codeBlockRegex = /```(?:bash|shell|sh)?\n(.*?)\n```/gs;
-    let lastIndex = 0;
-    let match;
+    return (
+      <ReactMarkdown
+        components={{
+          code({ node, inline, className, children, ...props }) {
+            const match = /language-(\w+)/.exec(className || '');
+            const language = match ? match[1] : '';
+            const isShellCommand = !inline && (language === 'bash' || language === 'shell' || language === 'sh');
 
-    while ((match = codeBlockRegex.exec(content)) !== null) {
-      // Add text before code block
-      if (match.index > lastIndex) {
-        parts.push(
-          <span key={`text-${lastIndex}`}>
-            {content.substring(lastIndex, match.index)}
-          </span>
-        );
-      }
+            if (isShellCommand) {
+              const command = String(children).replace(/\n$/, '');
+              return (
+                <div className="inline-command-block">
+                  <div className="command-header">
+                    <span className="command-label">Shell Command</span>
+                  </div>
+                  <div className="command-body">
+                    <pre><code>{command}</code></pre>
+                    <button
+                      className="inline-run-button"
+                      onClick={() => handleRunCommand(command, currentRepo?.path)}
+                      disabled={isProcessing}
+                    >
+                      ⚡ Run
+                    </button>
+                  </div>
+                </div>
+              );
+            }
 
-      // Add code block with run button
-      const command = match[1].trim();
-      parts.push(
-        <div key={`code-${match.index}`} className="inline-command-block">
-          <div className="command-header">
-            <span className="command-label">Shell Command</span>
-          </div>
-          <div className="command-body">
-            <pre><code>{command}</code></pre>
-            <button
-              className="inline-run-button"
-              onClick={() => handleRunCommand(command, currentRepo?.path)}
-              disabled={isProcessing}
-            >
-              ⚡ Run
-            </button>
-          </div>
-        </div>
-      );
-
-      lastIndex = match.index + match[0].length;
-    }
-
-    // Add remaining text
-    if (lastIndex < content.length) {
-      parts.push(
-        <span key={`text-${lastIndex}`}>
-          {content.substring(lastIndex)}
-        </span>
-      );
-    }
-
-    return parts.length > 0 ? parts : content;
+            return inline ? (
+              <code className={className} {...props}>
+                {children}
+              </code>
+            ) : (
+              <pre>
+                <code className={className} {...props}>
+                  {children}
+                </code>
+              </pre>
+            );
+          },
+        }}
+      >
+        {content}
+      </ReactMarkdown>
+    );
   };
 
   const handlePostToBridge = () => {

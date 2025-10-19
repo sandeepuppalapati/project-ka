@@ -370,12 +370,12 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
     if (latestMessage.id === lastBridgeMessageIdRef.current) return;
 
     // Skip if this agent is the author of the message (don't respond to self)
-    if (latestMessage.agentName === currentRepo.name || latestMessage.agentId === currentRepo.id) {
+    if (latestMessage.agentName === `${currentRepo.name} Agent` || latestMessage.agentId === currentRepo.id) {
       console.log(`[ChatPanel ${tabId}] Skipping own message in bridge`);
       return;
     }
 
-    // Check if this agent is mentioned
+    // Check if this agent is mentioned OR if it's a user message (no specific agent mentioned)
     const agentMentions = [
       `@${currentRepo.name}`,
     ];
@@ -384,8 +384,11 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
       latestMessage.content.toLowerCase().includes(mention.toLowerCase())
     );
 
-    if (isMentioned) {
-      console.log(`[ChatPanel ${tabId}] Agent mentioned in bridge by ${latestMessage.agentName}! Auto-triggering...`);
+    const isUserMessage = latestMessage.agentName === 'You';
+
+    // Auto-respond if mentioned OR if it's a user message (all agents should consider it)
+    if (isMentioned || isUserMessage) {
+      console.log(`[ChatPanel ${tabId}] ${isMentioned ? 'Agent mentioned' : 'User message detected'} in bridge by ${latestMessage.agentName}! Auto-triggering...`);
       lastBridgeMessageIdRef.current = latestMessage.id;
 
       // Trigger automatic response - agent will decide if response is needed
@@ -563,6 +566,19 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
     const newMessages = [...messages, userMessage];
     setMessages(newMessages);
     setInput('');
+
+    // If in Bridge, just post the message directly without AI response
+    if (isBridge) {
+      bridge.postToBridge({
+        agentId: 'user',
+        agentName: 'You',
+        type: 'question',
+        content: userMessage.content,
+        metadata: {},
+      });
+      return;
+    }
+
     setIsProcessing(true);
     abortControllerRef.current = new AbortController();
 

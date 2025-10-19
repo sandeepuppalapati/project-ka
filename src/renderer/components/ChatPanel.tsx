@@ -326,10 +326,15 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
       }));
 
       // Build API messages from current state
+      const isUserBroadcast = bridgeMessage.agentName === 'You';
+      const promptContent = isUserBroadcast
+        ? `The user posted a message in the Bridge:\n\n"${bridgeMessage.content}"\n\nThis message was sent to ALL agents. Analyze if it's relevant to your repository:\n- If it's a request for information, status, summary, or help that you can provide → Use post_to_bridge to reply with relevant information\n- If it's not relevant to your repository → Simply respond "Not applicable to my repository"\n\nWhen responding, be helpful and provide specific information from your codebase.`
+        : `You were mentioned by ${bridgeMessage.agentName} in the Bridge:\n\n"${bridgeMessage.content}"\n\nAnalyze this message carefully:\n- If it's a QUESTION or REQUEST that needs your response → Use post_to_bridge to reply\n- If it's just an ACKNOWLEDGMENT or STATUS UPDATE → Simply respond "No response needed" (do NOT use post_to_bridge)\n\nBe brief and only respond when truly necessary.`;
+
       const apiMessages = [
         {
           role: 'user' as const,
-          content: `You were mentioned by ${bridgeMessage.agentName} in the Bridge:\n\n"${bridgeMessage.content}"\n\nAnalyze this message carefully:\n- If it's a QUESTION or REQUEST that needs your response → Use post_to_bridge to reply\n- If it's just an ACKNOWLEDGMENT or STATUS UPDATE → Simply respond "No response needed" (do NOT use post_to_bridge)\n\nBe brief and only respond when truly necessary.`,
+          content: promptContent,
         }
       ];
 

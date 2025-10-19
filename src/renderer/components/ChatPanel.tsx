@@ -319,7 +319,8 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
       }
 
       // Include recent bridge messages
-      context.bridgeMessages = bridge.getRecentMessages(5).map(m => ({
+      const recentBridgeMessages = bridge.getRecentMessages(5);
+      context.bridgeMessages = recentBridgeMessages.map(m => ({
         agentName: m.agentName,
         content: m.content,
         timestamp: m.timestamp,
@@ -361,7 +362,7 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
       setMessages(prev => [...prev, errorMessage]);
       setIsProcessing(false);
     }
-  }, [tabId, allRepos, currentRepo, currentFile, bridge]);
+  }, [tabId, allRepos, currentRepo, currentFile, bridge.getRecentMessages]);
 
   useEffect(() => {
     if (isBridge || !currentRepo || isProcessing) return;
@@ -376,11 +377,14 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
 
     // Skip if this agent is the author of the message (don't respond to self)
     if (latestMessage.agentName === `${currentRepo.name} Agent` || latestMessage.agentId === currentRepo.id) {
-      console.log(`[ChatPanel ${tabId}] Skipping own message in bridge`);
+      lastBridgeMessageIdRef.current = latestMessage.id;
       return;
     }
 
-    // Check if this agent is mentioned OR if it's a user message (no specific agent mentioned)
+    // Only respond to USER messages, not other agents' messages
+    const isUserMessage = latestMessage.agentName === 'You';
+
+    // Check if this agent is explicitly mentioned
     const agentMentions = [
       `@${currentRepo.name}`,
     ];
@@ -389,11 +393,9 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
       latestMessage.content.toLowerCase().includes(mention.toLowerCase())
     );
 
-    const isUserMessage = latestMessage.agentName === 'You';
-
-    // Auto-respond if mentioned OR if it's a user message (all agents should consider it)
+    // Auto-respond ONLY if it's a user message OR if explicitly mentioned
+    // Do NOT respond to other agents' posts
     if (isMentioned || isUserMessage) {
-      console.log(`[ChatPanel ${tabId}] ${isMentioned ? 'Agent mentioned' : 'User message detected'} in bridge by ${latestMessage.agentName}! Auto-triggering...`);
       lastBridgeMessageIdRef.current = latestMessage.id;
 
       // Trigger automatic response - agent will decide if response is needed
@@ -958,7 +960,7 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
                     [{bridgeMsg.agentName}]
                   </div>
                   <div className="message-text">
-                    {bridgeMsg.content}
+                    {renderMessageWithCommands(bridgeMsg.content)}
                   </div>
                   <div className="message-time">
                     {bridgeMsg.timestamp.toLocaleTimeString()}

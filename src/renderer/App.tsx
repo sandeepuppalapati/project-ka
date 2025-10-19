@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels'
 import './App.css'
 import { RepoManager } from './components/RepoManager'
@@ -33,7 +33,11 @@ function App() {
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [showQuickOpen, setShowQuickOpen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
   const [activeChatTab, setActiveChatTab] = useState<string>('bridge');
+  const [sessionDuration, setSessionDuration] = useState('00:00:00');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const sessionStartTime = useRef(Date.now());
   const gitPanelRef = useRef<{ refresh: () => void }>(null);
   const bridge = useBridge();
 
@@ -180,7 +184,24 @@ function App() {
     onQuickOpen: () => {
       setShowQuickOpen(true);
     },
+    onToggleSidebar: () => {
+      setSidebarCollapsed(!sidebarCollapsed);
+    },
   });
+
+  // Update session duration every second
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - sessionStartTime.current;
+      const hours = Math.floor(elapsed / 3600000);
+      const minutes = Math.floor((elapsed % 3600000) / 60000);
+      const seconds = Math.floor((elapsed % 60000) / 1000);
+      setSessionDuration(
+        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+      );
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="app">
@@ -193,6 +214,86 @@ function App() {
       )}
       {showSettings && (
         <Settings onClose={() => setShowSettings(false)} />
+      )}
+      {showShortcuts && (
+        <div className="modal-overlay" onClick={() => setShowShortcuts(false)}>
+          <div className="shortcuts-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="shortcuts-header">
+              <h2>Keyboard Shortcuts</h2>
+              <button className="close-button" onClick={() => setShowShortcuts(false)}>×</button>
+            </div>
+            <div className="shortcuts-content">
+              <div className="shortcuts-section">
+                <h3>File Operations</h3>
+                <div className="shortcut-item">
+                  <span className="shortcut-keys"><kbd>⌘/Ctrl</kbd> + <kbd>S</kbd></span>
+                  <span className="shortcut-desc">Save current file</span>
+                </div>
+                <div className="shortcut-item">
+                  <span className="shortcut-keys"><kbd>⌘/Ctrl</kbd> + <kbd>W</kbd></span>
+                  <span className="shortcut-desc">Close current tab</span>
+                </div>
+                <div className="shortcut-item">
+                  <span className="shortcut-keys"><kbd>⌘/Ctrl</kbd> + <kbd>P</kbd></span>
+                  <span className="shortcut-desc">Quick open file</span>
+                </div>
+              </div>
+              <div className="shortcuts-section">
+                <h3>Navigation</h3>
+                <div className="shortcut-item">
+                  <span className="shortcut-keys"><kbd>⌘/Ctrl</kbd> + <kbd>Tab</kbd></span>
+                  <span className="shortcut-desc">Next tab</span>
+                </div>
+                <div className="shortcut-item">
+                  <span className="shortcut-keys"><kbd>⌘/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Tab</kbd></span>
+                  <span className="shortcut-desc">Previous tab</span>
+                </div>
+                <div className="shortcut-item">
+                  <span className="shortcut-keys"><kbd>⌘/Ctrl</kbd> + <kbd>B</kbd></span>
+                  <span className="shortcut-desc">Toggle left sidebar</span>
+                </div>
+                <div className="shortcut-item">
+                  <span className="shortcut-keys"><kbd>◀</kbd> button</span>
+                  <span className="shortcut-desc">Collapse left sidebar</span>
+                </div>
+                <div className="shortcut-item">
+                  <span className="shortcut-keys"><kbd>▶</kbd> button</span>
+                  <span className="shortcut-desc">Expand left sidebar</span>
+                </div>
+              </div>
+              <div className="shortcuts-section">
+                <h3>Editor</h3>
+                <div className="shortcut-item">
+                  <span className="shortcut-keys"><kbd>⌘/Ctrl</kbd> + <kbd>Z</kbd></span>
+                  <span className="shortcut-desc">Undo</span>
+                </div>
+                <div className="shortcut-item">
+                  <span className="shortcut-keys"><kbd>⌘/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd></span>
+                  <span className="shortcut-desc">Redo</span>
+                </div>
+                <div className="shortcut-item">
+                  <span className="shortcut-keys"><kbd>⌘/Ctrl</kbd> + <kbd>F</kbd></span>
+                  <span className="shortcut-desc">Find in file</span>
+                </div>
+                <div className="shortcut-item">
+                  <span className="shortcut-keys"><kbd>⌘/Ctrl</kbd> + <kbd>A</kbd></span>
+                  <span className="shortcut-desc">Select all</span>
+                </div>
+              </div>
+              <div className="shortcuts-section">
+                <h3>Chat</h3>
+                <div className="shortcut-item">
+                  <span className="shortcut-keys"><kbd>Enter</kbd></span>
+                  <span className="shortcut-desc">Send message</span>
+                </div>
+                <div className="shortcut-item">
+                  <span className="shortcut-keys"><kbd>Shift</kbd> + <kbd>Enter</kbd></span>
+                  <span className="shortcut-desc">New line in message</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
       <header className="app-header">
         <h1>AI IDE</h1>
@@ -225,73 +326,95 @@ function App() {
           <div className="ide-layout">
             <PanelGroup direction="horizontal">
               {/* Sidebar */}
-              <Panel defaultSize={20} minSize={15} maxSize={40}>
-                <aside className="sidebar">
-                  <PanelGroup direction="vertical">
-                    {/* Git Panel */}
-                    <Panel defaultSize={40} minSize={20} maxSize={60}>
-                      <GitPanel
-                        ref={gitPanelRef}
-                        repos={repos}
-                        onFileSelect={handleFileSelect}
-                      />
-                    </Panel>
-                    <PanelResizeHandle className="resize-handle-horizontal" />
-                    {/* File Trees */}
-                    <Panel minSize={30}>
-                      <div className="file-trees-container">
-                        {repos.map(repo => (
-                          <FileTree
-                            key={repo.id}
-                            repoPath={repo.path}
-                            repoName={repo.name}
-                            onFileSelect={handleFileSelect}
-                          />
-                        ))}
-                      </div>
-                    </Panel>
-                  </PanelGroup>
-                </aside>
-              </Panel>
+              {!sidebarCollapsed && (
+                <Panel defaultSize={20} minSize={15} maxSize={40}>
+                  <aside className="sidebar">
+                    <PanelGroup direction="vertical">
+                      {/* Git Panel */}
+                      <Panel defaultSize={40} minSize={20} maxSize={60}>
+                        <GitPanel
+                          ref={gitPanelRef}
+                          repos={repos}
+                          onFileSelect={handleFileSelect}
+                          onToggleSidebar={() => setSidebarCollapsed(true)}
+                        />
+                      </Panel>
+                      <PanelResizeHandle className="resize-handle-horizontal" />
+                      {/* File Trees */}
+                      <Panel minSize={30}>
+                        <div className="file-trees-container">
+                          {repos.map(repo => (
+                            <FileTree
+                              key={repo.id}
+                              repoPath={repo.path}
+                              repoName={repo.name}
+                              onFileSelect={handleFileSelect}
+                            />
+                          ))}
+                        </div>
+                      </Panel>
+                    </PanelGroup>
+                  </aside>
+                </Panel>
+              )}
 
-              <PanelResizeHandle className="resize-handle-vertical" />
+              {/* Collapse toggle button */}
+              {sidebarCollapsed && (
+                <div className="sidebar-collapsed-toggle" onClick={() => setSidebarCollapsed(false)}>
+                  <span>▶</span>
+                </div>
+              )}
+
+              {!sidebarCollapsed && <PanelResizeHandle className="resize-handle-vertical" />}
 
               {/* Main Content */}
               <Panel minSize={30}>
-                <PanelGroup direction="horizontal">
-                  {/* Editor */}
-                  <Panel defaultSize={60} minSize={30}>
-                    <div className="editor-section">
-                      <TabBar
-                        tabs={tabs}
-                        activeTabId={activeTabId}
-                        onTabClick={handleTabClick}
-                        onTabClose={handleTabClose}
-                      />
-                      <FileViewer
-                        ref={fileViewerRef}
-                        filePath={currentFile?.path || null}
-                        fileName={currentFile?.name || null}
-                        onDirtyChange={handleFileDirtyChange}
-                        onSaved={handleFileSaved}
-                      />
-                    </div>
-                  </Panel>
+                {tabs.length > 0 ? (
+                  <PanelGroup direction="horizontal">
+                    {/* Editor */}
+                    <Panel defaultSize={60} minSize={30}>
+                      <div className="editor-section">
+                        <TabBar
+                          tabs={tabs}
+                          activeTabId={activeTabId}
+                          onTabClick={handleTabClick}
+                          onTabClose={handleTabClose}
+                        />
+                        <FileViewer
+                          ref={fileViewerRef}
+                          filePath={currentFile?.path || null}
+                          fileName={currentFile?.name || null}
+                          onDirtyChange={handleFileDirtyChange}
+                          onSaved={handleFileSaved}
+                        />
+                      </div>
+                    </Panel>
 
-                  <PanelResizeHandle className="resize-handle-vertical" />
+                    <PanelResizeHandle className="resize-handle-vertical" />
 
-                  {/* Chat */}
-                  <Panel defaultSize={40} minSize={25}>
-                    <div className="chat-section">
-                      <ChatTabs
-                        repos={repos}
-                        currentFile={currentFile}
-                        activeTabId={activeChatTab}
-                        onTabChange={setActiveChatTab}
-                      />
-                    </div>
-                  </Panel>
-                </PanelGroup>
+                    {/* Chat */}
+                    <Panel defaultSize={40} minSize={25}>
+                      <div className="chat-section">
+                        <ChatTabs
+                          repos={repos}
+                          currentFile={currentFile}
+                          activeTabId={activeChatTab}
+                          onTabChange={setActiveChatTab}
+                        />
+                      </div>
+                    </Panel>
+                  </PanelGroup>
+                ) : (
+                  /* Full-width Chat when no files open */
+                  <div className="chat-section">
+                    <ChatTabs
+                      repos={repos}
+                      currentFile={currentFile}
+                      activeTabId={activeChatTab}
+                      onTabChange={setActiveChatTab}
+                    />
+                  </div>
+                )}
               </Panel>
             </PanelGroup>
           </div>
@@ -299,7 +422,17 @@ function App() {
       </main>
 
       <footer className="app-footer">
-        <p>PoC: Multi-Repo + Chat UI ✨</p>
+        <div className="footer-left">
+          <span>© 2025 AI IDE</span>
+          <span>|</span>
+          <span>For AI by AI</span>
+        </div>
+        <div className="footer-right">
+          <button className="footer-button" onClick={() => setShowShortcuts(true)} title="Keyboard Shortcuts">
+            ⌨️
+          </button>
+          <span className="session-duration">⏱ {sessionDuration}</span>
+        </div>
       </footer>
     </div>
   )

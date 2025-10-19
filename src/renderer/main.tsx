@@ -5,9 +5,7 @@ import './index.css'
 import { BridgeProvider } from './contexts/BridgeContext'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <BridgeProvider>
-      <App />
-    </BridgeProvider>
-  </React.StrictMode>,
+  <BridgeProvider>
+    <App />
+  </BridgeProvider>,
 )

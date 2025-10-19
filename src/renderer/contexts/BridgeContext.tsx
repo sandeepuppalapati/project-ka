@@ -57,10 +57,9 @@ export function BridgeProvider({ children }: { children: ReactNode }) {
   // Listen for agent posts from main process
   useEffect(() => {
     const handleAgentPost = (data: { from: string; message: string; type: string; timestamp: string }) => {
-      console.log('[BridgeContext] Received agent post:', data);
       const newMessage: BridgeMessage = {
         agentId: data.from,
-        agentName: `${data.from}`,
+        agentName: `${data.from} Agent`,  // Add " Agent" suffix to match format
         type: data.type as any,
         content: data.message,
         id: `bridge-${Date.now()}-${Math.random()}`,

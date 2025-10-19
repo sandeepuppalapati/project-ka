@@ -5,6 +5,7 @@ interface GitPanelProps {
   repos: Array<{ id: string; path: string; name: string }>;
   onRefresh?: () => void;
   onFileSelect?: (filePath: string, fileName: string) => void;
+  onToggleSidebar?: () => void;
 }
 
 export interface GitPanelRef {
@@ -18,7 +19,7 @@ interface ChangedFile {
 }
 
 export const GitPanel = forwardRef<GitPanelRef, GitPanelProps>(
-  ({ repos, onRefresh, onFileSelect }, ref) => {
+  ({ repos, onRefresh, onFileSelect, onToggleSidebar }, ref) => {
   const [changedFiles, setChangedFiles] = useState<ChangedFile[]>([]);
   const [commitMessage, setCommitMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -165,6 +166,9 @@ export const GitPanel = forwardRef<GitPanelRef, GitPanelProps>(
   return (
     <div className="git-panel">
       <div className="git-header">
+        <button className="collapse-sidebar-button" onClick={onToggleSidebar} title="Collapse Sidebar (Cmd+B)">
+          ◀
+        </button>
         <h3>Source Control</h3>
         <button className="refresh-button" onClick={loadChangedFiles}>
           🔄

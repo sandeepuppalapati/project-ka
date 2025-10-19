@@ -13,12 +13,12 @@
 }
 
 .file-tree-header {
-  padding: 0.75rem 1rem;
+  padding: 0.25rem 0.75rem;
   background-color: #2d2d30;
   border-bottom: 1px solid #3e3e42;
   font-weight: 600;
   color: #fff;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   cursor: pointer;
@@ -104,8 +104,8 @@
   background: transparent;
   border: none;
   color: #858585;
-  font-size: 16px;
-  padding: 4px 8px;
+  font-size: 20px;
+  padding: 0;
   cursor: pointer;
   border-radius: 4px;
   transition: all 0.2s;
@@ -113,6 +113,8 @@
   align-items: center;
   justify-content: center;
   margin-left: auto;
+  width: 36px;
+  height: 36px;
 }
 
 .file-tree-refresh-btn:hover {

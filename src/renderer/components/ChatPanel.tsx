@@ -264,9 +264,36 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
 
   // Auto-respond when mentioned in bridge (for repo agents only)
   const lastBridgeMessageIdRef = useRef<string | null>(null);
+  const autoResponseCountRef = useRef<number>(0);
+  const autoResponseWindowRef = useRef<number>(Date.now());
 
   const handleAutoResponse = useCallback(async (bridgeMessage: BridgeMessage) => {
-    console.log(`[ChatPanel ${tabId}] Triggering auto-response to bridge message`);
+    // Circuit breaker: limit auto-responses to prevent infinite loops
+    const now = Date.now();
+    const WINDOW_MS = 60000; // 1 minute window
+    const MAX_RESPONSES = 5; // Max 5 auto-responses per minute
+
+    // Reset counter if window has passed
+    if (now - autoResponseWindowRef.current > WINDOW_MS) {
+      autoResponseCountRef.current = 0;
+      autoResponseWindowRef.current = now;
+    }
+
+    // Check if we've exceeded the limit
+    if (autoResponseCountRef.current >= MAX_RESPONSES) {
+      console.warn(`[ChatPanel ${tabId}] Auto-response circuit breaker activated! Too many responses in the last minute.`);
+      const warningMessage: Message = {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: `⚠️ Auto-response paused: Too many automatic responses detected. This prevents infinite loops. You can still manually respond if needed.`,
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, warningMessage]);
+      return;
+    }
+
+    autoResponseCountRef.current++;
+    console.log(`[ChatPanel ${tabId}] Triggering auto-response to bridge message (${autoResponseCountRef.current}/${MAX_RESPONSES} in current window)`);
 
     setIsProcessing(true);
     abortControllerRef.current = new AbortController();

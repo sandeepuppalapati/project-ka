@@ -34,6 +34,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   // Shell APIs
   executeCommand: (command: string, cwd?: string) => ipcRenderer.invoke('shell:execute', command, cwd),
+
+  // Settings APIs
+  saveSettings: (settings: { apiKey: string; model: string }) => ipcRenderer.invoke('settings:save', settings),
+  getSettings: () => ipcRenderer.invoke('settings:get'),
 });
 
 // Expose a separate electron API for IPC event handling

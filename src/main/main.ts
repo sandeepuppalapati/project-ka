@@ -341,6 +341,29 @@ ipcMain.handle('shell:execute', async (_event, command: string, cwd?: string) =>
   }
 });
 
+// Settings handlers
+const settingsFilePath = path.join(app.getPath('userData'), 'settings.json');
+
+ipcMain.handle('settings:save', async (_event, settings: { apiKey: string; model: string }) => {
+  try {
+    await fs.writeFile(settingsFilePath, JSON.stringify(settings, null, 2), 'utf-8');
+    return true;
+  } catch (error) {
+    console.error('Failed to save settings:', error);
+    throw error;
+  }
+});
+
+ipcMain.handle('settings:get', async () => {
+  try {
+    const data = await fs.readFile(settingsFilePath, 'utf-8');
+    return JSON.parse(data);
+  } catch (error) {
+    // File doesn't exist or is invalid - return null
+    return null;
+  }
+});
+
 // AI Chat handler with Tool Use
 interface BridgeMessage {
   agentName: string;
@@ -361,9 +384,25 @@ interface ChatContext {
 ipcMain.handle('ai:chat', async (_event, messages: Array<{ role: string; content: string }>, context?: ChatContext, sessionId?: string) => {
   console.log('[main.ts] Received sessionId:', sessionId);
   try {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
+    // Try to load settings from file first, fallback to .env
+    let apiKey = process.env.ANTHROPIC_API_KEY;
+    let model = 'claude-sonnet-4-5-20250929';
+
+    try {
+      const settingsData = await fs.readFile(settingsFilePath, 'utf-8');
+      const settings = JSON.parse(settingsData);
+      if (settings.apiKey) {
+        apiKey = settings.apiKey;
+      }
+      if (settings.model) {
+        model = settings.model;
+      }
+    } catch {
+      // Settings file doesn't exist, use .env
+    }
+
     if (!apiKey) {
-      throw new Error('ANTHROPIC_API_KEY not set in .env file');
+      throw new Error('API Key not configured. Please configure your API key in Settings.');
     }
 
     const anthropic = new Anthropic({ apiKey });
@@ -524,7 +563,7 @@ Work autonomously - call tools as needed to complete tasks. Don't hesitate to co
 
       // Use streaming API
       const stream = await anthropic.messages.stream({
-        model: 'claude-sonnet-4-5-20250929',
+        model: model,
         max_tokens: 4096,
         system: systemMessage,
         messages: conversationMessages,

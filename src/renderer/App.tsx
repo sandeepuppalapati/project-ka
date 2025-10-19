@@ -8,6 +8,7 @@ import { FileViewer } from './components/FileViewer'
 import { GitPanel } from './components/GitPanel'
 import { TabBar } from './components/TabBar'
 import { QuickOpen } from './components/QuickOpen'
+import { Settings } from './components/Settings'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useRepositoriesPersistence, useWorkspacePersistence } from './hooks/usePersistence'
 import { useBridge } from './contexts/BridgeContext'
@@ -31,6 +32,7 @@ function App() {
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [showQuickOpen, setShowQuickOpen] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [activeChatTab, setActiveChatTab] = useState<string>('bridge');
   const gitPanelRef = useRef<{ refresh: () => void }>(null);
   const bridge = useBridge();
@@ -189,17 +191,29 @@ function App() {
           onClose={() => setShowQuickOpen(false)}
         />
       )}
+      {showSettings && (
+        <Settings onClose={() => setShowSettings(false)} />
+      )}
       <header className="app-header">
         <h1>AI IDE</h1>
         <p className="motto">For AI by AI</p>
-        {repos.length > 0 && (
+        <div className="header-actions">
+          {repos.length > 0 && (
+            <button
+              className="toggle-repos"
+              onClick={() => setShowRepoManager(!showRepoManager)}
+            >
+              {showRepoManager ? 'Hide' : 'Show'} Repos
+            </button>
+          )}
           <button
-            className="toggle-repos"
-            onClick={() => setShowRepoManager(!showRepoManager)}
+            className="settings-button"
+            onClick={() => setShowSettings(true)}
+            title="Settings"
           >
-            {showRepoManager ? 'Hide' : 'Show'} Repos
+            ⚙️
           </button>
-        )}
+        </div>
       </header>
 
       <main className="app-main">

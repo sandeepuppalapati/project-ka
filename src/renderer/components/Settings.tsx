@@ -66,6 +66,25 @@ export function Settings({ onClose }: SettingsProps) {
     onClose();
   };
 
+  const handleClearStorage = () => {
+    if (confirm('Clear all storage?\n\nThis will delete:\n- All chat history (Bridge and agent chats)\n- All workspace state (open tabs, etc.)\n- Repository list\n- Settings\n\nThis cannot be undone. Continue?')) {
+      // Clear all localStorage
+      localStorage.clear();
+
+      // Trigger storage event for instant sync
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: null,
+        newValue: null,
+        oldValue: null,
+        storageArea: localStorage,
+        url: window.location.href,
+      }));
+
+      alert('Storage cleared! The app will now reload.');
+      window.location.reload();
+    }
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
       onClose();
@@ -130,6 +149,20 @@ export function Settings({ onClose }: SettingsProps) {
             </select>
             <p className="settings-help">
               Claude 4.5 Sonnet is recommended for best performance
+            </p>
+          </div>
+
+          <div className="settings-section">
+            <label>Storage Management</label>
+            <button
+              className="settings-button danger"
+              onClick={handleClearStorage}
+              type="button"
+            >
+              🗑️ Clear All Storage
+            </button>
+            <p className="settings-help">
+              Deletes all chat history, workspace state, repositories, and settings. This action cannot be undone.
             </p>
           </div>
         </div>

@@ -193,3 +193,17 @@
   color: #6c6c6c;
   cursor: not-allowed;
 }
+
+.settings-button.danger {
+  background: #d32f2f;
+  color: #fff;
+  width: 100%;
+  justify-content: center;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.settings-button.danger:hover {
+  background: #b71c1c;
+}

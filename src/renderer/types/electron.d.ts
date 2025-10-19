@@ -11,7 +11,7 @@ export interface StreamChunk {
 
 export interface ElectronAPI {
   platform: string;
-  openFolder: () => Promise<string | null>;
+  openFolder: () => Promise<string[] | null>;
   isRepo: (repoPath: string) => Promise<boolean>;
   getGitStatus: (repoPath: string) => Promise<GitStatus | null>;
   getCurrentBranch: (repoPath: string) => Promise<string | null>;

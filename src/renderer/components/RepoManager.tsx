@@ -46,42 +46,60 @@ export function RepoManager({ onReposChange, repos: initialRepos }: RepoManagerP
   const handleAddRepo = async () => {
     setLoading(true);
     try {
-      const folderPath = await window.electronAPI.openFolder();
+      const folderPaths = await window.electronAPI.openFolder();
 
-      if (!folderPath) {
+      if (!folderPaths || folderPaths.length === 0) {
         setLoading(false);
         return;
       }
 
-      // Check if it's a git repo
-      const isRepo = await window.electronAPI.isRepo(folderPath);
+      const newRepos: Repository[] = [];
+      const invalidPaths: string[] = [];
 
-      if (!isRepo) {
-        alert('Selected folder is not a git repository');
-        setLoading(false);
-        return;
+      // Process each selected folder
+      for (const folderPath of folderPaths) {
+        // Check if it's a git repo
+        const isRepo = await window.electronAPI.isRepo(folderPath);
+
+        if (!isRepo) {
+          invalidPaths.push(folderPath);
+          continue;
+        }
+
+        // Check if already added
+        if (repos.find(r => r.path === folderPath)) {
+          continue;
+        }
+
+        // Get branch and status
+        const branch = await window.electronAPI.getCurrentBranch(folderPath);
+        const status = await window.electronAPI.getGitStatus(folderPath);
+
+        const repoName = folderPath.split('/').pop() || 'Unknown';
+
+        const newRepo: Repository = {
+          id: Date.now().toString() + '-' + newRepos.length,
+          path: folderPath,
+          name: repoName,
+          branch: branch || 'main',
+          status,
+        };
+
+        newRepos.push(newRepo);
       }
 
-      // Get branch and status
-      const branch = await window.electronAPI.getCurrentBranch(folderPath);
-      const status = await window.electronAPI.getGitStatus(folderPath);
+      if (invalidPaths.length > 0) {
+        alert(`The following folders are not git repositories:\n${invalidPaths.join('\n')}`);
+      }
 
-      const repoName = folderPath.split('/').pop() || 'Unknown';
+      if (newRepos.length > 0) {
+        const updatedRepos = [...repos, ...newRepos];
+        setRepos(updatedRepos);
 
-      const newRepo: Repository = {
-        id: Date.now().toString(),
-        path: folderPath,
-        name: repoName,
-        branch: branch || 'main',
-        status,
-      };
-
-      const updatedRepos = [...repos, newRepo];
-      setRepos(updatedRepos);
-
-      // Notify parent
-      if (onReposChange) {
-        onReposChange(updatedRepos.map(r => ({ id: r.id, path: r.path, name: r.name })));
+        // Notify parent
+        if (onReposChange) {
+          onReposChange(updatedRepos.map(r => ({ id: r.id, path: r.path, name: r.name })));
+        }
       }
     } catch (error) {
       console.error('Error adding repo:', error);

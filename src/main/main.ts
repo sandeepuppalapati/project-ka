@@ -79,14 +79,15 @@ app.on('window-all-closed', () => {
 // Open folder dialog
 ipcMain.handle('dialog:openFolder', async () => {
   const result = await dialog.showOpenDialog({
-    properties: ['openDirectory']
+    properties: ['openDirectory', 'multiSelections']
   });
 
   if (result.canceled || result.filePaths.length === 0) {
     return null;
   }
 
-  return result.filePaths[0];
+  // Return array of paths for multi-selection support
+  return result.filePaths;
 });
 
 // Check if directory is a git repo

@@ -406,9 +406,25 @@ Unlike traditional IDEs:
 
 ---
 
-## 🎉 Recent Achievements (2025-10-17)
+## 🎉 Recent Achievements
 
-### Multi-Agent Bridge Architecture (Today!)
+### 2025-10-19: UI/UX Polish & Autonomous Agent Improvements
+- ✅ **Sidebar collapse** - Toggle left sidebar with button or Cmd+B
+- ✅ **Keyboard shortcuts modal** - Comprehensive shortcuts reference (⌨️ in footer)
+- ✅ **Hide editor when no files open** - Full-width chat for better focus
+- ✅ **Chat message max-width** - 900px centered for better readability
+- ✅ **Settings panel** - API key and model configuration
+- ✅ **Session timer** - Live session duration tracking in footer
+- ✅ **Modern font** - Inter font family for professional UI
+- ✅ **Compact design** - Reduced header/footer heights, standardized buttons
+- ✅ **User broadcast to Bridge** - Users can post messages to all agents
+- ✅ **Autonomous agent coordination** - Agents respond to Bridge mentions and user posts
+- ✅ **Circuit breaker** - Prevents infinite auto-response loops
+- ✅ **Chat isolation fix** - Fixed React.StrictMode double IPC listener issue
+- ✅ **Multi-repository selection** - Select and manage multiple repos
+- ✅ **Markdown rendering** - Rich chat formatting with code blocks
+
+### 2025-10-17: Multi-Agent Bridge Architecture
 - ✅ **Bridge message bus** - Agents coordinate via group chat pattern
 - ✅ **Chat tabs** - Separate conversations for Bridge + each repo agent
 - ✅ **Agent awareness** - AI agents know about each other and see bridge activity
@@ -416,19 +432,14 @@ Unlike traditional IDEs:
 - ✅ **Bridge activity widget** - Shows recent 3 messages from other agents
 - ✅ **Decentralized coordination** - No central orchestrator, peer-to-peer
 - ✅ **Multi-repo AI context** - Agents see all repos and understand their role
-
-### Tool Use API Implementation
-- ✅ Migrated from manual code block parsing to **Anthropic Tool Use API**
-- ✅ AI now works **fully autonomously** on multi-step tasks
-- ✅ **No more manual "continue"** - AI sees tool results and continues automatically
-- ✅ Matches Claude Code's autonomous operation model
+- ✅ **Tool Use API** - Fully autonomous multi-step task execution
 
 ### Current Status
-- **Working**: Multi-agent AI IDE with bridge coordination
-- **Unique**: First IDE with decentralized multi-agent architecture
-- **Next**: Streaming responses, autonomous agent triggering, session persistence
+- **Working**: Polished multi-agent AI IDE with autonomous coordination
+- **Unique**: First IDE with decentralized multi-agent architecture + voice-first design
+- **Next**: Voice integration, streaming responses, session persistence
 
 ---
 
-*Last Updated: 2025-10-17*
-*Status: Phase 4 Complete - Multi-Agent Bridge Working*
+*Last Updated: 2025-10-19*
+*Status: Phase 4 Complete + UI/UX Polish*

@@ -20,6 +20,8 @@ export function Settings({ onClose }: SettingsProps) {
   const [model, setModel] = useState('claude-sonnet-4-5-20250929');
   const [showApiKey, setShowApiKey] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const [isValidating, setIsValidating] = useState(false);
 
   useEffect(() => {
     // Load settings from electron store and localStorage
@@ -48,6 +50,20 @@ export function Settings({ onClose }: SettingsProps) {
 
   const handleSave = async () => {
     setIsSaving(true);
+    setValidationError(null);
+
+    // Validate API key first
+    if (window.electronAPI?.validateApiKey) {
+      setIsValidating(true);
+      const result = await window.electronAPI.validateApiKey(apiKey);
+      setIsValidating(false);
+
+      if (!result.valid) {
+        setValidationError(result.error || 'Invalid API key');
+        setIsSaving(false);
+        return;
+      }
+    }
 
     const settings: SettingsData = {
       apiKey,
@@ -123,6 +139,11 @@ export function Settings({ onClose }: SettingsProps) {
                 {showApiKey ? '👁️' : '👁️‍🗨️'}
               </button>
             </div>
+            {validationError && (
+              <p className="settings-error">
+                ⚠️ {validationError}
+              </p>
+            )}
             <p className="settings-help">
               Get your API key from{' '}
               <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener noreferrer">
@@ -174,9 +195,9 @@ export function Settings({ onClose }: SettingsProps) {
           <button
             className="settings-button primary"
             onClick={handleSave}
-            disabled={!apiKey || isSaving}
+            disabled={!apiKey || isSaving || isValidating}
           >
-            {isSaving ? 'Saving...' : 'Save Settings'}
+            {isValidating ? 'Validating...' : isSaving ? 'Saving...' : 'Save Settings'}
           </button>
         </div>
       </div>

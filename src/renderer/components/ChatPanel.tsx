@@ -239,6 +239,22 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
           }
           return prev;
         });
+      } else if (chunk.type === 'retry') {
+        // Show retry notification
+        setMessages(prev => {
+          const lastMsg = prev[prev.length - 1];
+          if (lastMsg && lastMsg.role === 'assistant') {
+            // Append retry notification to current message
+            return [
+              ...prev.slice(0, -1),
+              {
+                ...lastMsg,
+                content: lastMsg.content + `\n\n🔄 ${chunk.message}`,
+              }
+            ];
+          }
+          return prev;
+        });
       } else if (chunk.type === 'done') {
         // Streaming complete - stop processing
         setIsStreaming(false);
@@ -1090,7 +1106,7 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Type a message or command..."
+            placeholder={isProcessing ? "AI is thinking..." : "Type a message or command..."}
             rows={3}
             disabled={isProcessing}
           />
@@ -1121,7 +1137,14 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
                 onClick={handleSend}
                 disabled={!input.trim() || isProcessing}
               >
-                Send
+                {isProcessing ? (
+                  <>
+                    <span className="spinner"></span>
+                    Processing...
+                  </>
+                ) : (
+                  'Send'
+                )}
               </button>
             </>
           )}

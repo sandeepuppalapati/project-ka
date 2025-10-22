@@ -38,6 +38,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Settings APIs
   saveSettings: (settings: { apiKey: string; model: string }) => ipcRenderer.invoke('settings:save', settings),
   getSettings: () => ipcRenderer.invoke('settings:get'),
+  validateApiKey: (apiKey: string) => ipcRenderer.invoke('settings:validateApiKey', apiKey),
 });
 
 // Expose a separate electron API for IPC event handling

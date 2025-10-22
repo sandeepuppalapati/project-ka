@@ -365,6 +365,36 @@ ipcMain.handle('settings:get', async () => {
   }
 });
 
+// Validate API key
+ipcMain.handle('settings:validateApiKey', async (_event, apiKey: string) => {
+  if (!apiKey || apiKey.trim() === '') {
+    return { valid: false, error: 'API key is required' };
+  }
+
+  try {
+    const anthropic = new Anthropic({ apiKey });
+
+    // Make a minimal API call to validate the key
+    await anthropic.messages.create({
+      model: 'claude-sonnet-4-5-20250929',
+      max_tokens: 10,
+      messages: [{ role: 'user', content: 'Hi' }]
+    });
+
+    return { valid: true };
+  } catch (error: any) {
+    if (error.status === 401) {
+      return { valid: false, error: 'Invalid API key' };
+    } else if (error.status === 429) {
+      return { valid: false, error: 'Rate limit exceeded. Try again later.' };
+    } else if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
+      return { valid: false, error: 'Network error. Check your internet connection.' };
+    } else {
+      return { valid: false, error: error.message || 'Failed to validate API key' };
+    }
+  }
+});
+
 // AI Chat handler with Tool Use
 interface BridgeMessage {
   agentName: string;
@@ -380,6 +410,45 @@ interface ChatContext {
   isBridge?: boolean;
   allRepos?: Array<{ id: string; path: string; name: string }>;
   bridgeMessages?: BridgeMessage[];
+}
+
+// Retry helper with exponential backoff
+async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  maxRetries: number = 3,
+  initialDelay: number = 1000
+): Promise<T> {
+  let lastError: any;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error: any) {
+      lastError = error;
+
+      // Don't retry on non-retryable errors
+      if (error.status === 401 || error.status === 400) {
+        throw error;
+      }
+
+      // Check if we should retry
+      const isRetryable =
+        error.status === 429 || // Rate limit
+        error.status === 500 || error.status === 502 || error.status === 503 || // Server errors
+        error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT'; // Network errors
+
+      if (!isRetryable || attempt === maxRetries) {
+        throw error;
+      }
+
+      // Calculate delay with exponential backoff
+      const delay = initialDelay * Math.pow(2, attempt);
+      console.log(`[Retry] Attempt ${attempt + 1}/${maxRetries} failed. Retrying in ${delay}ms...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+
+  throw lastError;
 }
 
 ipcMain.handle('ai:chat', async (_event, messages: Array<{ role: string; content: string }>, context?: ChatContext, sessionId?: string) => {
@@ -562,13 +631,28 @@ Work autonomously - call tools as needed to complete tasks. Don't hesitate to co
     while (iterations < maxIterations) {
       iterations++;
 
-      // Use streaming API
-      const stream = await anthropic.messages.stream({
-        model: model,
-        max_tokens: 4096,
-        system: systemMessage,
-        messages: conversationMessages,
-        tools: tools
+      // Use streaming API with retry logic
+      const stream = await retryWithBackoff(async () => {
+        try {
+          return await anthropic.messages.stream({
+            model: model,
+            max_tokens: 4096,
+            system: systemMessage,
+            messages: conversationMessages,
+            tools: tools
+          });
+        } catch (error: any) {
+          // Send retry notification to UI
+          if (error.status === 429 || error.status >= 500 ||
+              error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
+            _event.sender.send('ai:stream-chunk', {
+              type: 'retry',
+              sessionId,
+              message: error.status === 429 ? 'Rate limited, retrying...' : 'Connection issue, retrying...'
+            });
+          }
+          throw error;
+        }
       });
 
       let currentText = '';
@@ -740,9 +824,32 @@ Work autonomously - call tools as needed to complete tasks. Don't hesitate to co
     _event.sender.send('ai:stream-chunk', { type: 'done', sessionId });
 
     return finalResponse.trim() || 'Task completed';
-  } catch (error) {
+  } catch (error: any) {
     console.error('AI chat error:', error);
-    _event.sender.send('ai:stream-chunk', { type: 'error', sessionId, error: error instanceof Error ? error.message : 'Unknown error' });
-    throw error;
+
+    // Provide user-friendly error messages
+    let userMessage = 'An error occurred while communicating with the AI.';
+
+    if (error.status === 401) {
+      userMessage = 'Invalid API key. Please check your API key in Settings.';
+    } else if (error.status === 429) {
+      userMessage = 'Rate limit exceeded. Please wait a moment and try again.';
+    } else if (error.status === 500 || error.status === 502 || error.status === 503) {
+      userMessage = 'Anthropic API is experiencing issues. Please try again in a few moments.';
+    } else if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
+      userMessage = 'Network error. Please check your internet connection.';
+    } else if (error.message?.includes('API Key not configured')) {
+      userMessage = error.message;
+    } else if (error.message) {
+      userMessage = `Error: ${error.message}`;
+    }
+
+    _event.sender.send('ai:stream-chunk', {
+      type: 'error',
+      sessionId,
+      error: userMessage,
+      details: error.message || 'Unknown error'
+    });
+    throw new Error(userMessage);
   }
 });

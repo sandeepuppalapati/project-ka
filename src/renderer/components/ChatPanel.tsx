@@ -1091,15 +1091,14 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
             </span>
           </div>
         )}
-        {/* Voice button hidden until API integration is complete */}
-        {/* <button
+        <button
           className={`voice-button ${isRecording ? 'recording' : ''}`}
           onClick={toggleVoiceInput}
           disabled={isProcessing}
-          title={isRecording ? 'Stop recording' : 'Start voice input'}
+          title={isRecording ? 'Stop recording (Space)' : 'Start voice input (Space)'}
         >
-          🎤
-        </button> */}
+          {isRecording ? '⏹️' : '🎤'}
+        </button>
         <div className="input-wrapper">
           <textarea
             className="chat-input"

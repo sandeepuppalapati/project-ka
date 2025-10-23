@@ -31,6 +31,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.on('ai:stream-chunk', (_event, chunk) => callback(chunk));
     return () => ipcRenderer.removeAllListeners('ai:stream-chunk');
   },
+  onToolExecution: (callback: (event: any) => void) => {
+    ipcRenderer.on('ai:tool-execution', (_event, toolEvent) => callback(toolEvent));
+    return () => ipcRenderer.removeAllListeners('ai:tool-execution');
+  },
 
   // Shell APIs
   executeCommand: (command: string, cwd?: string) => ipcRenderer.invoke('shell:execute', command, cwd),

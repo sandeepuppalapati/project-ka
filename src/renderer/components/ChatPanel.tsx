@@ -9,12 +9,22 @@ import {
   type PersistedMessage
 } from '../hooks/usePersistence';
 
+interface ToolExecution {
+  tool: string;
+  status: 'executing' | 'complete' | 'error';
+  params: any;
+  result?: any;
+  error?: string;
+}
+
 interface Message {
   id: string;
   role: 'user' | 'assistant' | 'command';
   content: string;
   timestamp: Date;
   hidden?: boolean; // For internal system messages not shown in UI
+  tools?: ToolExecution[]; // Track tool executions for this message
+  toolsCollapsed?: boolean; // Whether tool details are collapsed
   command?: {
     command: string;
     cwd?: string;
@@ -65,6 +75,7 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
   const [isProcessing, setIsProcessing] = useState(false);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isBridgeActivityCollapsed, setIsBridgeActivityCollapsed] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const inputHistory = useRef<string[]>([]);
@@ -204,29 +215,46 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
           }
         });
       } else if (chunk.type === 'tool') {
-        // Show tool execution status with better formatting
-        let toolDisplay = '';
-
-        if (chunk.status === 'executing') {
-          const params = chunk.params ? JSON.stringify(chunk.params).substring(0, 80) : '';
-          toolDisplay = `\n\n🔧 **${chunk.tool}** (${params}${params.length >= 80 ? '...' : ''})`;
-        } else if (chunk.status === 'complete') {
-          toolDisplay = `\n✅ **${chunk.tool}** completed`;
-        } else if (chunk.status === 'error') {
-          toolDisplay = `\n❌ **${chunk.tool}** failed: ${chunk.error}`;
-        }
-
+        // Track tool execution in tools array
         setMessages(prev => {
           const lastMsg = prev[prev.length - 1];
           if (lastMsg && lastMsg.role === 'assistant') {
-            // Append tool status to current message
-            return [
-              ...prev.slice(0, -1),
-              {
-                ...lastMsg,
-                content: lastMsg.content + toolDisplay,
+            const tools = lastMsg.tools || [];
+
+            if (chunk.status === 'executing') {
+              // Add new tool execution
+              return [
+                ...prev.slice(0, -1),
+                {
+                  ...lastMsg,
+                  tools: [...tools, {
+                    tool: chunk.tool,
+                    status: 'executing' as const,
+                    params: chunk.params,
+                  }],
+                  toolsCollapsed: true, // Start collapsed
+                }
+              ];
+            } else {
+              // Update existing tool execution
+              const toolIndex = tools.findIndex(t => t.tool === chunk.tool && t.status === 'executing');
+              if (toolIndex >= 0) {
+                const updatedTools = [...tools];
+                updatedTools[toolIndex] = {
+                  ...updatedTools[toolIndex],
+                  status: chunk.status,
+                  result: chunk.result,
+                  error: chunk.error,
+                };
+                return [
+                  ...prev.slice(0, -1),
+                  {
+                    ...lastMsg,
+                    tools: updatedTools,
+                  }
+                ];
               }
-            ];
+            }
           }
           return prev;
         });
@@ -657,6 +685,14 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
     ));
   };
 
+  const toggleToolsDisplay = (messageId: string) => {
+    setMessages(prev => prev.map(msg =>
+      msg.id === messageId
+        ? { ...msg, toolsCollapsed: !msg.toolsCollapsed }
+        : msg
+    ));
+  };
+
   const popoutCommandOutput = (command: string, output: string) => {
     // Open in new window (future enhancement)
     alert(`Command: ${command}\n\nOutput:\n${output}`);
@@ -771,6 +807,11 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
     }
   };
 
+  const handleCopyCode = (code: string) => {
+    navigator.clipboard.writeText(code);
+    // Could add a toast notification here
+  };
+
   const renderMessageWithCommands = (content: string) => {
     return (
       <ReactMarkdown
@@ -778,39 +819,80 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
           code({ node, inline, className, children, ...props }) {
             const match = /language-(\w+)/.exec(className || '');
             const language = match ? match[1] : '';
+            const codeString = String(children).replace(/\n$/, '');
             const isShellCommand = !inline && (language === 'bash' || language === 'shell' || language === 'sh');
 
             if (isShellCommand) {
-              const command = String(children).replace(/\n$/, '');
               return (
-                <div className="inline-command-block">
-                  <div className="command-header">
-                    <span className="command-label">Shell Command</span>
+                <div className="code-block">
+                  <div className="code-block-header">
+                    <span className="code-language">bash</span>
+                    <div className="code-actions">
+                      <button
+                        className="code-action-btn copy-btn"
+                        onClick={() => handleCopyCode(codeString)}
+                        title="Copy code"
+                      >
+                        📋 Copy
+                      </button>
+                      <button
+                        className="code-action-btn run-btn"
+                        onClick={() => handleRunCommand(codeString, currentRepo?.path)}
+                        disabled={isProcessing}
+                        title="Run command"
+                      >
+                        ⚡ Run
+                      </button>
+                    </div>
                   </div>
-                  <div className="command-body">
-                    <pre><code>{command}</code></pre>
+                  <div className="code-block-body">
+                    <pre><code>{codeString}</code></pre>
+                  </div>
+                </div>
+              );
+            }
+
+            if (!inline && language) {
+              // Code block with language
+              return (
+                <div className="code-block">
+                  <div className="code-block-header">
+                    <span className="code-language">{language}</span>
                     <button
-                      className="inline-run-button"
-                      onClick={() => handleRunCommand(command, currentRepo?.path)}
-                      disabled={isProcessing}
+                      className="code-action-btn copy-btn"
+                      onClick={() => handleCopyCode(codeString)}
+                      title="Copy code"
                     >
-                      ⚡ Run
+                      📋 Copy
                     </button>
+                  </div>
+                  <div className="code-block-body">
+                    <pre><code className={className} {...props}>{children}</code></pre>
                   </div>
                 </div>
               );
             }
 
             return inline ? (
-              <code className={className} {...props}>
+              <code className="inline-code" {...props}>
                 {children}
               </code>
             ) : (
-              <pre>
-                <code className={className} {...props}>
-                  {children}
-                </code>
-              </pre>
+              <div className="code-block">
+                <div className="code-block-header">
+                  <span className="code-language">code</span>
+                  <button
+                    className="code-action-btn copy-btn"
+                    onClick={() => handleCopyCode(codeString)}
+                    title="Copy code"
+                  >
+                    📋 Copy
+                  </button>
+                </div>
+                <div className="code-block-body">
+                  <pre><code {...props}>{children}</code></pre>
+                </div>
+              </div>
             );
           },
         }}
@@ -947,9 +1029,52 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
                   )}
                 </div>
               ) : (
-                <div className="message-text">
-                  {renderMessageWithCommands(message.content)}
-                </div>
+                <>
+                  {/* Tool executions display */}
+                  {message.tools && message.tools.length > 0 && (
+                    <div className="tools-display">
+                      <button
+                        className="tools-toggle"
+                        onClick={() => toggleToolsDisplay(message.id)}
+                      >
+                        ⚙️ Using tools... {message.toolsCollapsed ? `[▼ Show ${message.tools.length} tools]` : `[▲ Hide ${message.tools.length} tools]`}
+                      </button>
+                      {!message.toolsCollapsed && (
+                        <div className="tools-list">
+                          {message.tools.map((tool, idx) => {
+                            const icon = tool.status === 'complete' ? '✅' : tool.status === 'error' ? '❌' : '⏳';
+                            const toolName = tool.tool;
+                            let params = '';
+
+                            // Format params based on tool type
+                            if (toolName === 'read_file' && tool.params?.file_path) {
+                              params = tool.params.file_path;
+                            } else if (toolName === 'write_file' && tool.params?.file_path) {
+                              params = tool.params.file_path;
+                            } else if (toolName === 'execute_command' && tool.params?.command) {
+                              params = tool.params.command;
+                            } else if (toolName === 'post_to_bridge' && tool.params?.message) {
+                              params = tool.params.message.substring(0, 60) + (tool.params.message.length > 60 ? '...' : '');
+                            } else if (tool.params) {
+                              params = JSON.stringify(tool.params).substring(0, 60);
+                            }
+
+                            return (
+                              <div key={idx} className={`tool-execution ${tool.status}`}>
+                                {icon} <strong>{toolName}</strong>: {params}
+                                {tool.error && <div className="tool-error">Error: {tool.error}</div>}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="message-text">
+                    {renderMessageWithCommands(message.content)}
+                  </div>
+                </>
               )}
               <div className="message-time">
                 {message.timestamp.toLocaleTimeString()}
@@ -980,16 +1105,27 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
           <div className="bridge-activity">
             <div className="bridge-activity-header">
               <span>🌐 Recent Bridge Activity</span>
-              <span className="bridge-activity-count">{bridge.messages.length} messages</span>
+              <div className="bridge-activity-controls">
+                <span className="bridge-activity-count">{bridge.messages.length} messages</span>
+                <button
+                  className="bridge-activity-minimize"
+                  onClick={() => setIsBridgeActivityCollapsed(!isBridgeActivityCollapsed)}
+                  title={isBridgeActivityCollapsed ? "Show bridge activity" : "Hide bridge activity"}
+                >
+                  {isBridgeActivityCollapsed ? '▼' : '▲'}
+                </button>
+              </div>
             </div>
-            <div className="bridge-activity-messages">
-              {bridge.getRecentMessages(3).map(msg => (
-                <div key={msg.id} className="bridge-activity-item">
-                  <span className="bridge-activity-agent">[{msg.agentName}]</span>
-                  <span className="bridge-activity-content">{msg.content.substring(0, 60)}...</span>
-                </div>
-              ))}
-            </div>
+            {!isBridgeActivityCollapsed && (
+              <div className="bridge-activity-messages">
+                {bridge.getRecentMessages(3).map(msg => (
+                  <div key={msg.id} className="bridge-activity-item">
+                    <span className="bridge-activity-agent">[{msg.agentName}]</span>
+                    <span className="bridge-activity-content">{msg.content.substring(0, 60)}...</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
         {currentRepo && (
@@ -1000,51 +1136,53 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
             </span>
           </div>
         )}
-        <div className="input-wrapper">
-          <textarea
-            className="chat-input"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder={isProcessing ? "AI is thinking..." : "Type a message or command..."}
-            rows={3}
-            disabled={isProcessing}
-          />
-        </div>
-        <div className="action-buttons">
-          {isProcessing ? (
-            <button
-              className="chat-cancel"
-              onClick={handleCancel}
-            >
-              ✕ Cancel
-            </button>
-          ) : (
-            <>
+        <div className="input-row">
+          <div className="input-wrapper">
+            <textarea
+              className="chat-input"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder={isProcessing ? "AI is thinking..." : "Type a message or command..."}
+              rows={3}
+              disabled={isProcessing}
+            />
+          </div>
+          <div className="action-buttons">
+            {isProcessing ? (
               <button
-                className="chat-run"
-                onClick={() => handleRunCommand(input.trim(), currentRepo?.path)}
-                disabled={!input.trim() || isProcessing}
-                title="Run as shell command"
+                className="chat-cancel"
+                onClick={handleCancel}
               >
-                ⚡ Run
+                ✕ Cancel
               </button>
-              <button
-                className="chat-send"
-                onClick={handleSend}
-                disabled={!input.trim() || isProcessing}
-              >
-                {isProcessing ? (
-                  <>
-                    <span className="spinner"></span>
-                    Processing...
-                  </>
-                ) : (
-                  'Send'
-                )}
-              </button>
-            </>
-          )}
+            ) : (
+              <>
+                <button
+                  className="chat-run"
+                  onClick={() => handleRunCommand(input.trim(), currentRepo?.path)}
+                  disabled={!input.trim() || isProcessing}
+                  title="Run as shell command"
+                >
+                  ⚡ Run
+                </button>
+                <button
+                  className="chat-send"
+                  onClick={handleSend}
+                  disabled={!input.trim() || isProcessing}
+                >
+                  {isProcessing ? (
+                    <>
+                      <span className="spinner"></span>
+                      Processing...
+                    </>
+                  ) : (
+                    'Send'
+                  )}
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>

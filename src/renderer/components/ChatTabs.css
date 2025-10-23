@@ -8,7 +8,7 @@
 .chat-tabs-header {
   display: flex;
   gap: 4px;
-  padding: 8px 8px 0 8px;
+  padding: 4px 6px 0 6px;
   background: #252526;
   border-bottom: 1px solid #3e3e42;
   overflow-x: auto;
@@ -28,7 +28,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 16px;
+  padding: 6px 12px;
   background: transparent;
   border: none;
   border-top-left-radius: 4px;

@@ -296,8 +296,10 @@ function App() {
         </div>
       )}
       <header className="app-header">
-        <h1>AI IDE</h1>
-        <p className="motto">For AI by AI</p>
+        <div className="header-title">
+          <h1>AI IDE</h1>
+          <p className="motto">For AI by AI</p>
+        </div>
         <div className="header-actions">
           {repos.length > 0 && (
             <button

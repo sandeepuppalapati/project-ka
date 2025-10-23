@@ -2,27 +2,44 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: #252526;
+  background: linear-gradient(180deg, #252526 0%, #1e1e1e 100%);
   overflow: hidden;
+  position: relative;
+}
+
+.git-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #4ec9b0 0%, #569cd6 50%, #4ec9b0 100%);
+  background-size: 200% 100%;
+  animation: shimmer 3s linear infinite;
 }
 
 .git-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.25rem 0.75rem;
-  background-color: #2d2d30;
-  border-bottom: 1px solid #3e3e42;
+  padding: 0.4rem 0.65rem;
+  background: linear-gradient(135deg, #1a4d4a 0%, #0d3a47 100%);
+  border-bottom: 2px solid #4ec9b0;
+  box-shadow: 0 2px 8px rgba(78, 201, 176, 0.2);
   gap: 0.5rem;
 }
 
 .git-header h3 {
   margin: 0;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #4ec9b0 0%, #5dd9c0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
   flex: 1;
 }
 
@@ -88,6 +105,7 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  background: linear-gradient(180deg, #1e1e1e 0%, #1a1a1b 50%, #1e1e1e 100%);
 }
 
 .changed-files {
@@ -101,26 +119,33 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.25rem 0.75rem;
-  background-color: #2d2d30;
+  background: linear-gradient(135deg, #2d2d30 0%, #252526 100%);
   font-size: 0.75rem;
   font-weight: 600;
   color: #cccccc;
-  border-bottom: 1px solid #3e3e42;
+  border-bottom: 1px solid rgba(78, 201, 176, 0.15);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .stage-all-button {
-  background-color: #0e639c;
-  color: white;
+  background: linear-gradient(135deg, #4ec9b0 0%, #5dd9c0 100%);
+  color: #000;
   border: none;
-  padding: 0.25rem 0.75rem;
-  border-radius: 3px;
-  font-size: 0.75rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 5px;
+  font-size: 0.7rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
+  box-shadow: 0 2px 6px rgba(78, 201, 176, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .stage-all-button:hover {
-  background-color: #1177bb;
+  background: linear-gradient(135deg, #5dd9c0 0%, #6fe9d0 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(78, 201, 176, 0.4);
 }
 
 .no-changes {
@@ -136,11 +161,13 @@
   align-items: center;
   padding: 0.5rem 1rem;
   border-bottom: 1px solid #2d2d30;
-  transition: background-color 0.1s;
+  transition: all 0.2s;
+  border-left: 3px solid transparent;
 }
 
 .file-item:hover {
-  background-color: #2a2d2e;
+  background-color: rgba(78, 201, 176, 0.08);
+  border-left-color: #4ec9b0;
 }
 
 .file-info {
@@ -174,12 +201,12 @@
 }
 
 .stage-button {
-  background-color: #3c3c3c;
-  color: #6a9955;
-  border: 1px solid #3e3e42;
-  border-radius: 3px;
-  width: 24px;
-  height: 24px;
+  background: linear-gradient(135deg, #3c3c3c 0%, #2d2d30 100%);
+  color: #4ec9b0;
+  border: 1px solid #4ec9b0;
+  border-radius: 4px;
+  width: 26px;
+  height: 26px;
   font-size: 1rem;
   cursor: pointer;
   display: flex;
@@ -187,21 +214,24 @@
   justify-content: center;
   transition: all 0.2s;
   flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(78, 201, 176, 0.2);
 }
 
 .stage-button:hover {
-  background-color: #6a9955;
-  color: white;
-  border-color: #6a9955;
+  background: linear-gradient(135deg, #4ec9b0 0%, #5dd9c0 100%);
+  color: #000;
+  border-color: #5dd9c0;
+  transform: scale(1.05);
+  box-shadow: 0 2px 6px rgba(78, 201, 176, 0.4);
 }
 
 .unstage-button {
-  background-color: #3c3c3c;
-  color: #f14c4c;
-  border: 1px solid #3e3e42;
-  border-radius: 3px;
-  width: 24px;
-  height: 24px;
+  background: linear-gradient(135deg, #3c3c3c 0%, #2d2d30 100%);
+  color: #4ec9b0;
+  border: 1px solid #4ec9b0;
+  border-radius: 4px;
+  width: 26px;
+  height: 26px;
   font-size: 1.5rem;
   cursor: pointer;
   display: flex;
@@ -209,25 +239,29 @@
   justify-content: center;
   transition: all 0.2s;
   flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(78, 201, 176, 0.2);
 }
 
 .unstage-button:hover {
-  background-color: #f14c4c;
+  background: linear-gradient(135deg, #f14c4c 0%, #f66 100%);
   color: white;
-  border-color: #f14c4c;
+  border-color: #f66;
+  transform: scale(1.05);
+  box-shadow: 0 2px 6px rgba(241, 76, 76, 0.4);
 }
 
 .commit-section {
-  padding: 1rem;
-  background-color: #1e1e1e;
-  border-top: 1px solid #3e3e42;
+  padding: 0.75rem;
+  background: linear-gradient(180deg, #1a1a1b 0%, #1e1e1e 100%);
+  border-top: 2px solid rgba(78, 201, 176, 0.2);
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .commit-message {
   width: 100%;
-  background-color: #3c3c3c;
-  border: 1px solid #3e3e42;
-  border-radius: 4px;
+  background: linear-gradient(135deg, #3c3c3c 0%, #333 100%);
+  border: 2px solid #3e3e42;
+  border-radius: 6px;
   padding: 0.75rem;
   color: #cccccc;
   font-size: 0.875rem;
@@ -235,11 +269,13 @@
   resize: none;
   outline: none;
   margin-bottom: 0.75rem;
-  transition: border-color 0.2s;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .commit-message:focus {
-  border-color: #0e639c;
+  border-color: #4ec9b0;
+  box-shadow: 0 0 0 3px rgba(78, 201, 176, 0.15), 0 2px 8px rgba(78, 201, 176, 0.2);
 }
 
 .commit-message::placeholder {
@@ -254,20 +290,23 @@
 .commit-button,
 .push-button {
   flex: 1;
-  background-color: #0e639c;
-  color: white;
+  background: linear-gradient(135deg, #4ec9b0 0%, #5dd9c0 100%);
+  color: #000;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 0.875rem;
-  font-weight: 600;
-  transition: background-color 0.2s;
+  font-weight: 700;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(78, 201, 176, 0.3);
 }
 
 .commit-button:hover:not(:disabled),
 .push-button:hover:not(:disabled) {
-  background-color: #1177bb;
+  background: linear-gradient(135deg, #5dd9c0 0%, #6fe9d0 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(78, 201, 176, 0.4);
 }
 
 .commit-button:disabled,
@@ -293,15 +332,19 @@
 .changed-files::-webkit-scrollbar-track,
 .git-content::-webkit-scrollbar-track {
   background: #1e1e1e;
+  border-radius: 5px;
 }
 
 .changed-files::-webkit-scrollbar-thumb,
 .git-content::-webkit-scrollbar-thumb {
-  background: #424242;
+  background: linear-gradient(180deg, #4ec9b0 0%, #3a9d88 100%);
   border-radius: 5px;
+  border: 2px solid #1e1e1e;
+  box-shadow: 0 0 6px rgba(78, 201, 176, 0.3);
 }
 
 .changed-files::-webkit-scrollbar-thumb:hover,
 .git-content::-webkit-scrollbar-thumb:hover {
-  background: #4e4e4e;
+  background: linear-gradient(180deg, #5dd9c0 0%, #4ec9b0 100%);
+  box-shadow: 0 0 8px rgba(78, 201, 176, 0.5);
 }

@@ -31,9 +31,7 @@ export function FileTree({ repoPath, repoName, onFileSelect }: FileTreeProps) {
   const loadDirectory = async (dirPath: string) => {
     setLoading(true);
     try {
-      console.log('Loading directory:', dirPath);
       const entries = await window.electronAPI.readDir(dirPath);
-      console.log('Entries received:', entries);
       if (entries) {
         const nodes = entries
           .filter(entry => !entry.name.startsWith('.')) // Hide hidden files
@@ -50,7 +48,6 @@ export function FileTree({ repoPath, repoName, onFileSelect }: FileTreeProps) {
             if (!a.isDirectory && b.isDirectory) return 1;
             return a.name.localeCompare(b.name);
           });
-        console.log('Setting root nodes:', nodes.length);
         setRootNodes(nodes);
       } else {
         console.error('No entries returned');

@@ -28,9 +28,7 @@ export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
   const loadFile = async (path: string) => {
     setLoading(true);
     try {
-      console.log('Loading file:', path);
       const fileContent = await window.electronAPI.readFile(path);
-      console.log('File content received:', fileContent === null ? 'null' : `${fileContent.length} chars`);
       if (fileContent !== null) {
         setContent(fileContent);
         setIsDirty(false);

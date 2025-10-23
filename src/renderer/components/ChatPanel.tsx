@@ -63,22 +63,16 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
   const [messages, setMessages] = useState<Message[]>([welcomeMessage]);
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
-  const [transcript, setTranscript] = useState('');
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [isStreaming, setIsStreaming] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const recognitionRef = useRef<any>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const inputHistory = useRef<string[]>([]);
 
   // Load messages from localStorage
   const handleMessagesLoad = useCallback((loadedMessages: PersistedMessage[]) => {
-    console.log(`[ChatPanel ${tabId}] handleMessagesLoad called with ${loadedMessages.length} messages`);
-    console.log(`[ChatPanel ${tabId}] Message IDs:`, loadedMessages.map(m => m.id));
     if (loadedMessages.length > 0) {
       const deserialized = loadedMessages.map(deserializeMessage);
-      console.log(`[ChatPanel ${tabId}] Setting messages to:`, deserialized.map(m => ({ id: m.id, content: m.content.substring(0, 50) })));
       setMessages(deserialized);
     }
   }, [tabId]);
@@ -176,11 +170,8 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
     }
 
     const cleanup = window.electronAPI.onStreamChunk((chunk) => {
-      console.log(`[ChatPanel ${tabId}] Received chunk:`, { chunkSessionId: chunk.sessionId, mySessionId: sessionIdRef.current, type: chunk.type });
-
       // Only process chunks for this ChatPanel's session
       if (chunk.sessionId !== sessionIdRef.current) {
-        console.log(`[ChatPanel ${tabId}] Ignoring chunk - sessionId mismatch`);
         return;
       }
 
@@ -309,7 +300,6 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
     }
 
     autoResponseCountRef.current++;
-    console.log(`[ChatPanel ${tabId}] Triggering auto-response to bridge message (${autoResponseCountRef.current}/${MAX_RESPONSES} in current window)`);
 
     setIsProcessing(true);
     abortControllerRef.current = new AbortController();
@@ -421,61 +411,6 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
     }
   }, [bridge.messages, isBridge, currentRepo, isProcessing, handleAutoResponse, tabId]);
 
-  useEffect(() => {
-    // Initialize Web Speech API
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
-      const recognition = new SpeechRecognition();
-
-      recognition.continuous = false;
-      recognition.interimResults = true;
-      recognition.lang = 'en-US';
-
-      recognition.onresult = (event: any) => {
-        let interimTranscript = '';
-        let finalTranscript = '';
-
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          const transcript = event.results[i][0].transcript;
-          if (event.results[i].isFinal) {
-            finalTranscript += transcript;
-          } else {
-            interimTranscript += transcript;
-          }
-        }
-
-        if (finalTranscript) {
-          setInput(prev => prev + finalTranscript);
-          setTranscript('');
-        } else {
-          setTranscript(interimTranscript);
-        }
-      };
-
-      recognition.onerror = (event: any) => {
-        console.error('Speech recognition error:', event.error);
-        // Only stop recording for certain errors
-        if (event.error === 'no-speech' || event.error === 'aborted') {
-          setIsRecording(false);
-          setTranscript('');
-        }
-        // Ignore network errors - they don't always prevent transcription
-      };
-
-      recognition.onend = () => {
-        setIsRecording(false);
-        setTranscript('');
-      };
-
-      recognitionRef.current = recognition;
-    }
-
-    return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
-    };
-  }, []);
 
   const handleCancel = () => {
     if (abortControllerRef.current) {
@@ -724,7 +659,6 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
 
   const popoutCommandOutput = (command: string, output: string) => {
     // Open in new window (future enhancement)
-    console.log('Popout:', command, output);
     alert(`Command: ${command}\n\nOutput:\n${output}`);
   };
 
@@ -905,31 +839,6 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
     alert(`Posted to Bridge from ${currentRepo.name} Agent`);
   };
 
-  const toggleVoiceInput = async () => {
-    if (!recognitionRef.current) {
-      alert('Voice input is not supported in your browser. Try Chrome or Edge.');
-      return;
-    }
-
-    if (isRecording) {
-      recognitionRef.current.stop();
-      setIsRecording(false);
-    } else {
-      try {
-        // Request microphone permission first
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
-        // Stop the stream since we just needed permission
-        stream.getTracks().forEach(track => track.stop());
-
-        recognitionRef.current.start();
-        setIsRecording(true);
-      } catch (error) {
-        console.error('Error starting voice recognition:', error);
-        alert(`Voice input currently has limitations in Electron. Using text input for now.\n\nError: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      }
-    }
-  };
 
   return (
     <div className="chat-panel">
@@ -1091,14 +1000,6 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
             </span>
           </div>
         )}
-        <button
-          className={`voice-button ${isRecording ? 'recording' : ''}`}
-          onClick={toggleVoiceInput}
-          disabled={isProcessing}
-          title={isRecording ? 'Stop recording (Space)' : 'Start voice input (Space)'}
-        >
-          {isRecording ? '⏹️' : '🎤'}
-        </button>
         <div className="input-wrapper">
           <textarea
             className="chat-input"
@@ -1109,9 +1010,6 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
             rows={3}
             disabled={isProcessing}
           />
-          {transcript && (
-            <div className="transcript-preview">{transcript}</div>
-          )}
         </div>
         <div className="action-buttons">
           {isProcessing ? (

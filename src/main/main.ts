@@ -13,10 +13,6 @@ const execAsync = promisify(exec);
 // Load environment variables
 dotenv.config();
 
-// Enable media devices before app is ready
-app.commandLine.appendSwitch('enable-speech-input');
-app.commandLine.appendSwitch('enable-features', 'MediaDevices');
-
 function createWindow() {
   const mainWindow = new BrowserWindow({
     width: 1200,
@@ -25,7 +21,6 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
-      webSecurity: true,
       allowRunningInsecureContent: false,
     },
   });
@@ -203,15 +198,12 @@ ipcMain.handle('git:add', async (_event, repoPath: string, filepath: string) => 
       cleanPath = filepath.substring(repoPath.length + 1);
     }
 
-    console.log('Git add - repo:', repoPath, 'file:', cleanPath);
-
     await git.add({
       fs,
       dir: repoPath,
       filepath: cleanPath
     });
 
-    console.log('Git add successful');
     return true;
   } catch (error) {
     console.error('Git add error:', error);
@@ -228,8 +220,6 @@ ipcMain.handle('git:remove', async (_event, repoPath: string, filepath: string) 
       cleanPath = filepath.substring(repoPath.length + 1);
     }
 
-    console.log('Git unstage - repo:', repoPath, 'file:', cleanPath);
-
     // Use resetIndex to unstage without deleting the file
     await git.resetIndex({
       fs,
@@ -237,7 +227,6 @@ ipcMain.handle('git:remove', async (_event, repoPath: string, filepath: string) 
       filepath: cleanPath
     });
 
-    console.log('Git unstage successful');
     return true;
   } catch (error) {
     console.error('Git unstage error:', error);
@@ -320,7 +309,6 @@ ipcMain.handle('fs:writeFile', async (_event, filePath: string, content: string)
 // Execute shell command
 ipcMain.handle('shell:execute', async (_event, command: string, cwd?: string) => {
   try {
-    console.log('Executing command:', command, 'in:', cwd);
     const { stdout, stderr } = await execAsync(command, {
       cwd: cwd || process.cwd(),
       maxBuffer: 1024 * 1024 * 10, // 10MB buffer
@@ -452,7 +440,6 @@ async function retryWithBackoff<T>(
 }
 
 ipcMain.handle('ai:chat', async (_event, messages: Array<{ role: string; content: string }>, context?: ChatContext, sessionId?: string) => {
-  console.log('[main.ts] Received sessionId:', sessionId);
   try {
     // Try to load settings from file first, fallback to .env
     let apiKey = process.env.ANTHROPIC_API_KEY;

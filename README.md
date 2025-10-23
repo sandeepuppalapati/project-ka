@@ -276,14 +276,13 @@ Unlike traditional IDEs:
 - ⏳ Linked commits across repos (planned)
 - ⏳ Session persistence (planned)
 
-### Phase 5: Voice Integration ✅ Complete (2025-10-21)
-- ✅ **Voice input button** - Microphone button in chat (🎤 / ⏹️)
-- ✅ **Web Speech API integration** - Real-time speech-to-text
-- ✅ **Real-time transcription UI** - Shows interim results while speaking
-- ✅ **Recording visual feedback** - Pulsing animation when recording
-- ✅ **Error handling** - Graceful handling of no-speech, network errors
-- ⏳ Technical term correction (planned enhancement)
-- ⏳ Voice command parsing (planned enhancement)
+### Phase 5: Voice Integration ⏳ Deferred
+- ⏳ Voice input implementation (deferred - requires non-trivial integration)
+- ⏳ Speech-to-text service integration (Whisper, Azure, or alternative)
+- ⏳ Push-to-talk mode
+- ⏳ Real-time transcription display
+- ⏳ Technical term correction
+- ⏳ Voice command parsing
 
 ### Phase 6: Enhanced Features ⏳ Planned
 - Streaming tool execution feedback
@@ -410,13 +409,6 @@ Unlike traditional IDEs:
 
 ## 🎉 Recent Achievements
 
-### 2025-10-21: Voice Input Integration (Phase 5 Complete!)
-- ✅ **Voice input enabled** - Push-to-talk with microphone button (🎤)
-- ✅ **Real-time transcription** - See what you're saying as you speak
-- ✅ **Visual feedback** - Pulsing red animation when recording
-- ✅ **Seamless integration** - Voice text automatically added to input
-- ✅ **Error handling** - Graceful handling of speech recognition errors
-
 ### 2025-10-21: Error Handling & Network Resilience
 - ✅ **API key validation** - Validates API key before saving in Settings
 - ✅ **User-friendly error messages** - Specific messages for each error type (401, 429, 500, network)
@@ -451,11 +443,14 @@ Unlike traditional IDEs:
 - ✅ **Tool Use API** - Fully autonomous multi-step task execution
 
 ### Current Status
-- **Working**: Multi-agent AI IDE with voice input, robust error handling, and network resilience
-- **Unique**: First IDE with decentralized multi-agent architecture + voice-first design (**voice now enabled!**)
-- **Next**: Enhanced features (streaming feedback, file watcher), distribution prep
+- **Working**: Multi-agent AI IDE with robust error handling and network resilience
+- **Unique**: First IDE with decentralized multi-agent architecture
+- **Next**:
+  1. Enhanced features (streaming feedback, file watcher)
+  2. Distribution prep
+  3. Voice integration (deferred for later phase)
 
 ---
 
 *Last Updated: 2025-10-21*
-*Status: Phase 5 Complete - Voice Integration Enabled!*
+*Status: Phase 4 Complete - Multi-Agent Bridge with autonomous coordination*

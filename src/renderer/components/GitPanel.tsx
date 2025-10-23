@@ -38,9 +38,7 @@ export const GitPanel = forwardRef<GitPanelRef, GitPanelProps>(
     const allFiles: ChangedFile[] = [];
 
     for (const repo of repos) {
-      console.log('Loading changes for repo:', repo.path);
       const statusMatrix = await window.electronAPI.getStatusMatrix(repo.path);
-      console.log('Status matrix:', statusMatrix);
       if (statusMatrix) {
         const repoFiles = statusMatrix
           .filter(file => file.status !== 'unmodified')
@@ -48,12 +46,10 @@ export const GitPanel = forwardRef<GitPanelRef, GitPanelProps>(
             ...file,
             repoPath: repo.path
           }));
-        console.log('Repo files after filter:', repoFiles);
         allFiles.push(...repoFiles);
       }
     }
 
-    console.log('All changed files loaded:', allFiles);
     setChangedFiles(allFiles);
     if (repos.length > 0 && !selectedRepo) {
       setSelectedRepo(repos[0].path);
@@ -61,9 +57,7 @@ export const GitPanel = forwardRef<GitPanelRef, GitPanelProps>(
   };
 
   const handleStageFile = async (file: ChangedFile) => {
-    console.log('Staging file:', file.filepath, 'in repo:', file.repoPath);
     const success = await window.electronAPI.gitAdd(file.repoPath, file.filepath);
-    console.log('Stage result:', success);
     if (success) {
       await loadChangedFiles();
     } else {
@@ -72,9 +66,7 @@ export const GitPanel = forwardRef<GitPanelRef, GitPanelProps>(
   };
 
   const handleUnstageFile = async (file: ChangedFile) => {
-    console.log('Unstaging file:', file.filepath, 'in repo:', file.repoPath);
     const success = await window.electronAPI.gitRemove(file.repoPath, file.filepath);
-    console.log('Unstage result:', success);
     if (success) {
       await loadChangedFiles();
     } else {
@@ -123,14 +115,10 @@ export const GitPanel = forwardRef<GitPanelRef, GitPanelProps>(
   const handleStageAll = async () => {
     if (!selectedRepo) return;
 
-    console.log('Stage all for repo:', selectedRepo);
     const repoFiles = changedFiles.filter(f => f.repoPath === selectedRepo && f.status !== 'staged');
-    console.log('Files to stage:', repoFiles);
 
     for (const file of repoFiles) {
-      console.log('Staging:', file.filepath);
-      const success = await window.electronAPI.gitAdd(file.repoPath, file.filepath);
-      console.log('Result:', success);
+      await window.electronAPI.gitAdd(file.repoPath, file.filepath);
     }
     await loadChangedFiles();
   };
@@ -158,10 +146,6 @@ export const GitPanel = forwardRef<GitPanelRef, GitPanelProps>(
   const currentRepoFiles = selectedRepo
     ? changedFiles.filter(f => f.repoPath === selectedRepo)
     : [];
-
-  console.log('Selected repo:', selectedRepo);
-  console.log('All changed files:', changedFiles.length);
-  console.log('Current repo files:', currentRepoFiles.length);
 
   return (
     <div className="git-panel">

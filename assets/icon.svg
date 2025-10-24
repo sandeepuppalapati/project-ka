@@ -1,16 +1,16 @@
 <svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background circle with gradient -->
+  <!-- AI with Code Background -->
   <defs>
-    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="bgNew" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" style="stop-color:#1a4d4a;stop-opacity:1" />
       <stop offset="100%" style="stop-color:#0d3a47;stop-opacity:1" />
     </linearGradient>
-    <linearGradient id="tealGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="tealNew" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" style="stop-color:#4ec9b0;stop-opacity:1" />
       <stop offset="100%" style="stop-color:#5dd9c0;stop-opacity:1" />
     </linearGradient>
-    <filter id="glow">
-      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+    <filter id="glowNew">
+      <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
       <feMerge>
         <feMergeNode in="coloredBlur"/>
         <feMergeNode in="SourceGraphic"/>
@@ -19,46 +19,75 @@
   </defs>
 
   <!-- Background -->
-  <rect width="1024" height="1024" rx="180" fill="url(#bgGradient)"/>
+  <rect width="1024" height="1024" rx="180" fill="url(#bgNew)"/>
 
-  <!-- AI Brain/Network symbol -->
-  <g filter="url(#glow)">
-    <!-- Central node -->
-    <circle cx="512" cy="512" r="60" fill="url(#tealGradient)"/>
+  <!-- Faded code snippets in background -->
+  <g fill="#4ec9b0" opacity="0.15" font-family="'Courier New', monospace" font-size="28" font-weight="normal">
+    <!-- Top section -->
+    <text x="100" y="150">function createAgent() {</text>
+    <text x="120" y="190">  const model = 'claude-4';</text>
+    <text x="120" y="230">  return new Agent(model);</text>
+    <text x="100" y="270">}</text>
 
-    <!-- Outer nodes -->
-    <circle cx="312" cy="312" r="40" fill="url(#tealGradient)"/>
-    <circle cx="712" cy="312" r="40" fill="url(#tealGradient)"/>
-    <circle cx="312" cy="712" r="40" fill="url(#tealGradient)"/>
-    <circle cx="712" cy="712" r="40" fill="url(#tealGradient)"/>
+    <!-- Middle left -->
+    <text x="80" y="380">class AIEngine {</text>
+    <text x="100" y="420">  async process() {</text>
+    <text x="120" y="460">    await this.analyze();</text>
+    <text x="100" y="500">  }</text>
+    <text x="80" y="540">}</text>
 
-    <!-- Connection lines -->
-    <line x1="512" y1="512" x2="312" y2="312" stroke="#4ec9b0" stroke-width="8" opacity="0.6"/>
-    <line x1="512" y1="512" x2="712" y2="312" stroke="#4ec9b0" stroke-width="8" opacity="0.6"/>
-    <line x1="512" y1="512" x2="312" y2="712" stroke="#4ec9b0" stroke-width="8" opacity="0.6"/>
-    <line x1="512" y1="512" x2="712" y2="712" stroke="#4ec9b0" stroke-width="8" opacity="0.6"/>
+    <!-- Middle right -->
+    <text x="520" y="350">const tools = [</text>
+    <text x="540" y="390">  'read_file',</text>
+    <text x="540" y="430">  'write_file',</text>
+    <text x="540" y="470">  'execute_cmd'</text>
+    <text x="520" y="510">];</text>
 
-    <!-- Additional nodes for network effect -->
-    <circle cx="512" cy="232" r="35" fill="url(#tealGradient)"/>
-    <circle cx="792" cy="512" r="35" fill="url(#tealGradient)"/>
-    <circle cx="512" cy="792" r="35" fill="url(#tealGradient)"/>
-    <circle cx="232" cy="512" r="35" fill="url(#tealGradient)"/>
-
-    <!-- Lines to additional nodes -->
-    <line x1="512" y1="512" x2="512" y2="232" stroke="#4ec9b0" stroke-width="6" opacity="0.5"/>
-    <line x1="512" y1="512" x2="792" y2="512" stroke="#4ec9b0" stroke-width="6" opacity="0.5"/>
-    <line x1="512" y1="512" x2="512" y2="792" stroke="#4ec9b0" stroke-width="6" opacity="0.5"/>
-    <line x1="512" y1="512" x2="232" y2="512" stroke="#4ec9b0" stroke-width="6" opacity="0.5"/>
+    <!-- Bottom section -->
+    <text x="150" y="680">async chat(message) {</text>
+    <text x="170" y="720">  const response = await</text>
+    <text x="190" y="760">    ai.complete(message);</text>
+    <text x="170" y="800">  return response;</text>
+    <text x="150" y="840">}</text>
   </g>
 
-  <!-- Code brackets overlay -->
-  <g fill="#5dd9c0" opacity="0.8">
-    <!-- Left bracket -->
-    <path d="M 350 380 L 320 380 L 320 644 L 350 644" stroke="#5dd9c0" stroke-width="12" fill="none" stroke-linecap="round"/>
-    <!-- Right bracket -->
-    <path d="M 674 380 L 704 380 L 704 644 L 674 644" stroke="#5dd9c0" stroke-width="12" fill="none" stroke-linecap="round"/>
+  <!-- More faded background code -->
+  <g fill="#4ec9b0" opacity="0.12" font-family="'Courier New', monospace" font-size="24">
+    <text x="650" y="180">if (autonomous) {</text>
+    <text x="670" y="220">  agent.run();</text>
+    <text x="650" y="260">}</text>
+
+    <text x="720" y="620">for (const repo</text>
+    <text x="740" y="660">  of repos) {</text>
+    <text x="760" y="700">process(repo);</text>
+    <text x="720" y="740">}</text>
   </g>
 
-  <!-- AI text -->
-  <text x="512" y="920" font-family="Arial, sans-serif" font-size="120" font-weight="bold" fill="#4ec9b0" text-anchor="middle">AI IDE</text>
+  <!-- Large "AI" text - main focus -->
+  <g filter="url(#glowNew)">
+    <text x="512" y="580"
+          font-family="Arial, sans-serif"
+          font-size="380"
+          font-weight="900"
+          fill="url(#tealNew)"
+          text-anchor="middle"
+          letter-spacing="-20">AI</text>
+  </g>
+
+  <!-- Subtle underline decoration -->
+  <line x1="280" y1="600" x2="744" y2="600"
+        stroke="url(#tealNew)"
+        stroke-width="8"
+        opacity="0.6"
+        stroke-linecap="round"/>
+
+  <!-- Small "IDE" text below -->
+  <text x="512" y="680"
+        font-family="Arial, sans-serif"
+        font-size="80"
+        font-weight="600"
+        fill="#4ec9b0"
+        text-anchor="middle"
+        opacity="0.9"
+        letter-spacing="12">IDE</text>
 </svg>

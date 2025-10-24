@@ -19,7 +19,7 @@
   </defs>
 
   <!-- Background -->
-  <rect width="1024" height="1024" rx="180" fill="url(#bgNew)"/>
+  <rect width="1024" height="1024" fill="url(#bgNew)"/>
 
   <!-- Faded code snippets in background -->
   <g fill="#4ec9b0" opacity="0.15" font-family="'Courier New', monospace" font-size="28" font-weight="normal">

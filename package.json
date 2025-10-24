@@ -14,7 +14,9 @@
     "build:renderer": "vite build",
     "build:main": "tsc -p tsconfig.main.json",
     "start": "electron .",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "package": "npm run build && electron-builder --dir",
+    "dist": "npm run build && electron-builder"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.66.0",
@@ -37,7 +39,42 @@
     "concurrently": "^9.1.2",
     "cross-env": "^7.0.3",
     "electron": "^34.0.0",
+    "electron-builder": "^26.0.12",
     "typescript": "^5.7.3",
     "vite": "^6.0.7"
+  },
+  "build": {
+    "appId": "com.aiide.app",
+    "productName": "AI IDE",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "icon": "assets/icon.icns"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Development",
+      "icon": "assets/icon.png"
+    }
   }
 }

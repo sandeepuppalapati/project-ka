@@ -81,6 +81,7 @@
       ],
       "icon": "assets/icon.ico"
     },
+    "npmRebuild": false,
     "linux": {
       "target": [
         "AppImage",

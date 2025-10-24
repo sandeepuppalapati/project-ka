@@ -16,15 +16,10 @@
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
-    <clipPath id="roundedCorners">
-      <rect width="1024" height="1024" rx="180" ry="180"/>
-    </clipPath>
   </defs>
 
-  <!-- Everything clipped to rounded rectangle -->
-  <g clip-path="url(#roundedCorners)">
-    <!-- Background fills entire square -->
-    <rect width="1024" height="1024" fill="url(#bgNew)"/>
+  <!-- Background - rounded rectangle that fills everything -->
+  <rect width="1024" height="1024" rx="180" fill="url(#bgNew)"/>
 
   <!-- Faded code snippets in background -->
   <g fill="#4ec9b0" opacity="0.15" font-family="'Courier New', monospace" font-size="28" font-weight="normal">
@@ -95,5 +90,4 @@
         text-anchor="middle"
         opacity="0.9"
         letter-spacing="12">IDE</text>
-  </g>
 </svg>

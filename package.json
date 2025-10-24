@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "description": "AI-based IDE - For AI by AI",
   "main": "dist/main/main.js",
-  "author": "Your Name",
+  "author": {
+    "name": "Sandeep Uppalapati",
+    "email": "sandeep@example.com"
+  },
   "license": "MIT",
   "private": true,
   "scripts": {

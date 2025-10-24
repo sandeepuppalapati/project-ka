@@ -1,0 +1,64 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle with gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a4d4a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0d3a47;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="tealGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4ec9b0;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#5dd9c0;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="1024" rx="180" fill="url(#bgGradient)"/>
+
+  <!-- AI Brain/Network symbol -->
+  <g filter="url(#glow)">
+    <!-- Central node -->
+    <circle cx="512" cy="512" r="60" fill="url(#tealGradient)"/>
+
+    <!-- Outer nodes -->
+    <circle cx="312" cy="312" r="40" fill="url(#tealGradient)"/>
+    <circle cx="712" cy="312" r="40" fill="url(#tealGradient)"/>
+    <circle cx="312" cy="712" r="40" fill="url(#tealGradient)"/>
+    <circle cx="712" cy="712" r="40" fill="url(#tealGradient)"/>
+
+    <!-- Connection lines -->
+    <line x1="512" y1="512" x2="312" y2="312" stroke="#4ec9b0" stroke-width="8" opacity="0.6"/>
+    <line x1="512" y1="512" x2="712" y2="312" stroke="#4ec9b0" stroke-width="8" opacity="0.6"/>
+    <line x1="512" y1="512" x2="312" y2="712" stroke="#4ec9b0" stroke-width="8" opacity="0.6"/>
+    <line x1="512" y1="512" x2="712" y2="712" stroke="#4ec9b0" stroke-width="8" opacity="0.6"/>
+
+    <!-- Additional nodes for network effect -->
+    <circle cx="512" cy="232" r="35" fill="url(#tealGradient)"/>
+    <circle cx="792" cy="512" r="35" fill="url(#tealGradient)"/>
+    <circle cx="512" cy="792" r="35" fill="url(#tealGradient)"/>
+    <circle cx="232" cy="512" r="35" fill="url(#tealGradient)"/>
+
+    <!-- Lines to additional nodes -->
+    <line x1="512" y1="512" x2="512" y2="232" stroke="#4ec9b0" stroke-width="6" opacity="0.5"/>
+    <line x1="512" y1="512" x2="792" y2="512" stroke="#4ec9b0" stroke-width="6" opacity="0.5"/>
+    <line x1="512" y1="512" x2="512" y2="792" stroke="#4ec9b0" stroke-width="6" opacity="0.5"/>
+    <line x1="512" y1="512" x2="232" y2="512" stroke="#4ec9b0" stroke-width="6" opacity="0.5"/>
+  </g>
+
+  <!-- Code brackets overlay -->
+  <g fill="#5dd9c0" opacity="0.8">
+    <!-- Left bracket -->
+    <path d="M 350 380 L 320 380 L 320 644 L 350 644" stroke="#5dd9c0" stroke-width="12" fill="none" stroke-linecap="round"/>
+    <!-- Right bracket -->
+    <path d="M 674 380 L 704 380 L 704 644 L 674 644" stroke="#5dd9c0" stroke-width="12" fill="none" stroke-linecap="round"/>
+  </g>
+
+  <!-- AI text -->
+  <text x="512" y="920" font-family="Arial, sans-serif" font-size="120" font-weight="bold" fill="#4ec9b0" text-anchor="middle">AI IDE</text>
+</svg>

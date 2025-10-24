@@ -32,6 +32,8 @@ jobs:
       - name: Package application (macOS)
         if: matrix.os == 'macos-latest'
         run: npx electron-builder --mac --arm64 --x64
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Package application (Windows)
         if: matrix.os == 'windows-latest'

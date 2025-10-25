@@ -84,6 +84,11 @@ export function Settings({ onClose }: SettingsProps) {
       await window.electronAPI.saveSettings(settings);
     }
 
+    // Dispatch custom event to notify other components
+    window.dispatchEvent(new CustomEvent('settings-updated', {
+      detail: settings
+    }));
+
     setIsSaving(false);
     onClose();
   };

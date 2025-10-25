@@ -126,13 +126,23 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
     return () => window.removeEventListener('storage', handleStorageChange);
   }, [tabId, welcomeMessage]);
 
-  // Check for OpenAI API key on mount
+  // Check for OpenAI API key on mount and listen for settings changes
   useEffect(() => {
     const checkOpenAIKey = async () => {
       const settings = await window.electronAPI.getSettings?.();
       setHasOpenAIKey(!!settings?.openaiApiKey);
     };
+
     checkOpenAIKey();
+
+    // Listen for settings updates
+    const handleSettingsUpdate = (event: any) => {
+      const settings = event.detail;
+      setHasOpenAIKey(!!settings?.openaiApiKey);
+    };
+
+    window.addEventListener('settings-updated', handleSettingsUpdate);
+    return () => window.removeEventListener('settings-updated', handleSettingsUpdate);
   }, []);
 
   // Keyboard shortcut for voice input (Cmd/Ctrl+Shift+V)

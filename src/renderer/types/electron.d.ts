@@ -32,8 +32,8 @@ export interface ElectronAPI {
     stderr: string;
     exitCode?: number;
   }>;
-  saveSettings?: (settings: { apiKey: string; model: string }) => Promise<void>;
-  getSettings?: () => Promise<{ apiKey: string; model: string } | null>;
+  saveSettings?: (settings: { apiKey: string; model: string; openaiApiKey?: string }) => Promise<void>;
+  getSettings?: () => Promise<{ apiKey: string; model: string; openaiApiKey?: string } | null>;
 }
 
 export interface GitStatus {

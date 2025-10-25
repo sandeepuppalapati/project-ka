@@ -8,6 +8,7 @@ interface SettingsProps {
 interface SettingsData {
   apiKey: string;
   model: string;
+  openaiApiKey?: string;
 }
 
 const AVAILABLE_MODELS = [
@@ -18,7 +19,9 @@ const AVAILABLE_MODELS = [
 export function Settings({ onClose }: SettingsProps) {
   const [apiKey, setApiKey] = useState('');
   const [model, setModel] = useState('claude-sonnet-4-5-20250929');
+  const [openaiApiKey, setOpenaiApiKey] = useState('');
   const [showApiKey, setShowApiKey] = useState(false);
+  const [showOpenaiApiKey, setShowOpenaiApiKey] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [isValidating, setIsValidating] = useState(false);
@@ -32,6 +35,7 @@ export function Settings({ onClose }: SettingsProps) {
         if (settings) {
           setApiKey(settings.apiKey || '');
           setModel(settings.model || 'claude-sonnet-4-5-20250929');
+          setOpenaiApiKey(settings.openaiApiKey || '');
           return;
         }
       }
@@ -42,6 +46,7 @@ export function Settings({ onClose }: SettingsProps) {
         const settings: SettingsData = JSON.parse(savedSettings);
         setApiKey(settings.apiKey || '');
         setModel(settings.model || 'claude-sonnet-4-5-20250929');
+        setOpenaiApiKey(settings.openaiApiKey || '');
       }
     };
 
@@ -68,6 +73,7 @@ export function Settings({ onClose }: SettingsProps) {
     const settings: SettingsData = {
       apiKey,
       model,
+      openaiApiKey,
     };
 
     // Save to localStorage
@@ -170,6 +176,36 @@ export function Settings({ onClose }: SettingsProps) {
             </select>
             <p className="settings-help">
               Claude 4.5 Sonnet is recommended for best performance
+            </p>
+          </div>
+
+          <div className="settings-section">
+            <label htmlFor="openai-api-key">
+              OpenAI API Key (Optional - for voice input)
+            </label>
+            <div className="api-key-input-group">
+              <input
+                id="openai-api-key"
+                type={showOpenaiApiKey ? 'text' : 'password'}
+                value={openaiApiKey}
+                onChange={(e) => setOpenaiApiKey(e.target.value)}
+                placeholder="sk-..."
+                className="settings-input"
+              />
+              <button
+                type="button"
+                className="toggle-visibility"
+                onClick={() => setShowOpenaiApiKey(!showOpenaiApiKey)}
+                title={showOpenaiApiKey ? 'Hide API key' : 'Show API key'}
+              >
+                {showOpenaiApiKey ? '👁️' : '👁️‍🗨️'}
+              </button>
+            </div>
+            <p className="settings-help">
+              Required for voice input feature. Get your API key from{' '}
+              <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">
+                OpenAI Platform
+              </a>
             </p>
           </div>
 

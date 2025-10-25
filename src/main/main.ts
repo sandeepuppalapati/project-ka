@@ -337,16 +337,23 @@ ipcMain.handle('shell:execute', async (_event, command: string, cwd?: string) =>
 // Settings handlers
 const settingsFilePath = path.join(app.getPath('userData'), 'settings.json');
 const encryptedApiKeyPath = path.join(app.getPath('userData'), 'api-key.enc');
+const encryptedOpenaiKeyPath = path.join(app.getPath('userData'), 'openai-key.enc');
 
-ipcMain.handle('settings:save', async (_event, settings: { apiKey: string; model: string }) => {
+ipcMain.handle('settings:save', async (_event, settings: { apiKey: string; model: string; openaiApiKey?: string }) => {
   try {
-    // Encrypt and save API key separately
+    // Encrypt and save Anthropic API key separately
     if (settings.apiKey && safeStorage.isEncryptionAvailable()) {
       const encrypted = safeStorage.encryptString(settings.apiKey);
       await fs.writeFile(encryptedApiKeyPath, encrypted);
     }
 
-    // Save other settings (without API key) in plain text
+    // Encrypt and save OpenAI API key separately
+    if (settings.openaiApiKey && safeStorage.isEncryptionAvailable()) {
+      const encrypted = safeStorage.encryptString(settings.openaiApiKey);
+      await fs.writeFile(encryptedOpenaiKeyPath, encrypted);
+    }
+
+    // Save other settings (without API keys) in plain text
     const settingsToSave = { model: settings.model };
     await fs.writeFile(settingsFilePath, JSON.stringify(settingsToSave, null, 2), 'utf-8');
     return true;
@@ -367,7 +374,7 @@ ipcMain.handle('settings:get', async () => {
       // Settings file doesn't exist yet
     }
 
-    // Decrypt API key
+    // Decrypt Anthropic API key
     let apiKey = '';
     try {
       if (safeStorage.isEncryptionAvailable()) {
@@ -398,13 +405,42 @@ ipcMain.handle('settings:get', async () => {
       }
     }
 
+    // Decrypt OpenAI API key
+    let openaiApiKey = '';
+    try {
+      if (safeStorage.isEncryptionAvailable()) {
+        const encrypted = await fs.readFile(encryptedOpenaiKeyPath);
+        openaiApiKey = safeStorage.decryptString(encrypted);
+      }
+    } catch {
+      // OpenAI key file doesn't exist yet - check for legacy plain text key
+      if (settingsData.openaiApiKey) {
+        console.log('Migrating plain text OpenAI API key to encrypted storage...');
+        openaiApiKey = settingsData.openaiApiKey;
+
+        if (safeStorage.isEncryptionAvailable()) {
+          try {
+            const encrypted = safeStorage.encryptString(openaiApiKey);
+            await fs.writeFile(encryptedOpenaiKeyPath, encrypted);
+
+            delete settingsData.openaiApiKey;
+            await fs.writeFile(settingsFilePath, JSON.stringify(settingsData, null, 2), 'utf-8');
+            console.log('Migration complete - OpenAI API key now encrypted');
+          } catch (migrationError) {
+            console.error('Failed to migrate OpenAI API key:', migrationError);
+          }
+        }
+      }
+    }
+
     return {
       apiKey,
+      openaiApiKey,
       model: settingsData.model || 'claude-sonnet-4-20250514',
     };
   } catch (error) {
     // Return defaults
-    return { apiKey: '', model: 'claude-sonnet-4-20250514' };
+    return { apiKey: '', openaiApiKey: '', model: 'claude-sonnet-4-20250514' };
   }
 });
 

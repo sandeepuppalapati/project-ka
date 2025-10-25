@@ -1,0 +1,159 @@
+.voice-recorder {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.voice-button {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid #4ec9b0;
+  background: #2d2d2d;
+  color: #e0e0e0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.voice-button:hover:not(:disabled) {
+  background: #3d3d3d;
+  border-color: #5dd9c0;
+  transform: scale(1.05);
+}
+
+.voice-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.voice-button .icon {
+  position: relative;
+  z-index: 2;
+}
+
+/* Idle state */
+.voice-button.idle {
+  border-color: #4ec9b0;
+}
+
+/* Recording state */
+.voice-button.recording {
+  border-color: #ff4444;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.voice-button.recording .icon {
+  animation: blink 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(255, 68, 68, 0);
+  }
+}
+
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Audio level visualization */
+.audio-level {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #4ec9b0, #5dd9c0);
+  transition: width 0.1s ease;
+  z-index: 1;
+}
+
+/* Processing state */
+.voice-button.processing {
+  border-color: #ffa500;
+}
+
+.voice-button.processing .icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error indicator */
+.voice-error {
+  color: #ff4444;
+  font-size: 18px;
+  cursor: help;
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+/* Recording indicator */
+.recording-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #ff4444;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff4444;
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.8);
+  }
+}
+
+/* Processing indicator */
+.processing-indicator {
+  color: #ffa500;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}

@@ -8,6 +8,7 @@ import {
   deserializeMessage,
   type PersistedMessage
 } from '../hooks/usePersistence';
+import { VoiceRecorder } from './VoiceRecorder';
 
 interface ToolExecution {
   tool: string;
@@ -1145,6 +1146,10 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
               onKeyPress={handleKeyPress}
               placeholder={isProcessing ? "AI is thinking..." : "Type a message or command..."}
               rows={3}
+              disabled={isProcessing}
+            />
+            <VoiceRecorder
+              onTranscription={(text) => setInput(input + (input ? ' ' : '') + text)}
               disabled={isProcessing}
             />
           </div>

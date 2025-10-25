@@ -496,10 +496,13 @@
 .input-wrapper {
   flex: 1;
   position: relative;
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
 }
 
 .chat-input {
-  width: 100%;
+  flex: 1;
   background-color: #2d2d30;
   border: 2px solid #3e3e42;
   border-radius: 8px;

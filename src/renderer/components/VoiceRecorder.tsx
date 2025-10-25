@@ -10,171 +10,204 @@ export interface VoiceRecorderHandle {
   toggleRecording: () => void;
 }
 
-type RecordingState = 'idle' | 'recording' | 'processing';
+type RecordingState = 'idle' | 'recording';
 
 export const VoiceRecorder = forwardRef<VoiceRecorderHandle, VoiceRecorderProps>(
   function VoiceRecorder({ onTranscription, disabled = false }, ref) {
   const [state, setState] = useState<RecordingState>('idle');
   const [error, setError] = useState<string | null>(null);
   const [audioLevel, setAudioLevel] = useState(0);
+  const [liveTranscript, setLiveTranscript] = useState('');
 
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
+  const wsRef = useRef<WebSocket | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animationFrameRef = useRef<number | null>(null);
+  const processorRef = useRef<ScriptProcessorNode | null>(null);
 
   useEffect(() => {
     return () => {
       // Cleanup on unmount
       stopRecording();
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-      }
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
-      }
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
     };
   }, []);
 
-  const visualizeAudio = (stream: MediaStream) => {
-    audioContextRef.current = new AudioContext();
-    analyserRef.current = audioContextRef.current.createAnalyser();
+  const setupAudioProcessing = async (stream: MediaStream) => {
+    // Create audio context
+    audioContextRef.current = new AudioContext({ sampleRate: 24000 });
     const source = audioContextRef.current.createMediaStreamSource(stream);
-    source.connect(analyserRef.current);
+
+    // Setup analyzer for visualization
+    analyserRef.current = audioContextRef.current.createAnalyser();
     analyserRef.current.fftSize = 256;
+    source.connect(analyserRef.current);
+
+    // Setup audio processor for sending to WebSocket
+    const processor = audioContextRef.current.createScriptProcessor(4096, 1, 1);
+    processorRef.current = processor;
+
+    processor.onaudioprocess = (e) => {
+      if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
+
+      const inputData = e.inputBuffer.getChannelData(0);
+      // Convert to 16-bit PCM
+      const pcmData = new Int16Array(inputData.length);
+      for (let i = 0; i < inputData.length; i++) {
+        const s = Math.max(-1, Math.min(1, inputData[i]));
+        pcmData[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+      }
+
+      // Send to WebSocket as base64
+      const base64 = btoa(String.fromCharCode(...new Uint8Array(pcmData.buffer)));
+      wsRef.current.send(JSON.stringify({
+        type: 'input_audio_buffer.append',
+        audio: base64
+      }));
+    };
+
+    source.connect(processor);
+    processor.connect(audioContextRef.current.destination);
+
+    // Start audio level visualization
+    updateAudioLevel();
+  };
+
+  const updateAudioLevel = () => {
+    if (!analyserRef.current) return;
 
     const bufferLength = analyserRef.current.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
+    analyserRef.current.getByteFrequencyData(dataArray);
+    const average = dataArray.reduce((a, b) => a + b) / bufferLength;
+    setAudioLevel(average / 255);
 
-    const updateLevel = () => {
-      if (!analyserRef.current) return;
-
-      analyserRef.current.getByteFrequencyData(dataArray);
-      const average = dataArray.reduce((a, b) => a + b) / bufferLength;
-      setAudioLevel(average / 255); // Normalize to 0-1
-
-      animationFrameRef.current = requestAnimationFrame(updateLevel);
-    };
-
-    updateLevel();
+    animationFrameRef.current = requestAnimationFrame(updateAudioLevel);
   };
 
   const startRecording = async () => {
     try {
       setError(null);
+      setLiveTranscript('');
 
-      // Request microphone permission
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          sampleRate: 44100,
-        }
-      });
+      // Get OpenAI API key
+      const settings = await window.electronAPI.getSettings();
+      if (!settings.openaiApiKey) {
+        setError('OpenAI API key not configured. Please add it in Settings.');
+        return;
+      }
 
-      streamRef.current = stream;
-      audioChunksRef.current = [];
+      // Connect to OpenAI Realtime API
+      const ws = new WebSocket('wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17', [
+        'realtime',
+        `openai-insecure-api-key.${settings.openaiApiKey}`,
+        'openai-beta.realtime-v1'
+      ]);
 
-      // Start audio visualization
-      visualizeAudio(stream);
+      wsRef.current = ws;
 
-      // Create MediaRecorder
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'audio/webm;codecs=opus'
-      });
+      ws.onopen = async () => {
+        console.log('Connected to OpenAI Realtime API');
 
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
+        // Configure session for transcription only
+        ws.send(JSON.stringify({
+          type: 'session.update',
+          session: {
+            modalities: ['text'],
+            instructions: 'Transcribe the user audio.',
+            input_audio_format: 'pcm16',
+            input_audio_transcription: {
+              model: 'whisper-1'
+            }
+          }
+        }));
+
+        // Get microphone access
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            sampleRate: 24000,
+            channelCount: 1,
+          }
+        });
+
+        streamRef.current = stream;
+        await setupAudioProcessing(stream);
+        setState('recording');
+      };
+
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+
+        // Handle transcription updates
+        if (data.type === 'conversation.item.input_audio_transcription.completed') {
+          const transcript = data.transcript;
+          setLiveTranscript(transcript);
+          onTranscription(transcript);
+        } else if (data.type === 'conversation.item.input_audio_transcription.delta') {
+          // Incremental transcription updates
+          const delta = data.delta;
+          setLiveTranscript(prev => prev + delta);
+        } else if (data.type === 'error') {
+          console.error('Realtime API error:', data.error);
+          setError(data.error.message || 'Transcription error');
         }
       };
 
-      mediaRecorder.onstop = async () => {
-        setState('processing');
-
-        // Stop audio visualization
-        if (animationFrameRef.current) {
-          cancelAnimationFrame(animationFrameRef.current);
-        }
-        if (audioContextRef.current) {
-          audioContextRef.current.close();
-        }
-
-        // Create audio blob
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-
-        // Send to Whisper API
-        await transcribeAudio(audioBlob);
-
-        // Cleanup
-        if (streamRef.current) {
-          streamRef.current.getTracks().forEach(track => track.stop());
-          streamRef.current = null;
-        }
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+        setError('Connection error. Please try again.');
+        stopRecording();
       };
 
-      mediaRecorderRef.current = mediaRecorder;
-      mediaRecorder.start(100); // Collect data every 100ms
-      setState('recording');
+      ws.onclose = () => {
+        console.log('WebSocket closed');
+        if (state === 'recording') {
+          stopRecording();
+        }
+      };
 
     } catch (err) {
       console.error('Error starting recording:', err);
-      setError('Failed to access microphone. Please check permissions.');
+      setError(err instanceof Error ? err.message : 'Failed to start recording');
       setState('idle');
     }
   };
 
   const stopRecording = () => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-      mediaRecorderRef.current.stop();
-    }
-  };
-
-  const transcribeAudio = async (audioBlob: Blob) => {
-    try {
-      // Get OpenAI API key from settings
-      const settings = await window.electronAPI.getSettings();
-
-      if (!settings.openaiApiKey) {
-        setError('OpenAI API key not configured. Please add it in Settings.');
-        setState('idle');
-        return;
+    // Close WebSocket
+    if (wsRef.current) {
+      if (wsRef.current.readyState === WebSocket.OPEN) {
+        wsRef.current.close();
       }
-
-      // Convert webm to wav for better compatibility
-      const formData = new FormData();
-      formData.append('file', audioBlob, 'audio.webm');
-      formData.append('model', 'whisper-1');
-      formData.append('language', 'en'); // TODO: Make configurable
-
-      const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${settings.openaiApiKey}`,
-        },
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || 'Transcription failed');
-      }
-
-      const data = await response.json();
-      onTranscription(data.text);
-      setState('idle');
-      setError(null);
-
-    } catch (err) {
-      console.error('Transcription error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to transcribe audio');
-      setState('idle');
+      wsRef.current = null;
     }
+
+    // Stop audio processing
+    if (processorRef.current) {
+      processorRef.current.disconnect();
+      processorRef.current = null;
+    }
+
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+      audioContextRef.current = null;
+    }
+
+    // Stop microphone
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+
+    setAudioLevel(0);
+    setState('idle');
   };
 
   const handleClick = () => {
@@ -188,25 +221,13 @@ export const VoiceRecorder = forwardRef<VoiceRecorderHandle, VoiceRecorderProps>
   };
 
   const getButtonIcon = () => {
-    switch (state) {
-      case 'idle':
-        return '🎤';
-      case 'recording':
-        return '🔴';
-      case 'processing':
-        return '⏳';
-    }
+    return state === 'idle' ? '🎤' : '🔴';
   };
 
   const getButtonTitle = () => {
-    switch (state) {
-      case 'idle':
-        return 'Start voice input (Cmd/Ctrl+Shift+V)';
-      case 'recording':
-        return 'Stop recording';
-      case 'processing':
-        return 'Transcribing...';
-    }
+    return state === 'idle'
+      ? 'Start voice input (Cmd/Ctrl+Shift+V)'
+      : 'Stop recording';
   };
 
   // Expose methods to parent via ref
@@ -219,7 +240,7 @@ export const VoiceRecorder = forwardRef<VoiceRecorderHandle, VoiceRecorderProps>
       <button
         className={`voice-button ${state}`}
         onClick={handleClick}
-        disabled={disabled || state === 'processing'}
+        disabled={disabled}
         title={getButtonTitle()}
       >
         <span className="icon">{getButtonIcon()}</span>
@@ -239,14 +260,15 @@ export const VoiceRecorder = forwardRef<VoiceRecorderHandle, VoiceRecorderProps>
 
       {state === 'recording' && (
         <div className="recording-indicator">
-          <span className="pulse-dot" />
-          Recording...
-        </div>
-      )}
-
-      {state === 'processing' && (
-        <div className="processing-indicator">
-          Transcribing...
+          <div>
+            <span className="pulse-dot" />
+            Recording...
+          </div>
+          {liveTranscript && (
+            <div className="live-transcript">
+              {liveTranscript}
+            </div>
+          )}
         </div>
       )}
     </div>

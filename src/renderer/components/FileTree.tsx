@@ -35,6 +35,11 @@ export function FileTree({ repoPath, repoName, onFileSelect }: FileTreeProps) {
       if (entries) {
         const nodes = entries
           .filter(entry => !entry.name.startsWith('.')) // Hide hidden files
+          .filter(entry => {
+            // Skip common heavy directories for better performance
+            const skipDirs = ['node_modules', '.git', 'dist', 'build', 'out', 'coverage', '.next', '.nuxt'];
+            return !skipDirs.includes(entry.name);
+          })
           .map(entry => ({
             name: entry.name,
             path: entry.path,
@@ -88,6 +93,11 @@ export function FileTree({ repoPath, repoName, onFileSelect }: FileTreeProps) {
       if (entries) {
         const children = entries
           .filter(entry => !entry.name.startsWith('.'))
+          .filter(entry => {
+            // Skip common heavy directories for better performance
+            const skipDirs = ['node_modules', '.git', 'dist', 'build', 'out', 'coverage', '.next', '.nuxt'];
+            return !skipDirs.includes(entry.name);
+          })
           .map(entry => ({
             name: entry.name,
             path: entry.path,

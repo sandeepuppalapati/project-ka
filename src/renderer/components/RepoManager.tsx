@@ -54,26 +54,25 @@ export function RepoManager({ onReposChange, repos: initialRepos }: RepoManagerP
       }
 
       const newRepos: Repository[] = [];
-      const invalidPaths: string[] = [];
 
       // Process each selected folder
       for (const folderPath of folderPaths) {
-        // Check if it's a git repo
-        const isRepo = await window.electronAPI.isRepo(folderPath);
-
-        if (!isRepo) {
-          invalidPaths.push(folderPath);
-          continue;
-        }
-
         // Check if already added
         if (repos.find(r => r.path === folderPath)) {
           continue;
         }
 
-        // Get branch and status
-        const branch = await window.electronAPI.getCurrentBranch(folderPath);
-        const status = await window.electronAPI.getGitStatus(folderPath);
+        // Check if it's a git repo (optional - for git features)
+        const isRepo = await window.electronAPI.isRepo(folderPath);
+
+        // Get branch and status only if it's a git repo
+        let branch = null;
+        let status = null;
+
+        if (isRepo) {
+          branch = await window.electronAPI.getCurrentBranch(folderPath);
+          status = await window.electronAPI.getGitStatus(folderPath);
+        }
 
         const repoName = folderPath.split('/').pop() || 'Unknown';
 
@@ -81,15 +80,11 @@ export function RepoManager({ onReposChange, repos: initialRepos }: RepoManagerP
           id: Date.now().toString() + '-' + newRepos.length,
           path: folderPath,
           name: repoName,
-          branch: branch || 'main',
-          status,
+          branch: branch || 'N/A',
+          status: status || { modified: [], untracked: [], staged: [] },
         };
 
         newRepos.push(newRepo);
-      }
-
-      if (invalidPaths.length > 0) {
-        alert(`The following folders are not git repositories:\n${invalidPaths.join('\n')}`);
       }
 
       if (newRepos.length > 0) {

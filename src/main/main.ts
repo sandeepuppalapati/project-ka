@@ -375,7 +375,27 @@ ipcMain.handle('settings:get', async () => {
         apiKey = safeStorage.decryptString(encrypted);
       }
     } catch {
-      // API key file doesn't exist yet
+      // API key file doesn't exist yet - check for legacy plain text key
+      if (settingsData.apiKey) {
+        // Migrate: Found plain text API key from old version
+        console.log('Migrating plain text API key to encrypted storage...');
+        apiKey = settingsData.apiKey;
+
+        // Save it encrypted
+        if (safeStorage.isEncryptionAvailable()) {
+          try {
+            const encrypted = safeStorage.encryptString(apiKey);
+            await fs.writeFile(encryptedApiKeyPath, encrypted);
+
+            // Remove from plain text settings
+            delete settingsData.apiKey;
+            await fs.writeFile(settingsFilePath, JSON.stringify(settingsData, null, 2), 'utf-8');
+            console.log('Migration complete - API key now encrypted');
+          } catch (migrationError) {
+            console.error('Failed to migrate API key:', migrationError);
+          }
+        }
+      }
     }
 
     return {

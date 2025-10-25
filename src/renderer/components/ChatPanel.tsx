@@ -80,6 +80,7 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [isStreaming, setIsStreaming] = useState(false);
   const [isBridgeActivityCollapsed, setIsBridgeActivityCollapsed] = useState(false);
+  const [hasOpenAIKey, setHasOpenAIKey] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const inputHistory = useRef<string[]>([]);
@@ -125,18 +126,29 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
     return () => window.removeEventListener('storage', handleStorageChange);
   }, [tabId, welcomeMessage]);
 
+  // Check for OpenAI API key on mount
+  useEffect(() => {
+    const checkOpenAIKey = async () => {
+      const settings = await window.electronAPI.getSettings?.();
+      setHasOpenAIKey(!!settings?.openaiApiKey);
+    };
+    checkOpenAIKey();
+  }, []);
+
   // Keyboard shortcut for voice input (Cmd/Ctrl+Shift+V)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'v') {
         e.preventDefault();
-        voiceRecorderRef.current?.toggleRecording();
+        if (hasOpenAIKey) {
+          voiceRecorderRef.current?.toggleRecording();
+        }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [hasOpenAIKey]);
 
   const handleClearChat = () => {
     if (isBridge) {
@@ -1164,114 +1176,116 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
               rows={3}
               disabled={isProcessing}
             />
-            <VoiceRecorder
-              ref={voiceRecorderRef}
-              onTranscription={async (text) => {
-                if (!text.trim() || isProcessing) return;
+            {hasOpenAIKey && (
+              <VoiceRecorder
+                ref={voiceRecorderRef}
+                onTranscription={async (text) => {
+                  if (!text.trim() || isProcessing) return;
 
-                const finalInput = (input + (input ? ' ' : '') + text).trim();
+                  const finalInput = (input + (input ? ' ' : '') + text).trim();
 
-                const userMessage: Message = {
-                  id: Date.now().toString(),
-                  role: 'user',
-                  content: finalInput,
-                  timestamp: new Date(),
-                };
-
-                // Add to history
-                inputHistory.current.push(finalInput);
-                setHistoryIndex(-1);
-
-                const newMessages = [...messages, userMessage];
-                setMessages(newMessages);
-                setInput('');
-
-                // If in Bridge, just post the message
-                if (isBridge) {
-                  bridge.postToBridge({
-                    agentId: 'user',
-                    agentName: 'You',
-                    type: 'question',
-                    content: userMessage.content,
-                    metadata: {},
-                  });
-                  return;
-                }
-
-                setIsProcessing(true);
-                abortControllerRef.current = new AbortController();
-
-                try {
-                  // Build context with bridge awareness
-                  const context: any = {
-                    isBridge,
-                    allRepos,
+                  const userMessage: Message = {
+                    id: Date.now().toString(),
+                    role: 'user',
+                    content: finalInput,
+                    timestamp: new Date(),
                   };
 
-                  if (currentRepo) {
-                    context.repoPath = currentRepo.path;
-                    context.repoName = currentRepo.name;
-                  }
+                  // Add to history
+                  inputHistory.current.push(finalInput);
+                  setHistoryIndex(-1);
 
-                  if (currentFile?.path) {
-                    const fileContent = await window.electronAPI.readFile(currentFile.path);
-                    if (fileContent) {
-                      context.filePath = currentFile.path;
-                      context.fileContent = fileContent;
-                    }
-                  }
+                  const newMessages = [...messages, userMessage];
+                  setMessages(newMessages);
+                  setInput('');
 
-                  // Include recent bridge messages for repo agents
-                  if (!isBridge && bridge.messages.length > 0) {
-                    context.bridgeMessages = bridge.getRecentMessages(5).map(m => ({
-                      agentName: m.agentName,
-                      content: m.content,
-                      timestamp: m.timestamp,
-                    }));
-                  }
-
-                  // Build conversation history for API
-                  const apiMessages = newMessages
-                    .filter(msg => msg.id !== '1') // Skip initial greeting
-                    .map(msg => {
-                      if (msg.role === 'command' && msg.command?.output) {
-                        return {
-                          role: 'assistant' as const,
-                          content: `Command executed: ${msg.command.command}\n\nOutput:\n${msg.command.output.stdout || ''}${msg.command.output.stderr ? '\nError: ' + msg.command.output.stderr : ''}`
-                        };
-                      }
-                      return {
-                        role: msg.role as 'user' | 'assistant',
-                        content: msg.content
-                      };
+                  // If in Bridge, just post the message
+                  if (isBridge) {
+                    bridge.postToBridge({
+                      agentId: 'user',
+                      agentName: 'You',
+                      type: 'question',
+                      content: userMessage.content,
+                      metadata: {},
                     });
-
-                  await window.electronAPI.sendChatMessage(apiMessages, context, sessionIdRef.current);
-                } catch (error: any) {
-                  console.error('AI error:', error);
-                  if (error.name === 'AbortError') {
-                    const cancelMessage: Message = {
-                      id: (Date.now() + 1).toString(),
-                      role: 'assistant',
-                      content: 'Request cancelled.',
-                      timestamp: new Date(),
-                    };
-                    setMessages(prev => [...prev, cancelMessage]);
-                  } else {
-                    const errorMessage: Message = {
-                      id: (Date.now() + 1).toString(),
-                      role: 'assistant',
-                      content: `Error: ${error instanceof Error ? error.message : 'Failed to get AI response. Check your API key in .env'}`,
-                      timestamp: new Date(),
-                    };
-                    setMessages(prev => [...prev, errorMessage]);
+                    return;
                   }
-                  setIsProcessing(false);
-                  abortControllerRef.current = null;
-                }
-              }}
-              disabled={isProcessing}
-            />
+
+                  setIsProcessing(true);
+                  abortControllerRef.current = new AbortController();
+
+                  try {
+                    // Build context with bridge awareness
+                    const context: any = {
+                      isBridge,
+                      allRepos,
+                    };
+
+                    if (currentRepo) {
+                      context.repoPath = currentRepo.path;
+                      context.repoName = currentRepo.name;
+                    }
+
+                    if (currentFile?.path) {
+                      const fileContent = await window.electronAPI.readFile(currentFile.path);
+                      if (fileContent) {
+                        context.filePath = currentFile.path;
+                        context.fileContent = fileContent;
+                      }
+                    }
+
+                    // Include recent bridge messages for repo agents
+                    if (!isBridge && bridge.messages.length > 0) {
+                      context.bridgeMessages = bridge.getRecentMessages(5).map(m => ({
+                        agentName: m.agentName,
+                        content: m.content,
+                        timestamp: m.timestamp,
+                      }));
+                    }
+
+                    // Build conversation history for API
+                    const apiMessages = newMessages
+                      .filter(msg => msg.id !== '1') // Skip initial greeting
+                      .map(msg => {
+                        if (msg.role === 'command' && msg.command?.output) {
+                          return {
+                            role: 'assistant' as const,
+                            content: `Command executed: ${msg.command.command}\n\nOutput:\n${msg.command.output.stdout || ''}${msg.command.output.stderr ? '\nError: ' + msg.command.output.stderr : ''}`
+                          };
+                        }
+                        return {
+                          role: msg.role as 'user' | 'assistant',
+                          content: msg.content
+                        };
+                      });
+
+                    await window.electronAPI.sendChatMessage(apiMessages, context, sessionIdRef.current);
+                  } catch (error: any) {
+                    console.error('AI error:', error);
+                    if (error.name === 'AbortError') {
+                      const cancelMessage: Message = {
+                        id: (Date.now() + 1).toString(),
+                        role: 'assistant',
+                        content: 'Request cancelled.',
+                        timestamp: new Date(),
+                      };
+                      setMessages(prev => [...prev, cancelMessage]);
+                    } else {
+                      const errorMessage: Message = {
+                        id: (Date.now() + 1).toString(),
+                        role: 'assistant',
+                        content: `Error: ${error instanceof Error ? error.message : 'Failed to get AI response. Check your API key in .env'}`,
+                        timestamp: new Date(),
+                      };
+                      setMessages(prev => [...prev, errorMessage]);
+                    }
+                    setIsProcessing(false);
+                    abortControllerRef.current = null;
+                  }
+                }}
+                disabled={isProcessing}
+              />
+            )}
           </div>
           <div className="action-buttons">
             {isProcessing ? (

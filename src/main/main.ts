@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, safeStorage } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs/promises';
 import { exec } from 'child_process';
@@ -336,10 +336,19 @@ ipcMain.handle('shell:execute', async (_event, command: string, cwd?: string) =>
 
 // Settings handlers
 const settingsFilePath = path.join(app.getPath('userData'), 'settings.json');
+const encryptedApiKeyPath = path.join(app.getPath('userData'), 'api-key.enc');
 
 ipcMain.handle('settings:save', async (_event, settings: { apiKey: string; model: string }) => {
   try {
-    await fs.writeFile(settingsFilePath, JSON.stringify(settings, null, 2), 'utf-8');
+    // Encrypt and save API key separately
+    if (settings.apiKey && safeStorage.isEncryptionAvailable()) {
+      const encrypted = safeStorage.encryptString(settings.apiKey);
+      await fs.writeFile(encryptedApiKeyPath, encrypted);
+    }
+
+    // Save other settings (without API key) in plain text
+    const settingsToSave = { model: settings.model };
+    await fs.writeFile(settingsFilePath, JSON.stringify(settingsToSave, null, 2), 'utf-8');
     return true;
   } catch (error) {
     console.error('Failed to save settings:', error);
@@ -349,11 +358,33 @@ ipcMain.handle('settings:save', async (_event, settings: { apiKey: string; model
 
 ipcMain.handle('settings:get', async () => {
   try {
-    const data = await fs.readFile(settingsFilePath, 'utf-8');
-    return JSON.parse(data);
+    // Read settings
+    let settingsData: any = {};
+    try {
+      const data = await fs.readFile(settingsFilePath, 'utf-8');
+      settingsData = JSON.parse(data);
+    } catch {
+      // Settings file doesn't exist yet
+    }
+
+    // Decrypt API key
+    let apiKey = '';
+    try {
+      if (safeStorage.isEncryptionAvailable()) {
+        const encrypted = await fs.readFile(encryptedApiKeyPath);
+        apiKey = safeStorage.decryptString(encrypted);
+      }
+    } catch {
+      // API key file doesn't exist yet
+    }
+
+    return {
+      apiKey,
+      model: settingsData.model || 'claude-sonnet-4-20250514',
+    };
   } catch (error) {
-    // File doesn't exist or is invalid - return null
-    return null;
+    // Return defaults
+    return { apiKey: '', model: 'claude-sonnet-4-20250514' };
   }
 });
 

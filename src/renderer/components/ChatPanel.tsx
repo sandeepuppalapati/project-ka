@@ -61,6 +61,9 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
   // Generate unique session ID for this ChatPanel instance to filter streaming responses
   const sessionIdRef = useRef(`session-${Date.now()}-${Math.random()}`);
 
+  // Voice recorder ref for keyboard shortcut
+  const voiceRecorderRef = useRef<any>(null);
+
   // Welcome message - memoize to prevent recreation on each render
   const welcomeMessage: Message = {
     id: '1',
@@ -121,6 +124,19 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
   }, [tabId, welcomeMessage]);
+
+  // Keyboard shortcut for voice input (Cmd/Ctrl+Shift+V)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'v') {
+        e.preventDefault();
+        voiceRecorderRef.current?.toggleRecording();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleClearChat = () => {
     if (isBridge) {
@@ -1149,6 +1165,7 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
               disabled={isProcessing}
             />
             <VoiceRecorder
+              ref={voiceRecorderRef}
               onTranscription={(text) => setInput(input + (input ? ' ' : '') + text)}
               disabled={isProcessing}
             />

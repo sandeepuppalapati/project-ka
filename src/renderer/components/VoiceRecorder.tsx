@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import './VoiceRecorder.css';
 
 interface VoiceRecorderProps {
@@ -6,9 +6,14 @@ interface VoiceRecorderProps {
   disabled?: boolean;
 }
 
+export interface VoiceRecorderHandle {
+  toggleRecording: () => void;
+}
+
 type RecordingState = 'idle' | 'recording' | 'processing';
 
-export function VoiceRecorder({ onTranscription, disabled = false }: VoiceRecorderProps) {
+export const VoiceRecorder = forwardRef<VoiceRecorderHandle, VoiceRecorderProps>(
+  function VoiceRecorder({ onTranscription, disabled = false }, ref) {
   const [state, setState] = useState<RecordingState>('idle');
   const [error, setError] = useState<string | null>(null);
   const [audioLevel, setAudioLevel] = useState(0);
@@ -204,6 +209,11 @@ export function VoiceRecorder({ onTranscription, disabled = false }: VoiceRecord
     }
   };
 
+  // Expose methods to parent via ref
+  useImperativeHandle(ref, () => ({
+    toggleRecording: handleClick,
+  }));
+
   return (
     <div className="voice-recorder">
       <button
@@ -241,4 +251,4 @@ export function VoiceRecorder({ onTranscription, disabled = false }: VoiceRecord
       )}
     </div>
   );
-}
+});

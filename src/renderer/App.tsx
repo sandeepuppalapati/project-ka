@@ -10,6 +10,7 @@ import { TabBar } from './components/TabBar'
 import { QuickOpen } from './components/QuickOpen'
 import { Settings } from './components/Settings'
 import { CreateWorkspace } from './components/CreateWorkspace'
+import { WorkspaceSelector } from './components/WorkspaceSelector'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useRepositoriesPersistence, useWorkspacePersistence } from './hooks/usePersistence'
 import { useBridge } from './contexts/BridgeContext'
@@ -457,6 +458,17 @@ function App() {
         <div className="header-title">
           <h1>AI IDE</h1>
           <p className="motto">For AI by AI</p>
+        </div>
+        <div className="header-center">
+          {currentWorkspace && (
+            <WorkspaceSelector
+              currentWorkspace={currentWorkspace}
+              onWorkspaceChange={async (workspacePath) => {
+                localStorage.setItem('current_workspace', workspacePath);
+                await loadWorkspace(workspacePath);
+              }}
+            />
+          )}
         </div>
         <div className="header-actions">
           {repos.length > 0 && (

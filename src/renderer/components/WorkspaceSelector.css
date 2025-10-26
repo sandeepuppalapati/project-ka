@@ -1,0 +1,138 @@
+.workspace-selector {
+  position: relative;
+  -webkit-app-region: no-drag;
+}
+
+.workspace-selector-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  background: #3e3e42;
+  border: 1px solid #3e3e42;
+  border-radius: 4px;
+  color: #cccccc;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  max-width: 250px;
+}
+
+.workspace-selector-button:hover {
+  background: #4e4e4e;
+  border-color: #007acc;
+}
+
+.workspace-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.workspace-name {
+  flex: 1;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+
+.workspace-chevron {
+  font-size: 0.6rem;
+  color: #858585;
+  flex-shrink: 0;
+}
+
+.workspace-dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  min-width: 300px;
+  background: #2d2d30;
+  border: 1px solid #3e3e42;
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.workspace-dropdown-header {
+  padding: 0.75rem 1rem;
+  background: #252526;
+  border-bottom: 1px solid #3e3e42;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #858585;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.workspace-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.workspace-empty {
+  padding: 2rem;
+  text-align: center;
+  color: #858585;
+  font-size: 0.875rem;
+}
+
+.workspace-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  border-bottom: 1px solid #3e3e42;
+  width: 100%;
+  cursor: pointer;
+  transition: background 0.2s;
+  text-align: left;
+}
+
+.workspace-item:last-child {
+  border-bottom: none;
+}
+
+.workspace-item:hover {
+  background: #37373d;
+}
+
+.workspace-item.active {
+  background: rgba(0, 122, 204, 0.1);
+}
+
+.workspace-item-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.workspace-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.workspace-item-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #cccccc;
+  margin-bottom: 0.25rem;
+}
+
+.workspace-item-path {
+  font-size: 0.75rem;
+  color: #858585;
+  font-family: 'Courier New', monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-item-check {
+  font-size: 1rem;
+  color: #007acc;
+  flex-shrink: 0;
+}

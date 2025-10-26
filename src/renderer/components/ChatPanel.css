@@ -91,6 +91,25 @@
   box-shadow: 0 4px 12px rgba(78, 201, 176, 0.5);
 }
 
+.export-chat-btn {
+  background-color: #3e3e42;
+  color: #cccccc;
+  border: 1px solid #555;
+  padding: 0.4rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.export-chat-btn:hover {
+  background-color: #4ec9b0;
+  border-color: #4ec9b0;
+  color: white;
+  transform: translateY(-1px);
+}
+
 .clear-chat-btn {
   background-color: #3e3e42;
   color: #cccccc;

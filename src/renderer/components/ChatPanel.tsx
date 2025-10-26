@@ -160,6 +160,27 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [hasOpenAIKey]);
 
+  const handleExportChat = () => {
+    const markdown = messages
+      .map(msg => {
+        const timestamp = msg.timestamp.toLocaleString();
+        const role = msg.role === 'user' ? '**You**' : '**Assistant**';
+        return `### ${role} - ${timestamp}\n\n${msg.content}\n\n---\n`;
+      })
+      .join('\n');
+
+    const blob = new Blob([markdown], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const chatName = isBridge ? 'bridge' : currentRepo?.name || 'chat';
+    a.download = `${chatName}-conversation-${new Date().toISOString().split('T')[0]}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const handleClearChat = () => {
     if (isBridge) {
       // Bridge clear: clear bridge AND all agent chats (coordination context)
@@ -975,6 +996,13 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
               📤 Bridge
             </button>
           )}
+          <button
+            className="export-chat-btn"
+            onClick={handleExportChat}
+            title="Export chat to markdown"
+          >
+            📥 Export
+          </button>
           <button
             className="clear-chat-btn"
             onClick={handleClearChat}

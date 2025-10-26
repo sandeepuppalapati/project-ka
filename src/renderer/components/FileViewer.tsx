@@ -18,6 +18,7 @@ export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
   const [content, setContent] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
+  const [showLineNumbers, setShowLineNumbers] = useState(true);
 
   useEffect(() => {
     if (filePath) {
@@ -106,21 +107,50 @@ export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
     );
   }
 
+  const renderBreadcrumbs = () => {
+    if (!filePath) return null;
+    const parts = filePath.split('/');
+    return (
+      <div className="file-breadcrumbs">
+        {parts.map((part, index) => (
+          <span key={index} className="breadcrumb-item">
+            {index > 0 && <span className="breadcrumb-separator">/</span>}
+            <span className={index === parts.length - 1 ? 'breadcrumb-current' : 'breadcrumb-path'}>
+              {part}
+            </span>
+          </span>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="file-viewer">
       <div className="file-viewer-header">
         <div className="file-info">
           <span className="file-icon">📄</span>
-          <span className="file-name">{fileName}</span>
+          <div className="file-path-container">
+            <span className="file-name">{fileName}</span>
+            {renderBreadcrumbs()}
+          </div>
           {isDirty && <span className="dirty-indicator">●</span>}
         </div>
-        <button
-          className="save-button"
-          onClick={handleSave}
-          disabled={!isDirty || loading}
-        >
-          Save
-        </button>
+        <div className="editor-controls">
+          <button
+            className="toggle-button"
+            onClick={() => setShowLineNumbers(!showLineNumbers)}
+            title={showLineNumbers ? 'Hide line numbers' : 'Show line numbers'}
+          >
+            {showLineNumbers ? '#' : '¶'}
+          </button>
+          <button
+            className="save-button"
+            onClick={handleSave}
+            disabled={!isDirty || loading}
+          >
+            Save
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -137,6 +167,8 @@ export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
             fontSize: 14,
             wordWrap: 'on',
             automaticLayout: true,
+            lineNumbers: showLineNumbers ? 'on' : 'off',
+            glyphMargin: showLineNumbers,
           }}
         />
       )}

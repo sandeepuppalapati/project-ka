@@ -73,6 +73,10 @@ function App() {
         setShowRepoManager(false);
       }
 
+      // Load Bridge messages from workspace
+      await bridge.loadMessagesFromWorkspace(workspacePath);
+      console.log('[App] Bridge messages loaded from workspace');
+
       // Load workspace state (open files, etc.)
       const state = await window.electronAPI.loadWorkspaceState?.(workspacePath);
       if (state?.ui) {
@@ -87,7 +91,7 @@ function App() {
     } catch (error) {
       console.error('[App] Failed to load workspace:', error);
     }
-  }, []);
+  }, [bridge]);
 
   // Restore repositories from localStorage
   const handleReposLoad = useCallback((loadedRepos: Repository[]) => {
@@ -178,6 +182,17 @@ function App() {
 
     loadCurrentWorkspace();
   }, [isMigrating, migrationError, loadWorkspace]);
+
+  // Auto-save Bridge messages to workspace
+  useEffect(() => {
+    if (!currentWorkspace || bridge.messages.length === 0) return;
+
+    const timer = setTimeout(() => {
+      bridge.saveMessagesToWorkspace(currentWorkspace);
+    }, 2000); // Save after 2s of inactivity
+
+    return () => clearTimeout(timer);
+  }, [currentWorkspace, bridge]);
 
   const handleReposChanged = (newRepos: Repository[]) => {
     // Check for newly added repos

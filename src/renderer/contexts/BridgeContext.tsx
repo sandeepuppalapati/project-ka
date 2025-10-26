@@ -23,6 +23,9 @@ interface BridgeContextType {
   messages: BridgeMessage[];
   postToBridge: (message: Omit<BridgeMessage, 'id' | 'timestamp'>) => void;
   getRecentMessages: (count?: number) => BridgeMessage[];
+  clearMessages: () => void;
+  loadMessagesFromWorkspace: (workspacePath: string) => Promise<void>;
+  saveMessagesToWorkspace: (workspacePath: string) => Promise<void>;
 }
 
 const BridgeContext = createContext<BridgeContextType | undefined>(undefined);
@@ -54,6 +57,33 @@ export function BridgeProvider({ children }: { children: ReactNode }) {
     return messages.slice(-count);
   };
 
+  const clearMessages = useCallback(() => {
+    setMessages([]);
+  }, []);
+
+  const loadMessagesFromWorkspace = useCallback(async (workspacePath: string) => {
+    try {
+      const loadedMessages = await window.electronAPI.loadChat?.(workspacePath, 'bridge');
+      if (loadedMessages && loadedMessages.length > 0) {
+        setMessages(loadedMessages.map(deserializeBridgeMessage));
+      } else {
+        setMessages([]);
+      }
+    } catch (error) {
+      console.error('Failed to load Bridge messages from workspace:', error);
+      setMessages([]);
+    }
+  }, []);
+
+  const saveMessagesToWorkspace = useCallback(async (workspacePath: string) => {
+    try {
+      const persistedMessages = messages.map(serializeBridgeMessage);
+      await window.electronAPI.saveChat?.(workspacePath, 'bridge', persistedMessages);
+    } catch (error) {
+      console.error('Failed to save Bridge messages to workspace:', error);
+    }
+  }, [messages]);
+
   // Listen for agent posts from main process
   useEffect(() => {
     const handleAgentPost = (data: { from: string; message: string; type: string; timestamp: string }) => {
@@ -76,7 +106,14 @@ export function BridgeProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <BridgeContext.Provider value={{ messages, postToBridge, getRecentMessages }}>
+    <BridgeContext.Provider value={{
+      messages,
+      postToBridge,
+      getRecentMessages,
+      clearMessages,
+      loadMessagesFromWorkspace,
+      saveMessagesToWorkspace
+    }}>
       {children}
     </BridgeContext.Provider>
   );

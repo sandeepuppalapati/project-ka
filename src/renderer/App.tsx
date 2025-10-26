@@ -499,7 +499,13 @@ function App() {
 
       <main className="app-main">
         {!currentWorkspace ? (
-          <WorkspaceWelcome onCreateWorkspace={() => setShowCreateWorkspace(true)} />
+          <WorkspaceWelcome
+            onCreateWorkspace={() => setShowCreateWorkspace(true)}
+            onOpenWorkspace={async (workspacePath) => {
+              localStorage.setItem('current_workspace', workspacePath);
+              await loadWorkspace(workspacePath);
+            }}
+          />
         ) : showRepoManager ? (
           <div className="repo-manager-view">
             <RepoManager onReposChange={handleReposChanged} repos={repos} />

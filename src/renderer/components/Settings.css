@@ -89,7 +89,8 @@
   margin-left: 0.25rem;
 }
 
-.api-key-input-group {
+.api-key-input-group,
+.workspace-path-input-group {
   display: flex;
   gap: 0.5rem;
 }
@@ -131,6 +132,24 @@
 }
 
 .toggle-visibility:hover {
+  background: #4e4e4e;
+  border-color: #007acc;
+}
+
+.browse-button {
+  flex-shrink: 0;
+  padding: 0.625rem 1rem;
+  background: #3e3e42;
+  border: 1px solid #3e3e42;
+  border-radius: 4px;
+  color: #cccccc;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.browse-button:hover {
   background: #4e4e4e;
   border-color: #007acc;
 }

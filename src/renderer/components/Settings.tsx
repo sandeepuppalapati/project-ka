@@ -9,6 +9,7 @@ interface SettingsData {
   apiKey: string;
   model: string;
   openaiApiKey?: string;
+  workspacePath?: string;
 }
 
 const AVAILABLE_MODELS = [
@@ -20,6 +21,7 @@ export function Settings({ onClose }: SettingsProps) {
   const [apiKey, setApiKey] = useState('');
   const [model, setModel] = useState('claude-sonnet-4-5-20250929');
   const [openaiApiKey, setOpenaiApiKey] = useState('');
+  const [workspacePath, setWorkspacePath] = useState('');
   const [showApiKey, setShowApiKey] = useState(false);
   const [showOpenaiApiKey, setShowOpenaiApiKey] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -29,6 +31,12 @@ export function Settings({ onClose }: SettingsProps) {
   useEffect(() => {
     // Load settings from electron store and localStorage
     const loadSettings = async () => {
+      // Get default workspace path
+      if (window.electronAPI?.getDefaultWorkspacePath) {
+        const defaultPath = await window.electronAPI.getDefaultWorkspacePath();
+        setWorkspacePath(defaultPath);
+      }
+
       // Try electron store first
       if (window.electronAPI?.getSettings) {
         const settings = await window.electronAPI.getSettings();
@@ -47,6 +55,9 @@ export function Settings({ onClose }: SettingsProps) {
         setApiKey(settings.apiKey || '');
         setModel(settings.model || 'claude-sonnet-4-5-20250929');
         setOpenaiApiKey(settings.openaiApiKey || '');
+        if (settings.workspacePath) {
+          setWorkspacePath(settings.workspacePath);
+        }
       }
     };
 
@@ -74,6 +85,7 @@ export function Settings({ onClose }: SettingsProps) {
       apiKey,
       model,
       openaiApiKey,
+      workspacePath,
     };
 
     // Save to localStorage
@@ -211,6 +223,38 @@ export function Settings({ onClose }: SettingsProps) {
               <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">
                 OpenAI Platform
               </a>
+            </p>
+          </div>
+
+          <div className="settings-section">
+            <label htmlFor="workspace-path">
+              Default Workspace Path
+            </label>
+            <div className="workspace-path-input-group">
+              <input
+                id="workspace-path"
+                type="text"
+                value={workspacePath}
+                onChange={(e) => setWorkspacePath(e.target.value)}
+                placeholder="~/Documents/ai-ide-workspaces"
+                className="settings-input"
+              />
+              <button
+                type="button"
+                className="browse-button"
+                onClick={async () => {
+                  const folders = await window.electronAPI.openFolder();
+                  if (folders && folders.length > 0) {
+                    setWorkspacePath(folders[0]);
+                  }
+                }}
+                title="Browse for folder"
+              >
+                📁 Browse
+              </button>
+            </div>
+            <p className="settings-help">
+              Location where workspace folders will be created. Each workspace stores chats, state, and settings.
             </p>
           </div>
 

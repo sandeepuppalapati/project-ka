@@ -30,25 +30,32 @@ Workspaces are virtual groupings of repositories/folders that allow users to org
 ```
 ~/Documents/ai-ide-workspaces/              # Default path (user configurable)
 ├── ecommerce-platform/                     # Workspace folder
-│   ├── workspace.json                      # Workspace configuration
-│   ├── chats/                              # All chat history
-│   │   ├── frontend-repo.json              # Repo-specific chat
-│   │   ├── backend-repo.json               # Repo-specific chat
-│   │   └── bridge.json                     # Workspace Bridge (not global!)
-│   └── state.json                          # UI state (open files, cursor pos, etc.)
+│   ├── workspace.json                      # Workspace configuration (ENCRYPTED)
+│   ├── chats/                              # All chat history (ENCRYPTED)
+│   │   ├── frontend-repo.json              # Repo-specific chat (ENCRYPTED)
+│   │   ├── backend-repo.json               # Repo-specific chat (ENCRYPTED)
+│   │   └── bridge.json                     # Workspace Bridge (ENCRYPTED, not global!)
+│   └── state.json                          # UI state (ENCRYPTED)
 │
 ├── side-project/                           # Another workspace
-│   ├── workspace.json
-│   ├── chats/
-│   │   ├── main-repo.json
-│   │   └── bridge.json                     # Different Bridge per workspace
-│   └── state.json
+│   ├── workspace.json                      # (ENCRYPTED)
+│   ├── chats/                              # (ENCRYPTED)
+│   │   ├── main-repo.json                  # (ENCRYPTED)
+│   │   └── bridge.json                     # (ENCRYPTED)
+│   └── state.json                          # (ENCRYPTED)
 │
 └── client-work/                            # Another workspace
-    ├── workspace.json
-    ├── chats/
-    └── state.json
+    ├── workspace.json                      # (ENCRYPTED)
+    ├── chats/                              # (ENCRYPTED)
+    └── state.json                          # (ENCRYPTED)
 ```
+
+**Security Note:** All workspace files are encrypted at rest using Electron's `safeStorage` API, which uses:
+- **macOS:** Keychain
+- **Windows:** DPAPI
+- **Linux:** Secret Service API / libsecret
+
+This ensures that workspace configurations, chat history, and state are protected from unauthorized access.
 
 ## Data Structures
 
@@ -231,13 +238,17 @@ On workspace load:
 New file: `src/main/workspace.ts`
 
 ```typescript
-// Create workspace folder and files
+// Encryption helpers (using Electron's safeStorage)
+function encryptData(data: string): Buffer
+function decryptData(buffer: Buffer): string
+
+// Create workspace folder and files (all files encrypted)
 async function createWorkspace(name: string, repos: Repo[]): Promise<string>
 
-// Load workspace.json
+// Load workspace.json (decrypts automatically)
 async function loadWorkspace(workspacePath: string): Promise<Workspace>
 
-// Save workspace.json
+// Save workspace.json (encrypts automatically)
 async function saveWorkspace(workspace: Workspace): Promise<void>
 
 // Delete workspace (entire folder)
@@ -246,14 +257,20 @@ async function deleteWorkspace(workspacePath: string): Promise<void>
 // List all workspaces in default path
 async function listWorkspaces(basePath: string): Promise<string[]>
 
-// Chat file operations
+// Chat file operations (encrypt/decrypt automatically)
 async function loadChat(workspacePath: string, chatId: string): Promise<Message[]>
 async function saveChat(workspacePath: string, chatId: string, messages: Message[]): Promise<void>
 
-// State file operations
+// State file operations (encrypt/decrypt automatically)
 async function saveWorkspaceState(workspacePath: string, state: WorkspaceState): Promise<void>
 async function loadWorkspaceState(workspacePath: string): Promise<WorkspaceState | null>
 ```
+
+**Security Implementation:**
+- All file read/write operations use `encryptData()` / `decryptData()` wrappers
+- Encryption uses Electron's `safeStorage.encryptString()` / `decryptString()`
+- Files are stored as encrypted binary buffers, not plain JSON
+- Encryption keys are managed by the OS (Keychain/DPAPI/libsecret)
 
 ### Workspace Switching Logic
 

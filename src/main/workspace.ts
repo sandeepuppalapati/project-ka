@@ -1,7 +1,27 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { app } from 'electron';
+import { app, safeStorage } from 'electron';
 import type { Workspace, WorkspaceRepo, WorkspaceState } from '../renderer/types/workspace';
+
+/**
+ * Encrypt data using Electron's safeStorage
+ */
+function encryptData(data: string): Buffer {
+  if (!safeStorage.isEncryptionAvailable()) {
+    throw new Error('Encryption is not available on this system');
+  }
+  return safeStorage.encryptString(data);
+}
+
+/**
+ * Decrypt data using Electron's safeStorage
+ */
+function decryptData(buffer: Buffer): string {
+  if (!safeStorage.isEncryptionAvailable()) {
+    throw new Error('Encryption is not available on this system');
+  }
+  return safeStorage.decryptString(buffer);
+}
 
 /**
  * Create a new workspace folder with initial structure
@@ -48,11 +68,12 @@ export async function createWorkspace(
     repos
   };
 
-  // Save workspace.json
+  // Save workspace.json (encrypted)
+  const workspaceData = JSON.stringify(workspace, null, 2);
+  const encryptedWorkspace = encryptData(workspaceData);
   await fs.writeFile(
     path.join(workspacePath, 'workspace.json'),
-    JSON.stringify(workspace, null, 2),
-    'utf-8'
+    encryptedWorkspace
   );
 
   // Create empty state.json
@@ -70,10 +91,12 @@ export async function createWorkspace(
     }
   };
 
+  // Save state.json (encrypted)
+  const stateData = JSON.stringify(initialState, null, 2);
+  const encryptedState = encryptData(stateData);
   await fs.writeFile(
     path.join(workspacePath, 'state.json'),
-    JSON.stringify(initialState, null, 2),
-    'utf-8'
+    encryptedState
   );
 
   return workspace;
@@ -85,8 +108,9 @@ export async function createWorkspace(
 export async function loadWorkspace(workspacePath: string): Promise<Workspace | null> {
   try {
     const configPath = path.join(workspacePath, 'workspace.json');
-    const data = await fs.readFile(configPath, 'utf-8');
-    const workspace: Workspace = JSON.parse(data);
+    const encryptedData = await fs.readFile(configPath);
+    const decryptedData = decryptData(encryptedData);
+    const workspace: Workspace = JSON.parse(decryptedData);
     return workspace;
   } catch (error) {
     console.error('Failed to load workspace:', error);
@@ -99,7 +123,9 @@ export async function loadWorkspace(workspacePath: string): Promise<Workspace | 
  */
 export async function saveWorkspace(workspace: Workspace): Promise<void> {
   const configPath = path.join(workspace.path, 'workspace.json');
-  await fs.writeFile(configPath, JSON.stringify(workspace, null, 2), 'utf-8');
+  const workspaceData = JSON.stringify(workspace, null, 2);
+  const encryptedWorkspace = encryptData(workspaceData);
+  await fs.writeFile(configPath, encryptedWorkspace);
 }
 
 /**
@@ -147,8 +173,9 @@ export async function loadChat(
 ): Promise<any[]> {
   try {
     const chatPath = path.join(workspacePath, 'chats', `${chatId}.json`);
-    const data = await fs.readFile(chatPath, 'utf-8');
-    return JSON.parse(data);
+    const encryptedData = await fs.readFile(chatPath);
+    const decryptedData = decryptData(encryptedData);
+    return JSON.parse(decryptedData);
   } catch {
     // Chat file doesn't exist yet, return empty
     return [];
@@ -164,7 +191,9 @@ export async function saveChat(
   messages: any[]
 ): Promise<void> {
   const chatPath = path.join(workspacePath, 'chats', `${chatId}.json`);
-  await fs.writeFile(chatPath, JSON.stringify(messages, null, 2), 'utf-8');
+  const chatData = JSON.stringify(messages, null, 2);
+  const encryptedChat = encryptData(chatData);
+  await fs.writeFile(chatPath, encryptedChat);
 }
 
 /**
@@ -175,8 +204,9 @@ export async function loadWorkspaceState(
 ): Promise<WorkspaceState | null> {
   try {
     const statePath = path.join(workspacePath, 'state.json');
-    const data = await fs.readFile(statePath, 'utf-8');
-    return JSON.parse(data);
+    const encryptedData = await fs.readFile(statePath);
+    const decryptedData = decryptData(encryptedData);
+    return JSON.parse(decryptedData);
   } catch {
     return null;
   }
@@ -191,7 +221,9 @@ export async function saveWorkspaceState(
 ): Promise<void> {
   const statePath = path.join(workspacePath, 'state.json');
   state.lastModified = new Date().toISOString();
-  await fs.writeFile(statePath, JSON.stringify(state, null, 2), 'utf-8');
+  const stateData = JSON.stringify(state, null, 2);
+  const encryptedState = encryptData(stateData);
+  await fs.writeFile(statePath, encryptedState);
 }
 
 /**

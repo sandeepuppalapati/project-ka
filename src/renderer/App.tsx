@@ -96,6 +96,27 @@ function App() {
     }
   }, [bridge]);
 
+  // Unload current workspace and return to welcome screen
+  const unloadWorkspace = useCallback(() => {
+    // Save Bridge before unloading
+    if (currentWorkspaceRef.current) {
+      bridge.saveMessagesToWorkspace(currentWorkspaceRef.current);
+    }
+
+    // Clear state
+    setCurrentWorkspace(null);
+    currentWorkspaceRef.current = null;
+    setRepos([]);
+    setTabs([]);
+    setActiveTabId(null);
+    bridge.clearMessages();
+
+    // Clear from localStorage
+    localStorage.removeItem('current_workspace');
+
+    console.log('[App] Workspace unloaded');
+  }, [bridge]);
+
   // Restore repositories from localStorage
   const handleReposLoad = useCallback((loadedRepos: Repository[]) => {
     setRepos(loadedRepos);
@@ -483,13 +504,22 @@ function App() {
         </div>
         <div className="header-center">
           {currentWorkspace && (
-            <WorkspaceSelector
-              currentWorkspace={currentWorkspace}
-              onWorkspaceChange={async (workspacePath) => {
-                localStorage.setItem('current_workspace', workspacePath);
-                await loadWorkspace(workspacePath);
-              }}
-            />
+            <>
+              <button
+                className="home-button"
+                onClick={unloadWorkspace}
+                title="Back to workspaces"
+              >
+                🏠
+              </button>
+              <WorkspaceSelector
+                currentWorkspace={currentWorkspace}
+                onWorkspaceChange={async (workspacePath) => {
+                  localStorage.setItem('current_workspace', workspacePath);
+                  await loadWorkspace(workspacePath);
+                }}
+              />
+            </>
           )}
         </div>
         <div className="header-actions">

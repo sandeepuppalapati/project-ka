@@ -99,30 +99,6 @@
   line-height: 0;
 }
 
-.editor-controls {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.toggle-button {
-  background-color: #3e3e42;
-  color: #cccccc;
-  border: 1px solid #555555;
-  padding: 0.5rem 0.75rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  font-weight: 600;
-  transition: all 0.2s;
-  min-width: 36px;
-}
-
-.toggle-button:hover {
-  background-color: #4e4e52;
-  border-color: #666666;
-}
-
 .save-button {
   background-color: #0e639c;
   color: white;

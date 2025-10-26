@@ -18,7 +18,6 @@ export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
   const [content, setContent] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
-  const [showLineNumbers, setShowLineNumbers] = useState(true);
 
   useEffect(() => {
     if (filePath) {
@@ -135,22 +134,13 @@ export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
           </div>
           {isDirty && <span className="dirty-indicator">●</span>}
         </div>
-        <div className="editor-controls">
-          <button
-            className="toggle-button"
-            onClick={() => setShowLineNumbers(!showLineNumbers)}
-            title={showLineNumbers ? 'Hide line numbers' : 'Show line numbers'}
-          >
-            {showLineNumbers ? '#' : '¶'}
-          </button>
-          <button
-            className="save-button"
-            onClick={handleSave}
-            disabled={!isDirty || loading}
-          >
-            Save
-          </button>
-        </div>
+        <button
+          className="save-button"
+          onClick={handleSave}
+          disabled={!isDirty || loading}
+        >
+          Save
+        </button>
       </div>
 
       {loading ? (
@@ -167,8 +157,7 @@ export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
             fontSize: 14,
             wordWrap: 'on',
             automaticLayout: true,
-            lineNumbers: showLineNumbers ? 'on' : 'off',
-            glyphMargin: showLineNumbers,
+            lineNumbers: 'on',
           }}
         />
       )}

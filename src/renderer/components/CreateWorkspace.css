@@ -1,0 +1,279 @@
+.create-workspace-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.create-workspace-modal {
+  background: #2d2d30;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+  border: 1px solid #3e3e42;
+}
+
+.create-workspace-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #3e3e42;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #252526;
+}
+
+.create-workspace-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #fff;
+  font-weight: 600;
+}
+
+.create-workspace-close {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #858585;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.create-workspace-close:hover {
+  background: #3e3e42;
+  color: #fff;
+}
+
+.create-workspace-content {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.create-workspace-section {
+  margin-bottom: 1.5rem;
+}
+
+.create-workspace-section:last-child {
+  margin-bottom: 0;
+}
+
+.create-workspace-section label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #cccccc;
+  margin-bottom: 0.5rem;
+}
+
+.required {
+  color: #f48771;
+  margin-left: 0.25rem;
+}
+
+.create-workspace-input {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  background: #1e1e1e;
+  border: 1px solid #3e3e42;
+  border-radius: 4px;
+  color: #cccccc;
+  font-size: 0.875rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  transition: border-color 0.2s;
+}
+
+.create-workspace-input:focus {
+  outline: none;
+  border-color: #007acc;
+}
+
+.create-workspace-input::placeholder {
+  color: #6c6c6c;
+}
+
+.repos-list {
+  background: #1e1e1e;
+  border: 1px solid #3e3e42;
+  border-radius: 4px;
+  min-height: 120px;
+  max-height: 240px;
+  overflow-y: auto;
+  margin-bottom: 0.75rem;
+}
+
+.repos-empty {
+  padding: 2rem;
+  text-align: center;
+  color: #858585;
+  font-size: 0.875rem;
+}
+
+.repo-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem;
+  border-bottom: 1px solid #3e3e42;
+  transition: background 0.2s;
+}
+
+.repo-item:last-child {
+  border-bottom: none;
+}
+
+.repo-item:hover {
+  background: #252526;
+}
+
+.repo-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.repo-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #cccccc;
+  margin-bottom: 0.25rem;
+}
+
+.repo-path {
+  font-size: 0.75rem;
+  color: #858585;
+  font-family: 'Courier New', monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.repo-remove {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #858585;
+  cursor: pointer;
+  padding: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+  margin-left: 0.5rem;
+}
+
+.repo-remove:hover {
+  background: #3e3e42;
+  color: #f48771;
+}
+
+.add-repo-button {
+  width: 100%;
+  padding: 0.625rem;
+  background: #3e3e42;
+  border: 1px solid #3e3e42;
+  border-radius: 4px;
+  color: #cccccc;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.add-repo-button:hover {
+  background: #4e4e4e;
+  border-color: #007acc;
+}
+
+.workspace-path-display {
+  padding: 0.625rem 0.75rem;
+  background: #1e1e1e;
+  border: 1px solid #3e3e42;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-family: 'Courier New', monospace;
+  overflow-wrap: break-word;
+}
+
+.path-text {
+  color: #858585;
+}
+
+.path-folder {
+  color: #4fc3f7;
+  font-weight: 600;
+}
+
+.create-workspace-error {
+  margin-top: 1rem;
+  font-size: 0.75rem;
+  color: #f48771;
+  background: rgba(244, 135, 113, 0.1);
+  padding: 0.75rem;
+  border-radius: 4px;
+  border-left: 3px solid #f48771;
+  line-height: 1.4;
+}
+
+.create-workspace-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #3e3e42;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  background: #252526;
+}
+
+.create-workspace-button {
+  padding: 0.625rem 1.25rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.create-workspace-button.secondary {
+  background: #3e3e42;
+  color: #cccccc;
+}
+
+.create-workspace-button.secondary:hover {
+  background: #4e4e4e;
+}
+
+.create-workspace-button.primary {
+  background: #007acc;
+  color: #fff;
+}
+
+.create-workspace-button.primary:hover:not(:disabled) {
+  background: #005a9e;
+}
+
+.create-workspace-button.primary:disabled {
+  background: #3e3e42;
+  color: #6c6c6c;
+  cursor: not-allowed;
+}

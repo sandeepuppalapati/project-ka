@@ -9,6 +9,7 @@ import { GitPanel } from './components/GitPanel'
 import { TabBar } from './components/TabBar'
 import { QuickOpen } from './components/QuickOpen'
 import { Settings } from './components/Settings'
+import { CreateWorkspace } from './components/CreateWorkspace'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useRepositoriesPersistence, useWorkspacePersistence } from './hooks/usePersistence'
 import { useBridge } from './contexts/BridgeContext'
@@ -33,6 +34,7 @@ function App() {
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [showQuickOpen, setShowQuickOpen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [activeChatTab, setActiveChatTab] = useState<string>('bridge');
   const [sessionDuration, setSessionDuration] = useState('00:00:00');
@@ -215,6 +217,16 @@ function App() {
       {showSettings && (
         <Settings onClose={() => setShowSettings(false)} />
       )}
+      {showCreateWorkspace && (
+        <CreateWorkspace
+          onClose={() => setShowCreateWorkspace(false)}
+          onCreated={(workspacePath) => {
+            console.log('Workspace created at:', workspacePath);
+            setShowCreateWorkspace(false);
+            // TODO: Load workspace and switch to it
+          }}
+        />
+      )}
       {showShortcuts && (
         <div className="modal-overlay" onClick={() => setShowShortcuts(false)}>
           <div className="shortcuts-modal" onClick={(e) => e.stopPropagation()}>
@@ -309,6 +321,13 @@ function App() {
               {showRepoManager ? 'Hide' : 'Show'} Repos
             </button>
           )}
+          <button
+            className="create-workspace-button"
+            onClick={() => setShowCreateWorkspace(true)}
+            title="Create Workspace"
+          >
+            ⚡ New Workspace
+          </button>
           <button
             className="settings-button"
             onClick={() => setShowSettings(true)}

@@ -51,7 +51,8 @@
   -webkit-app-region: no-drag; /* Allow clicking buttons */
 }
 
-.toggle-repos {
+.toggle-repos,
+.create-workspace-button {
   background-color: #0e639c;
   color: white;
   border: none;
@@ -62,7 +63,8 @@
   transition: background-color 0.2s;
 }
 
-.toggle-repos:hover {
+.toggle-repos:hover,
+.create-workspace-button:hover {
   background-color: #1177bb;
 }
 

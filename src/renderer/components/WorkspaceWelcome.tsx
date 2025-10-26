@@ -19,6 +19,7 @@ export function WorkspaceWelcome({ onCreateWorkspace, onOpenWorkspace }: Workspa
   const [workspaces, setWorkspaces] = useState<WorkspaceInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [workspaceToDelete, setWorkspaceToDelete] = useState<WorkspaceInfo | null>(null);
 
   useEffect(() => {
     loadWorkspaces();
@@ -90,6 +91,29 @@ export function WorkspaceWelcome({ onCreateWorkspace, onOpenWorkspace }: Workspa
     if (diffHours < 24) return `${diffHours}h ago`;
     if (diffDays < 7) return `${diffDays}d ago`;
     return formatDate(isoString);
+  };
+
+  const handleDeleteWorkspace = async (workspace: WorkspaceInfo, event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent opening workspace
+    setWorkspaceToDelete(workspace);
+  };
+
+  const confirmDelete = async () => {
+    if (!workspaceToDelete) return;
+
+    try {
+      await window.electronAPI.deleteWorkspace?.(workspaceToDelete.path);
+      // Reload workspaces list
+      await loadWorkspaces();
+      setWorkspaceToDelete(null);
+    } catch (error) {
+      console.error('Failed to delete workspace:', error);
+      alert('Failed to delete workspace. Please try again.');
+    }
+  };
+
+  const cancelDelete = () => {
+    setWorkspaceToDelete(null);
   };
 
   const filteredWorkspaces = workspaces.filter(workspace => {
@@ -192,38 +216,46 @@ export function WorkspaceWelcome({ onCreateWorkspace, onOpenWorkspace }: Workspa
                   </div>
                 ) : (
                   filteredWorkspaces.map((workspace) => (
-                  <button
-                    key={workspace.path}
-                    className="workspace-card"
-                    onClick={() => onOpenWorkspace(workspace.path)}
-                  >
-                    <div className="workspace-card-icon">⚡</div>
-                    <div className="workspace-card-info">
-                      <div className="workspace-card-name">{workspace.name}</div>
-                      {workspace.description && (
-                        <div className="workspace-card-description">
-                          {workspace.description}
-                        </div>
-                      )}
-                      {workspace.tags && workspace.tags.length > 0 && (
-                        <div className="workspace-card-tags">
-                          {workspace.tags.map(tag => (
-                            <span key={tag} className="workspace-tag">{tag}</span>
-                          ))}
-                        </div>
-                      )}
-                      <div className="workspace-card-meta">
-                        {workspace.lastAccessed ? (
-                          <span className="workspace-last-accessed">
-                            Opened {getRelativeTime(workspace.lastAccessed)}
-                          </span>
-                        ) : (
-                          <span>Created {formatDate(workspace.created)}</span>
+                  <div key={workspace.path} className="workspace-card-wrapper">
+                    <button
+                      className="workspace-card"
+                      onClick={() => onOpenWorkspace(workspace.path)}
+                    >
+                      <div className="workspace-card-icon">⚡</div>
+                      <div className="workspace-card-info">
+                        <div className="workspace-card-name">{workspace.name}</div>
+                        {workspace.description && (
+                          <div className="workspace-card-description">
+                            {workspace.description}
+                          </div>
                         )}
+                        {workspace.tags && workspace.tags.length > 0 && (
+                          <div className="workspace-card-tags">
+                            {workspace.tags.map(tag => (
+                              <span key={tag} className="workspace-tag">{tag}</span>
+                            ))}
+                          </div>
+                        )}
+                        <div className="workspace-card-meta">
+                          {workspace.lastAccessed ? (
+                            <span className="workspace-last-accessed">
+                              Opened {getRelativeTime(workspace.lastAccessed)}
+                            </span>
+                          ) : (
+                            <span>Created {formatDate(workspace.created)}</span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                    <div className="workspace-card-arrow">→</div>
-                  </button>
+                      <div className="workspace-card-arrow">→</div>
+                    </button>
+                    <button
+                      className="workspace-card-delete"
+                      onClick={(e) => handleDeleteWorkspace(workspace, e)}
+                      title="Delete workspace"
+                    >
+                      🗑️
+                    </button>
+                  </div>
                   ))
                 )}
               </div>
@@ -231,6 +263,44 @@ export function WorkspaceWelcome({ onCreateWorkspace, onOpenWorkspace }: Workspa
           </div>
         )}
       </div>
+
+      {/* Delete confirmation dialog */}
+      {workspaceToDelete && (
+        <div className="workspace-delete-overlay" onClick={cancelDelete}>
+          <div className="workspace-delete-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="workspace-delete-header">
+              <h3>⚠️ Delete Workspace</h3>
+            </div>
+            <div className="workspace-delete-content">
+              <p className="workspace-delete-warning">
+                Are you sure you want to delete <strong>{workspaceToDelete.name}</strong>?
+              </p>
+              <p className="workspace-delete-info">
+                This will permanently delete:
+              </p>
+              <ul className="workspace-delete-list">
+                <li>All chat history (Bridge and agent chats)</li>
+                <li>Workspace state and preferences</li>
+                <li>Workspace configuration</li>
+              </ul>
+              <p className="workspace-delete-note">
+                ⚠️ <strong>This action cannot be undone.</strong>
+              </p>
+              <p className="workspace-delete-repos-note">
+                Note: Your actual repository files will NOT be deleted.
+              </p>
+            </div>
+            <div className="workspace-delete-footer">
+              <button className="workspace-delete-cancel" onClick={cancelDelete}>
+                Cancel
+              </button>
+              <button className="workspace-delete-confirm" onClick={confirmDelete}>
+                Delete Workspace
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

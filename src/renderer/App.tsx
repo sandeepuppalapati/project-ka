@@ -13,6 +13,7 @@ import { CreateWorkspace } from './components/CreateWorkspace'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useRepositoriesPersistence, useWorkspacePersistence } from './hooks/usePersistence'
 import { useBridge } from './contexts/BridgeContext'
+import { hasOldData, migrateToWorkspace } from './utils/migration'
 
 interface Repository {
   id: string;
@@ -42,6 +43,7 @@ function App() {
   const sessionStartTime = useRef(Date.now());
   const gitPanelRef = useRef<{ refresh: () => void }>(null);
   const bridge = useBridge();
+  const migrationChecked = useRef(false);
 
   // Restore repositories from localStorage
   const handleReposLoad = useCallback((loadedRepos: Repository[]) => {
@@ -74,6 +76,46 @@ function App() {
     },
     handleWorkspaceLoad
   );
+
+  // Check for migration on mount
+  useEffect(() => {
+    if (migrationChecked.current) return;
+    migrationChecked.current = true;
+
+    const checkMigration = async () => {
+      if (hasOldData()) {
+        const shouldMigrate = confirm(
+          '🎉 New Workspace Feature!\n\n' +
+          'Your repos and chats will be organized into workspaces.\n\n' +
+          'Would you like to migrate your data to a "Default Workspace"?\n\n' +
+          '(This is recommended - your data will be preserved and encrypted)'
+        );
+
+        if (shouldMigrate) {
+          try {
+            const workspacePath = await migrateToWorkspace();
+            if (workspacePath) {
+              alert(
+                '✅ Migration Complete!\n\n' +
+                `Your data has been moved to:\n${workspacePath}\n\n` +
+                'The app will now reload.'
+              );
+              window.location.reload();
+            }
+          } catch (error) {
+            console.error('Migration failed:', error);
+            alert(
+              '❌ Migration Failed\n\n' +
+              'There was an error migrating your data.\n' +
+              'Please check the console for details.'
+            );
+          }
+        }
+      }
+    };
+
+    checkMigration();
+  }, []);
 
   const handleReposChanged = (newRepos: Repository[]) => {
     // Check for newly added repos

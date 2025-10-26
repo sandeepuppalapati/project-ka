@@ -2,7 +2,7 @@
 
 > **"For AI by AI"** - An AI-powered IDE where AI agents autonomously code across multiple repositories
 
-![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)
+![Version](https://img.shields.io/badge/version-0.3.0-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Electron](https://img.shields.io/badge/electron-34.0.0-blue.svg)
 ![React](https://img.shields.io/badge/react-18.3.1-blue.svg)
@@ -15,12 +15,14 @@ AI IDE is a next-generation development environment that revolutionizes how you 
 
 ### Key Features
 
-✅ **Multi-Repository Management** - Work with multiple repos in a single project
+✅ **Workspace Management** - Organize projects with virtual groupings of repositories
+✅ **Multi-Repository Management** - Work with multiple repos in a single workspace
 ✅ **Autonomous AI Agents** - AI writes, refactors, and debugs code independently
 ✅ **Agent Collaboration** - Multiple AI agents coordinate via a shared message bridge
 ✅ **Streaming Responses** - Real-time feedback as AI works
 ✅ **Git Integration** - Stage, commit, and push directly from the IDE
-✅ **Session Persistence** - Your workspace and chat history are saved automatically
+✅ **Session Persistence** - All workspace data encrypted and saved automatically
+✅ **Smart Search** - Find workspaces by name, description, or tags
 ✅ **Modern UI** - Beautiful teal-themed interface with Monaco editor
 
 ---
@@ -65,16 +67,26 @@ The IDE will launch in development mode with hot reloading enabled.
 
 ## 📖 How It Works
 
-### 1. **Add Repositories**
+### 1. **Create or Open a Workspace**
 
-Click the **"Manage Repos"** button to add local repositories to your project. You can add multiple repos and work with them simultaneously.
+On first launch, you'll see a welcome screen where you can:
+- **Create a new workspace** - Give it a name, description, and optional tags
+- **Open an existing workspace** - Select from your list of workspaces
+- **Search workspaces** - Filter by name, description, or tags
 
-### 2. **Chat with AI Agents**
+All workspace data (repos, chats, settings) is encrypted and stored locally.
 
-- **Bridge Tab**: Coordinate between multiple AI agents working on different repos
+### 2. **Add Repositories**
+
+Click the **"Manage Repos"** button to add local repositories to your workspace. You can add multiple repos and work with them simultaneously. Each workspace maintains its own set of repositories.
+
+### 3. **Chat with AI Agents**
+
+- **Bridge Tab**: Coordinate between multiple AI agents working on different repos (workspace-specific)
 - **Repo Tabs**: Each repository gets its own AI agent with repo-specific context
+- All chat history is saved per workspace and persists across sessions
 
-### 3. **AI Does the Work**
+### 4. **AI Does the Work**
 
 Give natural language commands:
 - "Add user authentication to the API"
@@ -87,11 +99,19 @@ The AI agent will:
 3. Write/modify code
 4. Provide explanations and updates
 
-### 4. **Review & Commit**
+### 5. **Review & Commit**
 
 - View changes in the file tree (modified files highlighted)
 - Stage files in the Git panel
 - Write commit messages and push to remote
+
+### 6. **Switch Workspaces**
+
+Click the workspace selector in the header to switch between workspaces. Each workspace remembers:
+- Open files and cursor positions
+- Expanded folders in the file tree
+- Chat history with AI agents
+- UI layout preferences
 
 ---
 
@@ -99,7 +119,7 @@ The AI agent will:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  AI IDE                                    [⚙️ Settings]     │
+│  [⚡ My Workspace ▼] [Edit] [Manage Repos]    [⚙️ Settings] │
 ├──────────┬──────────────────────┬───────────────────────────┤
 │          │                      │                           │
 │  File    │   Code Editor        │    Chat with AI           │
@@ -171,12 +191,21 @@ You can configure your AI settings in two ways:
 2. **Settings Panel** (⚙️ button in header)
    - Update API key
    - Switch between Claude models
-   - Settings persist across sessions
+   - Settings persist globally across all workspaces
 
 ### Model Options
 
 - `claude-sonnet-4-20250514` - Latest and most capable (recommended)
 - `claude-3-5-sonnet-20241022` - Previous generation
+
+### Workspace Settings
+
+Configure where workspace data is stored:
+- **Default Path**: `~/Documents/ai-ide-workspaces/` (configurable)
+- **Data Storage**: All workspace files are encrypted at rest using OS-level encryption
+  - **macOS**: Keychain
+  - **Windows**: DPAPI
+  - **Linux**: Secret Service API / libsecret
 
 ---
 
@@ -185,15 +214,23 @@ You can configure your AI settings in two ways:
 ```
 ai-ide/
 ├── src/
-│   ├── main/          # Electron main process
-│   │   ├── main.ts    # App entry point, IPC handlers
-│   │   └── preload.ts # Secure IPC bridge
-│   └── renderer/      # React UI
+│   ├── main/                # Electron main process
+│   │   ├── main.ts          # App entry point, IPC handlers
+│   │   ├── preload.ts       # Secure IPC bridge
+│   │   └── workspace.ts     # Workspace file operations (encrypted)
+│   └── renderer/            # React UI
 │       ├── components/
+│       │   ├── WorkspaceWelcome.tsx
+│       │   ├── CreateWorkspace.tsx
+│       │   ├── EditWorkspace.tsx
+│       │   └── ...
 │       ├── hooks/
+│       ├── types/
+│       │   └── workspace.d.ts
 │       └── App.tsx
-├── docs/              # Design documentation
-├── dist/              # Build output
+├── docs/                    # Design documentation
+│   └── WORKSPACE_DESIGN.md  # Workspace architecture
+├── dist/                    # Build output
 └── package.json
 ```
 
@@ -229,16 +266,19 @@ npm start
 
 Test the IDE with a real multi-repo project:
 
-1. Add 2-3 related repositories
-2. Ask the AI to make a change that spans repos
-3. Verify the AI coordinates across repos via the Bridge
-4. Test git operations (stage, commit, push)
+1. Create a workspace with a descriptive name and tags
+2. Add 2-3 related repositories to the workspace
+3. Ask the AI to make a change that spans repos
+4. Verify the AI coordinates across repos via the Bridge
+5. Test git operations (stage, commit, push)
+6. Switch to another workspace and verify state isolation
+7. Search for workspaces by name or tags
 
 ---
 
 ## 🎯 Roadmap
 
-### Current: MVP v0.1 ✅
+### v0.1 - MVP ✅
 
 - [x] Multi-repository support
 - [x] Autonomous AI agents
@@ -248,21 +288,40 @@ Test the IDE with a real multi-repo project:
 - [x] Keyboard shortcuts
 - [x] Error handling & retry logic
 
-### Coming Soon: v0.2
+### v0.2 - Enhanced UI ✅
 
-- [ ] Enhanced loading states with progress indicators
+- [x] Improved loading states and progress indicators
+- [x] Polished header with consistent button heights
+- [x] Better error messages and user feedback
+
+### v0.3 - Workspaces ✅ (Current)
+
+- [x] Workspace creation and management
+- [x] Encrypted workspace storage
+- [x] Workspace metadata (description, tags, lastAccessed)
+- [x] Search and filter workspaces
+- [x] Edit workspace details
+- [x] Two-column welcome layout
+- [x] Workspace-specific Bridge chat
+- [x] State persistence per workspace
+
+### v0.4 - Coming Soon
+
 - [ ] Visual diff viewer
 - [ ] File watching & auto-refresh
 - [ ] Voice input (push-to-talk)
-- [ ] Search across repos
+- [ ] Search across repos within workspace
 - [ ] Terminal integration
+- [ ] Multiple workspace windows
 
 ### Future Versions
 
 - [ ] Local model support (Ollama)
 - [ ] Plugin system
-- [ ] Collaborative workspaces
+- [ ] Workspace templates
+- [ ] Import/export workspace configuration
 - [ ] Cost tracking & optimization
+- [ ] Collaborative workspaces (team sharing)
 
 ---
 
@@ -316,9 +375,11 @@ AI IDE uses the Anthropic Claude API (bring your own key). Costs vary based on u
 - Keep your API key secure
 - Review AI-generated code before committing
 - Use git carefully - AI has full file system access within repos
+- All workspace data is encrypted at rest using OS-level security
+- Workspaces are stored locally on your machine only
 
 ---
 
 **Built with ❤️ for developers who want AI to do the heavy lifting**
 
-*Last updated: October 23, 2025*
+*Last updated: October 26, 2025*

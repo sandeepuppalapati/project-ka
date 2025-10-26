@@ -50,6 +50,7 @@ function App() {
   const bridge = useBridge();
   const migrationChecked = useRef(false);
   const currentWorkspaceRef = useRef<string | null>(null);
+  const workspaceLoadedRef = useRef(false);
 
   // Load workspace and all its data
   const loadWorkspace = useCallback(async (workspacePath: string) => {
@@ -172,12 +173,13 @@ function App() {
 
   // Load current workspace on mount (if not migrating)
   useEffect(() => {
-    if (isMigrating || migrationError) return;
+    if (isMigrating || migrationError || workspaceLoadedRef.current) return;
 
     const loadCurrentWorkspace = async () => {
       const workspacePath = localStorage.getItem('current_workspace');
       if (workspacePath) {
         console.log('[App] Loading current workspace from localStorage');
+        workspaceLoadedRef.current = true;
         await loadWorkspace(workspacePath);
       }
     };

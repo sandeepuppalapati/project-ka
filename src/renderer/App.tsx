@@ -40,6 +40,8 @@ function App() {
   const [activeChatTab, setActiveChatTab] = useState<string>('bridge');
   const [sessionDuration, setSessionDuration] = useState('00:00:00');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isMigrating, setIsMigrating] = useState(false);
+  const [migrationError, setMigrationError] = useState<string | null>(null);
   const sessionStartTime = useRef(Date.now());
   const gitPanelRef = useRef<{ refresh: () => void }>(null);
   const bridge = useBridge();
@@ -77,44 +79,42 @@ function App() {
     handleWorkspaceLoad
   );
 
-  // Check for migration on mount
+  // Automatic mandatory migration on mount
   useEffect(() => {
     if (migrationChecked.current) return;
     migrationChecked.current = true;
 
-    const checkMigration = async () => {
+    const performMigration = async () => {
       if (hasOldData()) {
-        const shouldMigrate = confirm(
-          '🎉 New Workspace Feature!\n\n' +
-          'Your repos and chats will be organized into workspaces.\n\n' +
-          'Would you like to migrate your data to a "Default Workspace"?\n\n' +
-          '(This is recommended - your data will be preserved and encrypted)'
-        );
+        setIsMigrating(true);
 
-        if (shouldMigrate) {
-          try {
-            const workspacePath = await migrateToWorkspace();
-            if (workspacePath) {
-              alert(
-                '✅ Migration Complete!\n\n' +
-                `Your data has been moved to:\n${workspacePath}\n\n` +
-                'The app will now reload.'
-              );
+        try {
+          console.log('[App] Starting automatic migration...');
+          const workspacePath = await migrateToWorkspace();
+
+          if (workspacePath) {
+            console.log('[App] Migration successful, reloading app...');
+            // Give user a moment to see the success message
+            setTimeout(() => {
               window.location.reload();
-            }
-          } catch (error) {
-            console.error('Migration failed:', error);
-            alert(
-              '❌ Migration Failed\n\n' +
-              'There was an error migrating your data.\n' +
-              'Please check the console for details.'
-            );
+            }, 1000);
+          } else {
+            // No data to migrate
+            setIsMigrating(false);
           }
+        } catch (error) {
+          console.error('[App] Migration failed:', error);
+          setMigrationError(
+            error instanceof Error
+              ? error.message
+              : 'An unknown error occurred during migration'
+          );
+          setIsMigrating(false);
         }
       }
     };
 
-    checkMigration();
+    performMigration();
   }, []);
 
   const handleReposChanged = (newRepos: Repository[]) => {
@@ -246,6 +246,47 @@ function App() {
     }, 1000);
     return () => clearInterval(interval);
   }, []);
+
+  // Show migration overlay if migrating
+  if (isMigrating) {
+    return (
+      <div className="app">
+        <div className="migration-overlay">
+          <div className="migration-modal">
+            <h2>🚀 Upgrading to Workspaces</h2>
+            <p>Migrating your data to the new workspace format...</p>
+            <p className="migration-detail">This will only take a moment. Your data is being encrypted and organized.</p>
+            <div className="migration-spinner"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error if migration failed
+  if (migrationError) {
+    return (
+      <div className="app">
+        <div className="migration-overlay">
+          <div className="migration-modal error">
+            <h2>❌ Migration Failed</h2>
+            <p>There was an error upgrading your data:</p>
+            <p className="migration-error-detail">{migrationError}</p>
+            <p className="migration-help">
+              Please report this issue on GitHub or contact support.
+              Your original data has not been deleted.
+            </p>
+            <button
+              className="migration-retry-button"
+              onClick={() => window.location.reload()}
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="app">

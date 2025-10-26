@@ -344,3 +344,101 @@
   color: #858585;
   font-size: 0.875rem;
 }
+
+/* Migration Overlay */
+.migration-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.migration-modal {
+  background: #2d2d30;
+  border-radius: 12px;
+  padding: 3rem 2.5rem;
+  max-width: 500px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+  border: 1px solid #3e3e42;
+}
+
+.migration-modal h2 {
+  margin: 0 0 1rem 0;
+  font-size: 1.75rem;
+  color: #fff;
+  font-weight: 600;
+}
+
+.migration-modal p {
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+  color: #cccccc;
+  line-height: 1.5;
+}
+
+.migration-detail {
+  font-size: 0.875rem;
+  color: #858585;
+  margin-bottom: 2rem;
+}
+
+.migration-spinner {
+  margin: 2rem auto 0;
+  width: 50px;
+  height: 50px;
+  border: 4px solid #3e3e42;
+  border-top: 4px solid #007acc;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.migration-modal.error {
+  border-color: #f48771;
+}
+
+.migration-error-detail {
+  background: rgba(244, 135, 113, 0.1);
+  padding: 1rem;
+  border-radius: 6px;
+  border-left: 3px solid #f48771;
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+  color: #f48771;
+  margin: 1rem 0;
+  text-align: left;
+  word-break: break-word;
+}
+
+.migration-help {
+  font-size: 0.875rem;
+  color: #858585;
+  margin-bottom: 2rem;
+}
+
+.migration-retry-button {
+  padding: 0.75rem 1.5rem;
+  background: #007acc;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.migration-retry-button:hover {
+  background: #005a9e;
+}

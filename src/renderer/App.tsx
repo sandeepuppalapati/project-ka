@@ -15,6 +15,7 @@ import { WorkspaceSelector } from './components/WorkspaceSelector'
 import { WorkspaceWelcome } from './components/WorkspaceWelcome'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useRepositoriesPersistence, useWorkspacePersistence } from './hooks/usePersistence'
+import { useWorkspaceState } from './hooks/useWorkspaceState'
 import { useBridge } from './contexts/BridgeContext'
 import { hasOldData, migrateToWorkspace } from './utils/migration'
 
@@ -54,6 +55,9 @@ function App() {
   const migrationChecked = useRef(false);
   const currentWorkspaceRef = useRef<string | null>(null);
   const workspaceLoadedRef = useRef(false);
+
+  // Workspace state management with auto-save
+  const workspaceState = useWorkspaceState(currentWorkspace);
 
   // Load workspace and all its data
   const loadWorkspace = useCallback(async (workspacePath: string) => {
@@ -101,9 +105,10 @@ function App() {
   }, [bridge]);
 
   // Unload current workspace and return to welcome screen
-  const unloadWorkspace = useCallback(() => {
-    // Save Bridge before unloading
+  const unloadWorkspace = useCallback(async () => {
+    // Save workspace state immediately before unloading
     if (currentWorkspaceRef.current) {
+      await workspaceState.immediateSave();
       bridge.saveMessagesToWorkspace(currentWorkspaceRef.current);
     }
 

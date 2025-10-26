@@ -11,6 +11,7 @@ import { QuickOpen } from './components/QuickOpen'
 import { Settings } from './components/Settings'
 import { CreateWorkspace } from './components/CreateWorkspace'
 import { WorkspaceSelector } from './components/WorkspaceSelector'
+import { WorkspaceWelcome } from './components/WorkspaceWelcome'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useRepositoriesPersistence, useWorkspacePersistence } from './hooks/usePersistence'
 import { useBridge } from './contexts/BridgeContext'
@@ -32,7 +33,7 @@ interface Tab {
 function App() {
   const [currentWorkspace, setCurrentWorkspace] = useState<string | null>(null);
   const [repos, setRepos] = useState<Repository[]>([]);
-  const [showRepoManager, setShowRepoManager] = useState(true);
+  const [showRepoManager, setShowRepoManager] = useState(false);
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [showQuickOpen, setShowQuickOpen] = useState(false);
@@ -497,7 +498,9 @@ function App() {
       </header>
 
       <main className="app-main">
-        {showRepoManager ? (
+        {!currentWorkspace ? (
+          <WorkspaceWelcome onCreateWorkspace={() => setShowCreateWorkspace(true)} />
+        ) : showRepoManager ? (
           <div className="repo-manager-view">
             <RepoManager onReposChange={handleReposChanged} repos={repos} />
           </div>

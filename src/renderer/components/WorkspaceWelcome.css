@@ -1,0 +1,129 @@
+.workspace-welcome {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: linear-gradient(135deg, #1e1e1e 0%, #2d2d30 100%);
+  padding: 2rem;
+}
+
+.workspace-welcome-content {
+  max-width: 600px;
+  text-align: center;
+}
+
+.workspace-welcome-icon {
+  font-size: 5rem;
+  margin-bottom: 1.5rem;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+.workspace-welcome h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 3rem;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #007acc 0%, #00a8ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.workspace-welcome-subtitle {
+  margin: 0 0 2rem 0;
+  font-size: 1.125rem;
+  color: #858585;
+  font-style: italic;
+}
+
+.workspace-welcome-message {
+  margin-bottom: 2.5rem;
+}
+
+.workspace-welcome-message p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+  color: #cccccc;
+  line-height: 1.6;
+}
+
+.workspace-welcome-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #007acc 0%, #005a9e 100%);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 1.125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(0, 122, 204, 0.3);
+}
+
+.workspace-welcome-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(0, 122, 204, 0.5);
+  background: linear-gradient(135deg, #0088dd 0%, #0066bb 100%);
+}
+
+.workspace-welcome-button:active {
+  transform: translateY(0);
+}
+
+.workspace-welcome-button-icon {
+  font-size: 1.5rem;
+}
+
+.workspace-welcome-features {
+  margin-top: 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.workspace-feature {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  text-align: left;
+}
+
+.feature-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.feature-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.feature-text strong {
+  font-size: 0.875rem;
+  color: #fff;
+  font-weight: 600;
+}
+
+.feature-text span {
+  font-size: 0.75rem;
+  color: #858585;
+}

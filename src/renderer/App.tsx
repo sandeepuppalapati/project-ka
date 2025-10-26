@@ -49,6 +49,7 @@ function App() {
   const gitPanelRef = useRef<{ refresh: () => void }>(null);
   const bridge = useBridge();
   const migrationChecked = useRef(false);
+  const currentWorkspaceRef = useRef<string | null>(null);
 
   // Load workspace and all its data
   const loadWorkspace = useCallback(async (workspacePath: string) => {
@@ -66,6 +67,7 @@ function App() {
 
       // Set current workspace
       setCurrentWorkspace(workspacePath);
+      currentWorkspaceRef.current = workspacePath;
 
       // Load repos from workspace
       setRepos(workspace.repos || []);
@@ -185,14 +187,16 @@ function App() {
 
   // Auto-save Bridge messages to workspace
   useEffect(() => {
-    if (!currentWorkspace || bridge.messages.length === 0) return;
+    if (!currentWorkspaceRef.current || bridge.messages.length === 0) return;
 
     const timer = setTimeout(() => {
-      bridge.saveMessagesToWorkspace(currentWorkspace);
+      if (currentWorkspaceRef.current) {
+        bridge.saveMessagesToWorkspace(currentWorkspaceRef.current);
+      }
     }, 2000); // Save after 2s of inactivity
 
     return () => clearTimeout(timer);
-  }, [currentWorkspace, bridge]);
+  }, [bridge.messages, bridge.saveMessagesToWorkspace]);
 
   const handleReposChanged = (newRepos: Repository[]) => {
     // Check for newly added repos

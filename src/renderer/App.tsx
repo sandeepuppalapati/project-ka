@@ -29,6 +29,7 @@ interface Tab {
 }
 
 function App() {
+  const [currentWorkspace, setCurrentWorkspace] = useState<string | null>(null);
   const [repos, setRepos] = useState<Repository[]>([]);
   const [showRepoManager, setShowRepoManager] = useState(true);
   const [tabs, setTabs] = useState<Tab[]>([]);
@@ -46,6 +47,45 @@ function App() {
   const gitPanelRef = useRef<{ refresh: () => void }>(null);
   const bridge = useBridge();
   const migrationChecked = useRef(false);
+
+  // Load workspace and all its data
+  const loadWorkspace = useCallback(async (workspacePath: string) => {
+    try {
+      console.log('[App] Loading workspace:', workspacePath);
+
+      // Load workspace config
+      const workspace = await window.electronAPI.loadWorkspace?.(workspacePath);
+      if (!workspace) {
+        console.error('[App] Failed to load workspace');
+        return;
+      }
+
+      console.log('[App] Workspace loaded:', workspace.name);
+
+      // Set current workspace
+      setCurrentWorkspace(workspacePath);
+
+      // Load repos from workspace
+      setRepos(workspace.repos || []);
+      if (workspace.repos && workspace.repos.length > 0) {
+        setShowRepoManager(false);
+      }
+
+      // Load workspace state (open files, etc.)
+      const state = await window.electronAPI.loadWorkspaceState?.(workspacePath);
+      if (state?.ui) {
+        // Restore UI state
+        if (state.ui.activeChatTab) {
+          setActiveChatTab(state.ui.activeChatTab);
+        }
+        // TODO: Restore open files, cursor positions, etc.
+      }
+
+      console.log('[App] Workspace loaded successfully');
+    } catch (error) {
+      console.error('[App] Failed to load workspace:', error);
+    }
+  }, []);
 
   // Restore repositories from localStorage
   const handleReposLoad = useCallback((loadedRepos: Repository[]) => {
@@ -93,10 +133,15 @@ function App() {
           const workspacePath = await migrateToWorkspace();
 
           if (workspacePath) {
-            console.log('[App] Migration successful, reloading app...');
+            console.log('[App] Migration successful, loading workspace...');
+
+            // Store workspace path in localStorage for future sessions
+            localStorage.setItem('current_workspace', workspacePath);
+
             // Give user a moment to see the success message
-            setTimeout(() => {
-              window.location.reload();
+            setTimeout(async () => {
+              setIsMigrating(false);
+              await loadWorkspace(workspacePath);
             }, 1000);
           } else {
             // No data to migrate
@@ -115,7 +160,22 @@ function App() {
     };
 
     performMigration();
-  }, []);
+  }, [loadWorkspace]);
+
+  // Load current workspace on mount (if not migrating)
+  useEffect(() => {
+    if (isMigrating || migrationError) return;
+
+    const loadCurrentWorkspace = async () => {
+      const workspacePath = localStorage.getItem('current_workspace');
+      if (workspacePath) {
+        console.log('[App] Loading current workspace from localStorage');
+        await loadWorkspace(workspacePath);
+      }
+    };
+
+    loadCurrentWorkspace();
+  }, [isMigrating, migrationError, loadWorkspace]);
 
   const handleReposChanged = (newRepos: Repository[]) => {
     // Check for newly added repos
@@ -303,10 +363,13 @@ function App() {
       {showCreateWorkspace && (
         <CreateWorkspace
           onClose={() => setShowCreateWorkspace(false)}
-          onCreated={(workspacePath) => {
+          onCreated={async (workspacePath) => {
             console.log('Workspace created at:', workspacePath);
             setShowCreateWorkspace(false);
-            // TODO: Load workspace and switch to it
+
+            // Store and load the new workspace
+            localStorage.setItem('current_workspace', workspacePath);
+            await loadWorkspace(workspacePath);
           }}
         />
       )}

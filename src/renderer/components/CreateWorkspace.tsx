@@ -14,6 +14,9 @@ interface RepoItem {
 
 export function CreateWorkspace({ onClose, onCreated }: CreateWorkspaceProps) {
   const [workspaceName, setWorkspaceName] = useState('');
+  const [description, setDescription] = useState('');
+  const [tagInput, setTagInput] = useState('');
+  const [tags, setTags] = useState<string[]>([]);
   const [repos, setRepos] = useState<RepoItem[]>([]);
   const [basePath, setBasePath] = useState('');
   const [isCreating, setIsCreating] = useState(false);

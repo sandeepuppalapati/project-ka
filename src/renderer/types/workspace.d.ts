@@ -2,6 +2,8 @@ export interface Workspace {
   name: string;
   path: string;
   created: string;
+  description?: string;
+  tags?: string[];
   repos: WorkspaceRepo[];
 }
 

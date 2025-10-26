@@ -29,7 +29,9 @@ function decryptData(buffer: Buffer): string {
 export async function createWorkspace(
   basePath: string,
   name: string,
-  repos: WorkspaceRepo[]
+  repos: WorkspaceRepo[],
+  description?: string,
+  tags?: string[]
 ): Promise<Workspace> {
   // Sanitize workspace name for folder
   const folderName = name.toLowerCase().replace(/[^a-z0-9-]/g, '-');
@@ -51,7 +53,7 @@ export async function createWorkspace(
         break;
       }
     }
-    return createWorkspace(basePath, `${name} (${counter})`, repos);
+    return createWorkspace(basePath, `${name} (${counter})`, repos, description, tags);
   } catch {
     // Doesn't exist, continue
   }
@@ -65,6 +67,8 @@ export async function createWorkspace(
     name,
     path: workspacePath,
     created: new Date().toISOString(),
+    description,
+    tags,
     repos
   };
 

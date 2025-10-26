@@ -33,16 +33,17 @@ export function CreateWorkspace({ onClose, onCreated }: CreateWorkspaceProps) {
   const handleAddRepo = async () => {
     const folders = await window.electronAPI.openFolder();
     if (folders && folders.length > 0) {
-      const folderPath = folders[0];
-      const folderName = folderPath.split('/').pop() || 'Repository';
+      // Add all selected folders
+      const newRepos: RepoItem[] = folders.map((folderPath, index) => {
+        const folderName = folderPath.split('/').pop() || 'Repository';
+        return {
+          id: `repo-${Date.now()}-${index}`,
+          name: folderName,
+          path: folderPath,
+        };
+      });
 
-      const newRepo: RepoItem = {
-        id: `repo-${Date.now()}`,
-        name: folderName,
-        path: folderPath,
-      };
-
-      setRepos([...repos, newRepo]);
+      setRepos([...repos, ...newRepos]);
     }
   };
 

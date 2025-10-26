@@ -347,6 +347,9 @@ function App() {
     onToggleSidebar: () => {
       setSidebarCollapsed(!sidebarCollapsed);
     },
+    onToggleTerminal: () => {
+      setShowTerminal(!showTerminal);
+    },
   });
 
   // Update session duration every second
@@ -560,6 +563,15 @@ function App() {
               ✏️ Edit
             </button>
           )}
+          {currentWorkspace && (
+            <button
+              className={`terminal-toggle-btn ${showTerminal ? 'active' : ''}`}
+              onClick={() => setShowTerminal(!showTerminal)}
+              title={showTerminal ? 'Hide Terminal' : 'Show Terminal (Ctrl+`)'}
+            >
+              {showTerminal ? '▼' : '▲'} Terminal
+            </button>
+          )}
           <button
             className="header-settings-btn"
             onClick={() => setShowSettings(true)}
@@ -626,31 +638,46 @@ function App() {
 
               {/* Main Content */}
               <Panel minSize={30}>
-                {tabs.length > 0 ? (
-                  <PanelGroup direction="horizontal">
-                    {/* Editor */}
-                    <Panel defaultSize={60} minSize={30}>
-                      <div className="editor-section">
-                        <TabBar
-                          tabs={tabs}
-                          activeTabId={activeTabId}
-                          onTabClick={handleTabClick}
-                          onTabClose={handleTabClose}
-                        />
-                        <FileViewer
-                          ref={fileViewerRef}
-                          filePath={currentFile?.path || null}
-                          fileName={currentFile?.name || null}
-                          onDirtyChange={handleFileDirtyChange}
-                          onSaved={handleFileSaved}
-                        />
-                      </div>
-                    </Panel>
+                <PanelGroup direction="vertical">
+                  {/* Editor and Chat Area */}
+                  <Panel defaultSize={showTerminal ? 70 : 100} minSize={30}>
+                    {tabs.length > 0 ? (
+                      <PanelGroup direction="horizontal">
+                        {/* Editor */}
+                        <Panel defaultSize={60} minSize={30}>
+                          <div className="editor-section">
+                            <TabBar
+                              tabs={tabs}
+                              activeTabId={activeTabId}
+                              onTabClick={handleTabClick}
+                              onTabClose={handleTabClose}
+                            />
+                            <FileViewer
+                              ref={fileViewerRef}
+                              filePath={currentFile?.path || null}
+                              fileName={currentFile?.name || null}
+                              onDirtyChange={handleFileDirtyChange}
+                              onSaved={handleFileSaved}
+                            />
+                          </div>
+                        </Panel>
 
-                    <PanelResizeHandle className="resize-handle-vertical" />
+                        <PanelResizeHandle className="resize-handle-vertical" />
 
-                    {/* Chat */}
-                    <Panel defaultSize={40} minSize={25}>
+                        {/* Chat */}
+                        <Panel defaultSize={40} minSize={25}>
+                          <div className="chat-section">
+                            <ChatTabs
+                              repos={repos}
+                              currentFile={currentFile}
+                              activeTabId={activeChatTab}
+                              onTabChange={setActiveChatTab}
+                            />
+                          </div>
+                        </Panel>
+                      </PanelGroup>
+                    ) : (
+                      /* Full-width Chat when no files open */
                       <div className="chat-section">
                         <ChatTabs
                           repos={repos}
@@ -659,19 +686,22 @@ function App() {
                           onTabChange={setActiveChatTab}
                         />
                       </div>
-                    </Panel>
-                  </PanelGroup>
-                ) : (
-                  /* Full-width Chat when no files open */
-                  <div className="chat-section">
-                    <ChatTabs
-                      repos={repos}
-                      currentFile={currentFile}
-                      activeTabId={activeChatTab}
-                      onTabChange={setActiveChatTab}
-                    />
-                  </div>
-                )}
+                    )}
+                  </Panel>
+
+                  {/* Terminal Panel */}
+                  {showTerminal && (
+                    <>
+                      <PanelResizeHandle className="resize-handle-horizontal" />
+                      <Panel defaultSize={30} minSize={15} maxSize={50}>
+                        <Terminal
+                          terminalId="main"
+                          cwd={repos.length > 0 ? repos[0].path : undefined}
+                        />
+                      </Panel>
+                    </>
+                  )}
+                </PanelGroup>
               </Panel>
             </PanelGroup>
           </div>

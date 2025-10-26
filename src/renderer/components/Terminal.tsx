@@ -58,6 +58,9 @@ export function Terminal({ terminalId, cwd }: TerminalProps) {
     xtermRef.current = xterm;
     fitAddonRef.current = fitAddon;
 
+    // Focus the terminal so it can receive input
+    xterm.focus();
+
     // Create terminal process via IPC
     window.electronAPI.createTerminal?.(terminalId, cwd || process.cwd()).then(() => {
       console.log('[Terminal] Created terminal process:', terminalId);
@@ -65,11 +68,13 @@ export function Terminal({ terminalId, cwd }: TerminalProps) {
 
     // Handle terminal input (user typing)
     xterm.onData((data) => {
+      console.log('[Terminal] User input:', { terminalId, data: data.substring(0, 50) });
       window.electronAPI.writeToTerminal?.(terminalId, data);
     });
 
     // Listen for output from terminal process
-    const handleTerminalData = (_event: any, id: string, data: string) => {
+    const handleTerminalData = (event: any, id: string, data: string) => {
+      console.log('[Terminal] Received data:', { id, data: data.substring(0, 50) });
       if (id === terminalId && xtermRef.current) {
         xtermRef.current.write(data);
       }
@@ -100,13 +105,17 @@ export function Terminal({ terminalId, cwd }: TerminalProps) {
     };
   }, [terminalId, cwd]);
 
+  const handleClick = () => {
+    xtermRef.current?.focus();
+  };
+
   return (
     <div className="terminal-container">
       <div className="terminal-header">
         <span className="terminal-title">Terminal</span>
         <span className="terminal-cwd">{cwd || '~'}</span>
       </div>
-      <div ref={terminalRef} className="terminal-content" />
+      <div ref={terminalRef} className="terminal-content" onClick={handleClick} />
     </div>
   );
 }

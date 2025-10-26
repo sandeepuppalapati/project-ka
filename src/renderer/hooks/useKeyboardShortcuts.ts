@@ -7,6 +7,7 @@ interface KeyboardShortcuts {
   onPrevTab?: () => void;
   onQuickOpen?: () => void;
   onToggleSidebar?: () => void;
+  onToggleTerminal?: () => void;
 }
 
 export function useKeyboardShortcuts({
@@ -16,6 +17,7 @@ export function useKeyboardShortcuts({
   onPrevTab,
   onQuickOpen,
   onToggleSidebar,
+  onToggleTerminal,
 }: KeyboardShortcuts) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -57,9 +59,15 @@ export function useKeyboardShortcuts({
         e.preventDefault();
         onToggleSidebar?.();
       }
+
+      // Ctrl + `: Toggle terminal
+      if (e.ctrlKey && e.key === '`') {
+        e.preventDefault();
+        onToggleTerminal?.();
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onSave, onCloseTab, onNextTab, onPrevTab, onQuickOpen, onToggleSidebar]);
+  }, [onSave, onCloseTab, onNextTab, onPrevTab, onQuickOpen, onToggleSidebar, onToggleTerminal]);
 }

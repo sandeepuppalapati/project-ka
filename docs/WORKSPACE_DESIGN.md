@@ -65,6 +65,9 @@ This ensures that workspace configurations, chat history, and state are protecte
 {
   "name": "E-commerce Platform",
   "created": "2025-01-15T10:30:00Z",
+  "lastAccessed": "2025-01-20T14:30:00Z",
+  "description": "Full-stack e-commerce platform with React and Node.js",
+  "tags": ["production", "client-project", "ecommerce"],
   "repos": [
     {
       "id": "repo-1",
@@ -362,6 +365,9 @@ interface Workspace {
   name: string;
   path: string;
   created: string;
+  lastAccessed?: string;
+  description?: string;
+  tags?: string[];
   repos: WorkspaceRepo[];
 }
 
@@ -417,9 +423,10 @@ interface OpenFile {
 
 ### New Components
 
-- `WorkspaceManager.tsx` - Manage workspaces (list, switch, delete)
-- `CreateWorkspace.tsx` - Create new workspace modal
-- `WorkspaceSelector.tsx` - Dropdown selector in header
+- ✅ `WorkspaceWelcome.tsx` - Welcome screen with workspace list
+- ✅ `CreateWorkspace.tsx` - Create new workspace modal
+- ✅ `EditWorkspace.tsx` - Edit workspace details modal
+- ✅ `WorkspaceSelector.tsx` - Dropdown selector in header
 
 ### Modified Components
 
@@ -461,6 +468,15 @@ interface OpenFile {
 ✅ **Better context for AI** - AI knows about all repos in workspace
 ✅ **Portable** - Workspace config can be shared with team
 
+## Completed Features
+
+✅ **Workspace metadata** - Description and tags for workspaces
+✅ **Last accessed tracking** - Sort workspaces by most recently used
+✅ **Search & filter** - Search by name, description, or tags
+✅ **Edit workspace** - Modify workspace details after creation
+✅ **Two-column layout** - Welcome content left, workspace list right
+✅ **Scrollable list** - Independent scrolling for workspace cards
+
 ## Future Enhancements
 
 - Multiple workspace windows
@@ -468,4 +484,4 @@ interface OpenFile {
 - Workspace-level search (across all repos)
 - Workspace dependencies graph
 - Import/export workspace config
-- Workspace tags/categories
+- Workspace sharing with team members

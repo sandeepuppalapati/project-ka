@@ -1,3 +1,5 @@
+import type { Workspace, WorkspaceState } from './workspace';
+
 export interface StreamChunk {
   type: 'text' | 'tool' | 'done' | 'error';
   sessionId?: string;
@@ -34,6 +36,18 @@ export interface ElectronAPI {
   }>;
   saveSettings?: (settings: { apiKey: string; model: string; openaiApiKey?: string }) => Promise<void>;
   getSettings?: () => Promise<{ apiKey: string; model: string; openaiApiKey?: string } | null>;
+
+  // Workspace API
+  getDefaultWorkspacePath?: () => Promise<string>;
+  createWorkspace?: (basePath: string, name: string, repos: any[]) => Promise<Workspace>;
+  loadWorkspace?: (workspacePath: string) => Promise<Workspace | null>;
+  saveWorkspace?: (workspace: Workspace) => Promise<void>;
+  deleteWorkspace?: (workspacePath: string) => Promise<void>;
+  listWorkspaces?: (basePath: string) => Promise<string[]>;
+  loadChat?: (workspacePath: string, chatId: string) => Promise<any[]>;
+  saveChat?: (workspacePath: string, chatId: string, messages: any[]) => Promise<void>;
+  loadWorkspaceState?: (workspacePath: string) => Promise<WorkspaceState | null>;
+  saveWorkspaceState?: (workspacePath: string, state: WorkspaceState) => Promise<void>;
 }
 
 export interface GitStatus {

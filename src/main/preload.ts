@@ -43,6 +43,22 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveSettings: (settings: { apiKey: string; model: string }) => ipcRenderer.invoke('settings:save', settings),
   getSettings: () => ipcRenderer.invoke('settings:get'),
   validateApiKey: (apiKey: string) => ipcRenderer.invoke('settings:validateApiKey', apiKey),
+
+  // Workspace APIs
+  getDefaultWorkspacePath: () => ipcRenderer.invoke('workspace:getDefaultPath'),
+  createWorkspace: (basePath: string, name: string, repos: any[]) =>
+    ipcRenderer.invoke('workspace:create', basePath, name, repos),
+  loadWorkspace: (workspacePath: string) => ipcRenderer.invoke('workspace:load', workspacePath),
+  saveWorkspace: (workspace: any) => ipcRenderer.invoke('workspace:save', workspace),
+  deleteWorkspace: (workspacePath: string) => ipcRenderer.invoke('workspace:delete', workspacePath),
+  listWorkspaces: (basePath: string) => ipcRenderer.invoke('workspace:list', basePath),
+  loadChat: (workspacePath: string, chatId: string) =>
+    ipcRenderer.invoke('workspace:loadChat', workspacePath, chatId),
+  saveChat: (workspacePath: string, chatId: string, messages: any[]) =>
+    ipcRenderer.invoke('workspace:saveChat', workspacePath, chatId, messages),
+  loadWorkspaceState: (workspacePath: string) => ipcRenderer.invoke('workspace:loadState', workspacePath),
+  saveWorkspaceState: (workspacePath: string, state: any) =>
+    ipcRenderer.invoke('workspace:saveState', workspacePath, state),
 });
 
 // Expose a separate electron API for IPC event handling

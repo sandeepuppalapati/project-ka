@@ -7,6 +7,7 @@ import git from 'isomorphic-git';
 import http from 'isomorphic-git/http/node';
 import Anthropic from '@anthropic-ai/sdk';
 import * as dotenv from 'dotenv';
+import * as workspace from './workspace';
 
 const execAsync = promisify(exec);
 
@@ -929,4 +930,62 @@ Work autonomously - call tools as needed to complete tasks. Don't hesitate to co
     });
     throw new Error(userMessage);
   }
+});
+
+// Workspace IPC Handlers
+
+// Get default workspace path
+ipcMain.handle('workspace:getDefaultPath', async () => {
+  return workspace.getDefaultWorkspacePath();
+});
+
+// Create workspace
+ipcMain.handle('workspace:create', async (_event, basePath: string, name: string, repos: any[]) => {
+  try {
+    const newWorkspace = await workspace.createWorkspace(basePath, name, repos);
+    return newWorkspace;
+  } catch (error) {
+    console.error('Failed to create workspace:', error);
+    throw error;
+  }
+});
+
+// Load workspace
+ipcMain.handle('workspace:load', async (_event, workspacePath: string) => {
+  return await workspace.loadWorkspace(workspacePath);
+});
+
+// Save workspace
+ipcMain.handle('workspace:save', async (_event, workspaceData: any) => {
+  await workspace.saveWorkspace(workspaceData);
+});
+
+// Delete workspace
+ipcMain.handle('workspace:delete', async (_event, workspacePath: string) => {
+  await workspace.deleteWorkspace(workspacePath);
+});
+
+// List workspaces
+ipcMain.handle('workspace:list', async (_event, basePath: string) => {
+  return await workspace.listWorkspaces(basePath);
+});
+
+// Load chat
+ipcMain.handle('workspace:loadChat', async (_event, workspacePath: string, chatId: string) => {
+  return await workspace.loadChat(workspacePath, chatId);
+});
+
+// Save chat
+ipcMain.handle('workspace:saveChat', async (_event, workspacePath: string, chatId: string, messages: any[]) => {
+  await workspace.saveChat(workspacePath, chatId, messages);
+});
+
+// Load workspace state
+ipcMain.handle('workspace:loadState', async (_event, workspacePath: string) => {
+  return await workspace.loadWorkspaceState(workspacePath);
+});
+
+// Save workspace state
+ipcMain.handle('workspace:saveState', async (_event, workspacePath: string, state: any) => {
+  await workspace.saveWorkspaceState(workspacePath, state);
 });

@@ -1,5 +1,6 @@
-import { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
+import { useState, useEffect, useImperativeHandle, forwardRef, useRef } from 'react';
 import Editor from '@monaco-editor/react';
+import type { editor } from 'monaco-editor';
 import './FileViewer.css';
 
 interface FileViewerProps {
@@ -18,6 +19,7 @@ export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
   const [content, setContent] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
+  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
 
   useEffect(() => {
     if (filePath) {
@@ -32,6 +34,10 @@ export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
       if (fileContent !== null) {
         setContent(fileContent);
         setIsDirty(false);
+        // Update editor content if mounted
+        if (editorRef.current) {
+          editorRef.current.setValue(fileContent);
+        }
       } else {
         console.error('File content is null');
         alert('Failed to read file');
@@ -45,10 +51,12 @@ export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
   };
 
   const handleSave = async () => {
-    if (!filePath) return;
+    if (!filePath || !editorRef.current) return;
 
-    const success = await window.electronAPI.writeFile(filePath, content);
+    const currentContent = editorRef.current.getValue();
+    const success = await window.electronAPI.writeFile(filePath, currentContent);
     if (success) {
+      setContent(currentContent); // Update saved state
       setIsDirty(false);
       onDirtyChange?.(false);
       onSaved?.();
@@ -63,12 +71,14 @@ export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
   }));
 
   const handleEditorChange = (value: string | undefined) => {
-    if (value !== undefined) {
-      setContent(value);
-      const newIsDirty = true;
-      setIsDirty(newIsDirty);
-      onDirtyChange?.(newIsDirty);
+    if (value !== undefined && value !== content) {
+      setIsDirty(true);
+      onDirtyChange?.(true);
     }
+  };
+
+  const handleEditorMount = (editor: editor.IStandaloneCodeEditor) => {
+    editorRef.current = editor;
   };
 
   const getLanguage = (filename: string | null): string => {
@@ -149,8 +159,9 @@ export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
         <Editor
           height="100%"
           language={getLanguage(fileName)}
-          value={content}
+          defaultValue={content}
           onChange={handleEditorChange}
+          onMount={handleEditorMount}
           theme="vs-dark"
           options={{
             minimap: { enabled: true },

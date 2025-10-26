@@ -134,7 +134,10 @@ export function Settings({ onClose }: SettingsProps) {
     <div className="settings-overlay" onClick={onClose}>
       <div className="settings-modal" onClick={(e) => e.stopPropagation()} onKeyDown={handleKeyDown}>
         <div className="settings-header">
-          <h2>⚙️ Settings</h2>
+          <div>
+            <h2>⚙️ Settings</h2>
+            <p className="settings-version">AI IDE v0.4.0</p>
+          </div>
           <button className="settings-close" onClick={onClose}>×</button>
         </div>
 

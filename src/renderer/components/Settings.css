@@ -41,6 +41,13 @@
   font-weight: 600;
 }
 
+.settings-version {
+  margin: 0.25rem 0 0 0;
+  font-size: 0.75rem;
+  color: #858585;
+  font-weight: 400;
+}
+
 .settings-close {
   background: none;
   border: none;

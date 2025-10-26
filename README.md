@@ -2,7 +2,7 @@
 
 > **"For AI by AI"** - An AI-powered IDE where AI agents autonomously code across multiple repositories
 
-![Version](https://img.shields.io/badge/version-0.3.0-blue.svg)
+![Version](https://img.shields.io/badge/version-0.4.0-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Electron](https://img.shields.io/badge/electron-34.0.0-blue.svg)
 ![React](https://img.shields.io/badge/react-18.3.1-blue.svg)
@@ -294,7 +294,13 @@ Test the IDE with a real multi-repo project:
 - [x] Polished header with consistent button heights
 - [x] Better error messages and user feedback
 
-### v0.3 - Workspaces ✅ (Current)
+### v0.3 - Enhanced UI ✅
+
+- [x] Polished header with consistent button heights
+- [x] Better error messages and user feedback
+- [x] Improved layout and spacing
+
+### v0.4 - Workspaces ✅ (Current)
 
 - [x] Workspace creation and management
 - [x] Encrypted workspace storage
@@ -305,8 +311,10 @@ Test the IDE with a real multi-repo project:
 - [x] Workspace-specific Bridge chat
 - [x] State persistence per workspace
 
-### v0.4 - Coming Soon
+### v0.5 - Coming Soon
 
+- [ ] Workspace deletion with confirmation
+- [ ] Full state persistence (open files, cursor positions)
 - [ ] Visual diff viewer
 - [ ] File watching & auto-refresh
 - [ ] Voice input (push-to-talk)

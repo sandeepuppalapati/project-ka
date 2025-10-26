@@ -48,6 +48,13 @@ export interface ElectronAPI {
   saveChat?: (workspacePath: string, chatId: string, messages: any[]) => Promise<void>;
   loadWorkspaceState?: (workspacePath: string) => Promise<WorkspaceState | null>;
   saveWorkspaceState?: (workspacePath: string, state: WorkspaceState) => Promise<void>;
+
+  // Terminal API
+  createTerminal?: (terminalId: string, cwd: string) => Promise<void>;
+  writeToTerminal?: (terminalId: string, data: string) => Promise<void>;
+  resizeTerminal?: (terminalId: string, cols: number, rows: number) => Promise<void>;
+  closeTerminal?: (terminalId: string) => Promise<void>;
+  onTerminalData?: (callback: (event: any, terminalId: string, data: string) => void) => void;
 }
 
 export interface GitStatus {

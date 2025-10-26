@@ -13,6 +13,7 @@ import { CreateWorkspace } from './components/CreateWorkspace'
 import { EditWorkspace } from './components/EditWorkspace'
 import { WorkspaceSelector } from './components/WorkspaceSelector'
 import { WorkspaceWelcome } from './components/WorkspaceWelcome'
+import { Terminal } from './components/Terminal'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useRepositoriesPersistence, useWorkspacePersistence } from './hooks/usePersistence'
 import { useWorkspaceState } from './hooks/useWorkspaceState'
@@ -44,6 +45,7 @@ function App() {
   const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
   const [showEditWorkspace, setShowEditWorkspace] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [showTerminal, setShowTerminal] = useState(false);
   const [activeChatTab, setActiveChatTab] = useState<string>('bridge');
   const [sessionDuration, setSessionDuration] = useState('00:00:00');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);

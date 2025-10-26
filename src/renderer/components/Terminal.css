@@ -1,0 +1,47 @@
+.terminal-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #1e1e1e;
+  border-top: 1px solid #3e3e42;
+}
+
+.terminal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  background: #252526;
+  border-bottom: 1px solid #3e3e42;
+}
+
+.terminal-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #cccccc;
+}
+
+.terminal-cwd {
+  font-size: 0.75rem;
+  color: #858585;
+  font-family: 'Courier New', monospace;
+}
+
+.terminal-content {
+  flex: 1;
+  padding: 0.5rem;
+  overflow: hidden;
+}
+
+/* Override xterm styles */
+.terminal-content .xterm {
+  height: 100%;
+}
+
+.terminal-content .xterm-viewport {
+  overflow-y: auto !important;
+}
+
+.terminal-content .xterm-screen {
+  height: 100%;
+}

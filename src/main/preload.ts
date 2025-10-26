@@ -60,6 +60,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
   loadWorkspaceState: (workspacePath: string) => ipcRenderer.invoke('workspace:loadState', workspacePath),
   saveWorkspaceState: (workspacePath: string, state: any) =>
     ipcRenderer.invoke('workspace:saveState', workspacePath, state),
+
+  // Terminal APIs
+  createTerminal: (terminalId: string, cwd: string) => ipcRenderer.invoke('terminal:create', terminalId, cwd),
+  writeToTerminal: (terminalId: string, data: string) => ipcRenderer.invoke('terminal:write', terminalId, data),
+  resizeTerminal: (terminalId: string, cols: number, rows: number) =>
+    ipcRenderer.invoke('terminal:resize', terminalId, cols, rows),
+  closeTerminal: (terminalId: string) => ipcRenderer.invoke('terminal:close', terminalId),
+  onTerminalData: (callback: (event: any, terminalId: string, data: string) => void) => {
+    ipcRenderer.on('terminal:data', callback);
+  },
 });
 
 // Expose a separate electron API for IPC event handling

@@ -8,6 +8,7 @@ import http from 'isomorphic-git/http/node';
 import Anthropic from '@anthropic-ai/sdk';
 import * as dotenv from 'dotenv';
 import * as workspace from './workspace';
+import * as terminal from './terminal';
 
 const execAsync = promisify(exec);
 
@@ -69,6 +70,9 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', () => {
+  // Clean up terminals
+  terminal.closeAllTerminals();
+
   if (process.platform !== 'darwin') {
     app.quit();
   }
@@ -988,4 +992,24 @@ ipcMain.handle('workspace:loadState', async (_event, workspacePath: string) => {
 // Save workspace state
 ipcMain.handle('workspace:saveState', async (_event, workspacePath: string, state: any) => {
   await workspace.saveWorkspaceState(workspacePath, state);
+});
+
+// Terminal IPC handlers
+ipcMain.handle('terminal:create', async (event, terminalId: string, cwd: string) => {
+  const window = BrowserWindow.fromWebContents(event.sender);
+  if (window) {
+    terminal.createTerminal(window, terminalId, cwd);
+  }
+});
+
+ipcMain.handle('terminal:write', async (_event, terminalId: string, data: string) => {
+  terminal.writeToTerminal(terminalId, data);
+});
+
+ipcMain.handle('terminal:resize', async (_event, terminalId: string, cols: number, rows: number) => {
+  terminal.resizeTerminal(terminalId, cols, rows);
+});
+
+ipcMain.handle('terminal:close', async (_event, terminalId: string) => {
+  terminal.closeTerminal(terminalId);
 });

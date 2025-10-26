@@ -71,9 +71,10 @@ export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
   }));
 
   const handleEditorChange = (value: string | undefined) => {
-    if (value !== undefined && value !== content) {
-      setIsDirty(true);
-      onDirtyChange?.(true);
+    if (value !== undefined) {
+      const isModified = value !== content;
+      setIsDirty(isModified);
+      onDirtyChange?.(isModified);
     }
   };
 

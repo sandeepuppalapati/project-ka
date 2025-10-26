@@ -39,8 +39,8 @@ export interface ElectronAPI {
 
   // Workspace API
   getDefaultWorkspacePath?: () => Promise<string>;
-  createWorkspace?: (basePath: string, name: string, repos: any[]) => Promise<Workspace>;
-  loadWorkspace?: (workspacePath: string) => Promise<Workspace | null>;
+  createWorkspace?: (basePath: string, name: string, repos: any[], description?: string, tags?: string[]) => Promise<Workspace>;
+  loadWorkspace?: (workspacePath: string, updateAccessTime?: boolean) => Promise<Workspace | null>;
   saveWorkspace?: (workspace: Workspace) => Promise<void>;
   deleteWorkspace?: (workspacePath: string) => Promise<void>;
   listWorkspaces?: (basePath: string) => Promise<string[]>;

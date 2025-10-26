@@ -940,9 +940,9 @@ ipcMain.handle('workspace:getDefaultPath', async () => {
 });
 
 // Create workspace
-ipcMain.handle('workspace:create', async (_event, basePath: string, name: string, repos: any[]) => {
+ipcMain.handle('workspace:create', async (_event, basePath: string, name: string, repos: any[], description?: string, tags?: string[]) => {
   try {
-    const newWorkspace = await workspace.createWorkspace(basePath, name, repos);
+    const newWorkspace = await workspace.createWorkspace(basePath, name, repos, description, tags);
     return newWorkspace;
   } catch (error) {
     console.error('Failed to create workspace:', error);
@@ -951,8 +951,8 @@ ipcMain.handle('workspace:create', async (_event, basePath: string, name: string
 });
 
 // Load workspace
-ipcMain.handle('workspace:load', async (_event, workspacePath: string) => {
-  return await workspace.loadWorkspace(workspacePath);
+ipcMain.handle('workspace:load', async (_event, workspacePath: string, updateAccessTime: boolean = false) => {
+  return await workspace.loadWorkspace(workspacePath, updateAccessTime);
 });
 
 // Save workspace

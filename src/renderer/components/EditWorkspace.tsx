@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
-import './CreateWorkspace.css';
+import './EditWorkspace.css';
+import type { Workspace, WorkspaceRepo } from '../types/workspace';
 
-interface CreateWorkspaceProps {
+interface EditWorkspaceProps {
+  workspace: Workspace;
   onClose: () => void;
-  onCreated: (workspacePath: string) => void;
+  onSaved: () => void;
 }
 
 interface RepoItem {
@@ -12,31 +14,24 @@ interface RepoItem {
   path: string;
 }
 
-export function CreateWorkspace({ onClose, onCreated }: CreateWorkspaceProps) {
-  const [workspaceName, setWorkspaceName] = useState('');
-  const [description, setDescription] = useState('');
+export function EditWorkspace({ workspace, onClose, onSaved }: EditWorkspaceProps) {
+  const [workspaceName, setWorkspaceName] = useState(workspace.name);
+  const [description, setDescription] = useState(workspace.description || '');
   const [tagInput, setTagInput] = useState('');
-  const [tags, setTags] = useState<string[]>([]);
-  const [repos, setRepos] = useState<RepoItem[]>([]);
-  const [basePath, setBasePath] = useState('');
-  const [isCreating, setIsCreating] = useState(false);
+  const [tags, setTags] = useState<string[]>(workspace.tags || []);
+  const [repos, setRepos] = useState<RepoItem[]>(
+    workspace.repos.map(r => ({
+      id: r.id,
+      name: r.name,
+      path: r.path,
+    }))
+  );
+  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    // Load default workspace path
-    const loadBasePath = async () => {
-      if (window.electronAPI?.getDefaultWorkspacePath) {
-        const defaultPath = await window.electronAPI.getDefaultWorkspacePath();
-        setBasePath(defaultPath);
-      }
-    };
-    loadBasePath();
-  }, []);
 
   const handleAddRepo = async () => {
     const folders = await window.electronAPI.openFolder();
     if (folders && folders.length > 0) {
-      // Add all selected folders
       const newRepos: RepoItem[] = folders.map((folderPath, index) => {
         const folderName = folderPath.split('/').pop() || 'Repository';
         return {
@@ -73,7 +68,7 @@ export function CreateWorkspace({ onClose, onCreated }: CreateWorkspaceProps) {
     }
   };
 
-  const handleCreate = async () => {
+  const handleSave = async () => {
     // Validation
     if (!workspaceName.trim()) {
       setError('Please enter a workspace name');
@@ -85,23 +80,29 @@ export function CreateWorkspace({ onClose, onCreated }: CreateWorkspaceProps) {
       return;
     }
 
-    setIsCreating(true);
+    setIsSaving(true);
     setError(null);
 
     try {
-      if (window.electronAPI?.createWorkspace) {
-        const workspace = await window.electronAPI.createWorkspace(
-          basePath,
-          workspaceName,
-          repos,
-          description || undefined,
-          tags.length > 0 ? tags : undefined
-        );
-        onCreated(workspace.path);
+      if (window.electronAPI?.saveWorkspace) {
+        const updatedWorkspace: Workspace = {
+          ...workspace,
+          name: workspaceName,
+          description: description || undefined,
+          tags: tags.length > 0 ? tags : undefined,
+          repos: repos.map(r => ({
+            id: r.id,
+            name: r.name,
+            path: r.path,
+          })),
+        };
+
+        await window.electronAPI.saveWorkspace(updatedWorkspace);
+        onSaved();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create workspace');
-      setIsCreating(false);
+      setError(err instanceof Error ? err.message : 'Failed to save workspace');
+      setIsSaving(false);
     }
   };
 
@@ -112,15 +113,15 @@ export function CreateWorkspace({ onClose, onCreated }: CreateWorkspaceProps) {
   };
 
   return (
-    <div className="create-workspace-overlay" onClick={onClose}>
-      <div className="create-workspace-modal" onClick={(e) => e.stopPropagation()} onKeyDown={handleKeyDown}>
-        <div className="create-workspace-header">
-          <h2>⚡ Create Workspace</h2>
-          <button className="create-workspace-close" onClick={onClose}>×</button>
+    <div className="edit-workspace-overlay" onClick={onClose}>
+      <div className="edit-workspace-modal" onClick={(e) => e.stopPropagation()} onKeyDown={handleKeyDown}>
+        <div className="edit-workspace-header">
+          <h2>⚙️ Edit Workspace</h2>
+          <button className="edit-workspace-close" onClick={onClose}>×</button>
         </div>
 
-        <div className="create-workspace-content">
-          <div className="create-workspace-section">
+        <div className="edit-workspace-content">
+          <div className="edit-workspace-section">
             <label htmlFor="workspace-name">
               Workspace Name
               <span className="required">*</span>
@@ -131,12 +132,12 @@ export function CreateWorkspace({ onClose, onCreated }: CreateWorkspaceProps) {
               value={workspaceName}
               onChange={(e) => setWorkspaceName(e.target.value)}
               placeholder="E-commerce Platform"
-              className="create-workspace-input"
+              className="edit-workspace-input"
               autoFocus
             />
           </div>
 
-          <div className="create-workspace-section">
+          <div className="edit-workspace-section">
             <label htmlFor="workspace-description">
               Description (optional)
             </label>
@@ -145,12 +146,12 @@ export function CreateWorkspace({ onClose, onCreated }: CreateWorkspaceProps) {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Brief description of this workspace..."
-              className="create-workspace-textarea"
+              className="edit-workspace-textarea"
               rows={2}
             />
           </div>
 
-          <div className="create-workspace-section">
+          <div className="edit-workspace-section">
             <label htmlFor="workspace-tags">
               Tags (optional)
             </label>
@@ -176,7 +177,7 @@ export function CreateWorkspace({ onClose, onCreated }: CreateWorkspaceProps) {
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={handleTagKeyDown}
                 placeholder="Add tags (press Enter)"
-                className="create-workspace-input"
+                className="edit-workspace-input"
               />
               <button
                 type="button"
@@ -188,7 +189,7 @@ export function CreateWorkspace({ onClose, onCreated }: CreateWorkspaceProps) {
             </div>
           </div>
 
-          <div className="create-workspace-section">
+          <div className="edit-workspace-section">
             <label>
               Repositories & Folders
               <span className="required">*</span>
@@ -227,33 +228,23 @@ export function CreateWorkspace({ onClose, onCreated }: CreateWorkspaceProps) {
             </button>
           </div>
 
-          <div className="create-workspace-section">
-            <label>Save to</label>
-            <div className="workspace-path-display">
-              <span className="path-text">{basePath}/</span>
-              <span className="path-folder">
-                {workspaceName.toLowerCase().replace(/[^a-z0-9-]/g, '-') || 'workspace-name'}/
-              </span>
-            </div>
-          </div>
-
           {error && (
-            <div className="create-workspace-error">
+            <div className="edit-workspace-error">
               ⚠️ {error}
             </div>
           )}
         </div>
 
-        <div className="create-workspace-footer">
-          <button className="create-workspace-button secondary" onClick={onClose}>
+        <div className="edit-workspace-footer">
+          <button className="edit-workspace-button secondary" onClick={onClose}>
             Cancel
           </button>
           <button
-            className="create-workspace-button primary"
-            onClick={handleCreate}
-            disabled={isCreating}
+            className="edit-workspace-button primary"
+            onClick={handleSave}
+            disabled={isSaving}
           >
-            {isCreating ? 'Creating...' : 'Create Workspace'}
+            {isSaving ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
       </div>

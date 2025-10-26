@@ -10,6 +10,7 @@ import { TabBar } from './components/TabBar'
 import { QuickOpen } from './components/QuickOpen'
 import { Settings } from './components/Settings'
 import { CreateWorkspace } from './components/CreateWorkspace'
+import { EditWorkspace } from './components/EditWorkspace'
 import { WorkspaceSelector } from './components/WorkspaceSelector'
 import { WorkspaceWelcome } from './components/WorkspaceWelcome'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
@@ -32,6 +33,7 @@ interface Tab {
 
 function App() {
   const [currentWorkspace, setCurrentWorkspace] = useState<string | null>(null);
+  const [currentWorkspaceData, setCurrentWorkspaceData] = useState<any>(null);
   const [repos, setRepos] = useState<Repository[]>([]);
   const [showRepoManager, setShowRepoManager] = useState(false);
   const [tabs, setTabs] = useState<Tab[]>([]);
@@ -39,6 +41,7 @@ function App() {
   const [showQuickOpen, setShowQuickOpen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
+  const [showEditWorkspace, setShowEditWorkspace] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [activeChatTab, setActiveChatTab] = useState<string>('bridge');
   const [sessionDuration, setSessionDuration] = useState('00:00:00');
@@ -57,8 +60,8 @@ function App() {
     try {
       console.log('[App] Loading workspace:', workspacePath);
 
-      // Load workspace config
-      const workspace = await window.electronAPI.loadWorkspace?.(workspacePath);
+      // Load workspace config and update last accessed time
+      const workspace = await window.electronAPI.loadWorkspace?.(workspacePath, true);
       if (!workspace) {
         console.error('[App] Failed to load workspace');
         return;
@@ -69,6 +72,7 @@ function App() {
       // Set current workspace
       setCurrentWorkspace(workspacePath);
       currentWorkspaceRef.current = workspacePath;
+      setCurrentWorkspaceData(workspace);
 
       // Load repos from workspace
       setRepos(workspace.repos || []);
@@ -106,6 +110,7 @@ function App() {
     // Clear state
     setCurrentWorkspace(null);
     currentWorkspaceRef.current = null;
+    setCurrentWorkspaceData(null);
     setRepos([]);
     setTabs([]);
     setActiveTabId(null);
@@ -417,6 +422,19 @@ function App() {
           }}
         />
       )}
+      {showEditWorkspace && currentWorkspaceData && (
+        <EditWorkspace
+          workspace={currentWorkspaceData}
+          onClose={() => setShowEditWorkspace(false)}
+          onSaved={async () => {
+            setShowEditWorkspace(false);
+            // Reload workspace to get updated data
+            if (currentWorkspace) {
+              await loadWorkspace(currentWorkspace);
+            }
+          }}
+        />
+      )}
       {showShortcuts && (
         <div className="modal-overlay" onClick={() => setShowShortcuts(false)}>
           <div className="shortcuts-modal" onClick={(e) => e.stopPropagation()}>
@@ -498,10 +516,6 @@ function App() {
         </div>
       )}
       <header className="app-header">
-        <div className="header-title">
-          <h1>AI IDE</h1>
-          <p className="motto">For AI by AI</p>
-        </div>
         <div className="header-center">
           {currentWorkspace && (
             <>
@@ -523,14 +537,6 @@ function App() {
           )}
         </div>
         <div className="header-actions">
-          {repos.length > 0 && (
-            <button
-              className="toggle-repos"
-              onClick={() => setShowRepoManager(!showRepoManager)}
-            >
-              {showRepoManager ? 'Hide' : 'Show'} Repos
-            </button>
-          )}
           <button
             className="create-workspace-button"
             onClick={() => setShowCreateWorkspace(true)}
@@ -538,8 +544,17 @@ function App() {
           >
             ⚡ New Workspace
           </button>
+          {currentWorkspace && (
+            <button
+              className="edit-workspace-btn"
+              onClick={() => setShowEditWorkspace(true)}
+              title="Edit Workspace"
+            >
+              ✏️ Edit
+            </button>
+          )}
           <button
-            className="settings-button"
+            className="header-settings-btn"
             onClick={() => setShowSettings(true)}
             title="Settings"
           >
@@ -557,10 +572,6 @@ function App() {
               await loadWorkspace(workspacePath);
             }}
           />
-        ) : showRepoManager ? (
-          <div className="repo-manager-view">
-            <RepoManager onReposChange={handleReposChanged} repos={repos} />
-          </div>
         ) : (
           <div className="ide-layout">
             <PanelGroup direction="horizontal">

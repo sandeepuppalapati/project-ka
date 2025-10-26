@@ -223,6 +223,18 @@
   gap: 0.15rem;
 }
 
+.markdown-paragraph {
+  margin: 0.5rem 0;
+}
+
+.markdown-paragraph:first-child {
+  margin-top: 0;
+}
+
+.markdown-paragraph:last-child {
+  margin-bottom: 0;
+}
+
 .message-text {
   background: linear-gradient(135deg, #2d2d30 0%, #252526 100%);
   padding: 0.65rem 0.875rem;

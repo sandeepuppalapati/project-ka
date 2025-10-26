@@ -109,12 +109,21 @@ export async function createWorkspace(
 /**
  * Load workspace from workspace.json
  */
-export async function loadWorkspace(workspacePath: string): Promise<Workspace | null> {
+export async function loadWorkspace(workspacePath: string, updateAccessTime: boolean = false): Promise<Workspace | null> {
   try {
     const configPath = path.join(workspacePath, 'workspace.json');
     const encryptedData = await fs.readFile(configPath);
     const decryptedData = decryptData(encryptedData);
     const workspace: Workspace = JSON.parse(decryptedData);
+
+    // Update last accessed time if requested
+    if (updateAccessTime) {
+      workspace.lastAccessed = new Date().toISOString();
+      const workspaceData = JSON.stringify(workspace, null, 2);
+      const encryptedWorkspace = encryptData(workspaceData);
+      await fs.writeFile(configPath, encryptedWorkspace);
+    }
+
     return workspace;
   } catch (error) {
     console.error('Failed to load workspace:', error);

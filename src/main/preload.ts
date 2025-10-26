@@ -46,9 +46,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   // Workspace APIs
   getDefaultWorkspacePath: () => ipcRenderer.invoke('workspace:getDefaultPath'),
-  createWorkspace: (basePath: string, name: string, repos: any[]) =>
-    ipcRenderer.invoke('workspace:create', basePath, name, repos),
-  loadWorkspace: (workspacePath: string) => ipcRenderer.invoke('workspace:load', workspacePath),
+  createWorkspace: (basePath: string, name: string, repos: any[], description?: string, tags?: string[]) =>
+    ipcRenderer.invoke('workspace:create', basePath, name, repos, description, tags),
+  loadWorkspace: (workspacePath: string, updateAccessTime?: boolean) =>
+    ipcRenderer.invoke('workspace:load', workspacePath, updateAccessTime),
   saveWorkspace: (workspace: any) => ipcRenderer.invoke('workspace:save', workspace),
   deleteWorkspace: (workspacePath: string) => ipcRenderer.invoke('workspace:delete', workspacePath),
   listWorkspaces: (basePath: string) => ipcRenderer.invoke('workspace:list', basePath),

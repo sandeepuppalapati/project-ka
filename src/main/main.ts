@@ -278,6 +278,86 @@ ipcMain.handle('git:push', async (_event, repoPath: string) => {
   }
 });
 
+// Get diff for a file
+ipcMain.handle('git:diff', async (_event, repoPath: string, filepath: string) => {
+  try {
+    // Read current working file
+    const workingContent = await fs.readFile(path.join(repoPath, filepath), 'utf8');
+
+    // Read HEAD version
+    let headContent = '';
+    try {
+      const oid = await git.resolveRef({ fs, dir: repoPath, ref: 'HEAD' });
+      const { blob } = await git.readBlob({
+        fs,
+        dir: repoPath,
+        oid,
+        filepath,
+      });
+      headContent = new TextDecoder().decode(blob);
+    } catch (error) {
+      // File doesn't exist in HEAD (new file)
+      headContent = '';
+    }
+
+    return {
+      filepath,
+      oldContent: headContent,
+      newContent: workingContent,
+    };
+  } catch (error) {
+    console.error('Git diff error:', error);
+    return null;
+  }
+});
+
+// Get diff for all changed files
+ipcMain.handle('git:diffAll', async (_event, repoPath: string) => {
+  try {
+    const matrix = await git.statusMatrix({ fs, dir: repoPath });
+
+    const diffs = [];
+    for (const [filepath, head, workdir, stage] of matrix) {
+      // File is modified in working directory or staged
+      if (head !== workdir || workdir !== stage) {
+        // Read current working file
+        try {
+          const workingContent = await fs.readFile(path.join(repoPath, filepath), 'utf8');
+
+          // Read HEAD version
+          let headContent = '';
+          try {
+            const oid = await git.resolveRef({ fs, dir: repoPath, ref: 'HEAD' });
+            const { blob } = await git.readBlob({
+              fs,
+              dir: repoPath,
+              oid,
+              filepath,
+            });
+            headContent = new TextDecoder().decode(blob);
+          } catch (error) {
+            // File doesn't exist in HEAD (new file)
+            headContent = '';
+          }
+
+          diffs.push({
+            filepath,
+            oldContent: headContent,
+            newContent: workingContent,
+          });
+        } catch (error) {
+          console.error(`Error getting diff for ${filepath}:`, error);
+        }
+      }
+    }
+
+    return diffs;
+  } catch (error) {
+    console.error('Git diffAll error:', error);
+    return [];
+  }
+});
+
 // Read directory
 ipcMain.handle('fs:readDir', async (_event, dirPath: string) => {
   try {

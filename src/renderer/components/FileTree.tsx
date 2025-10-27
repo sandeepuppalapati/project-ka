@@ -5,6 +5,7 @@ interface FileTreeProps {
   repoPath: string;
   repoName: string;
   onFileSelect: (filePath: string, fileName: string) => void;
+  onViewDiff?: (filepath: string) => void;
 }
 
 interface FileNode {
@@ -15,14 +16,24 @@ interface FileNode {
   isExpanded?: boolean;
 }
 
-export function FileTree({ repoPath, repoName, onFileSelect }: FileTreeProps) {
+export function FileTree({ repoPath, repoName, onFileSelect, onViewDiff }: FileTreeProps) {
   const [rootNodes, setRootNodes] = useState<FileNode[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; node: FileNode } | null>(null);
 
   useEffect(() => {
     loadDirectory(repoPath);
   }, [repoPath]);
+
+  // Close context menu when clicking outside
+  useEffect(() => {
+    const handleClick = () => setContextMenu(null);
+    if (contextMenu) {
+      document.addEventListener('click', handleClick);
+      return () => document.removeEventListener('click', handleClick);
+    }
+  }, [contextMenu]);
 
   const handleRefresh = () => {
     loadDirectory(repoPath);
@@ -128,6 +139,29 @@ export function FileTree({ repoPath, repoName, onFileSelect }: FileTreeProps) {
     }
   };
 
+  const handleContextMenu = (e: React.MouseEvent, node: FileNode) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Only show context menu for files
+    if (!node.isDirectory) {
+      setContextMenu({
+        x: e.clientX,
+        y: e.clientY,
+        node
+      });
+    }
+  };
+
+  const handleViewDiff = () => {
+    if (contextMenu && onViewDiff) {
+      // Get relative path from repoPath
+      const relativePath = contextMenu.node.path.replace(repoPath + '/', '');
+      onViewDiff(relativePath);
+      setContextMenu(null);
+    }
+  };
+
   const renderNode = (node: FileNode, depth: number = 0) => {
     return (
       <div key={node.path}>
@@ -135,6 +169,7 @@ export function FileTree({ repoPath, repoName, onFileSelect }: FileTreeProps) {
           className={`file-node ${node.isDirectory ? 'directory' : 'file'}`}
           style={{ paddingLeft: `${depth * 16 + 8}px` }}
           onClick={() => handleNodeClick(node)}
+          onContextMenu={(e) => handleContextMenu(e, node)}
         >
           {node.isDirectory && (
             <span className="icon">{node.isExpanded ? '📂' : '📁'}</span>
@@ -181,6 +216,22 @@ export function FileTree({ repoPath, repoName, onFileSelect }: FileTreeProps) {
       {!isCollapsed && (
         <div className="file-tree-content">
           {rootNodes.map(node => renderNode(node))}
+        </div>
+      )}
+      {contextMenu && onViewDiff && (
+        <div
+          className="file-context-menu"
+          style={{
+            position: 'fixed',
+            left: `${contextMenu.x}px`,
+            top: `${contextMenu.y}px`,
+            zIndex: 1000
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button className="context-menu-item" onClick={handleViewDiff}>
+            📊 View Diff
+          </button>
         </div>
       )}
     </div>

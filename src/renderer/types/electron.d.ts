@@ -23,6 +23,8 @@ export interface ElectronAPI {
   gitRemove: (repoPath: string, filepath: string) => Promise<boolean>;
   gitCommit: (repoPath: string, message: string) => Promise<string | null>;
   gitPush: (repoPath: string) => Promise<boolean>;
+  gitDiff: (repoPath: string, filepath: string) => Promise<GitDiff | null>;
+  gitDiffAll: (repoPath: string) => Promise<GitDiff[]>;
   readDir: (dirPath: string) => Promise<DirEntry[] | null>;
   readFile: (filePath: string) => Promise<string | null>;
   writeFile: (filePath: string, content: string) => Promise<boolean>;
@@ -73,6 +75,12 @@ export interface DirEntry {
 export interface FileStatus {
   filepath: string;
   status: 'untracked' | 'modified' | 'deleted' | 'staged' | 'unmodified';
+}
+
+export interface GitDiff {
+  filepath: string;
+  oldContent: string;
+  newContent: string;
 }
 
 declare global {

@@ -14,6 +14,7 @@ import { EditWorkspace } from './components/EditWorkspace'
 import { WorkspaceSelector } from './components/WorkspaceSelector'
 import { WorkspaceWelcome } from './components/WorkspaceWelcome'
 import { Terminal } from './components/Terminal'
+import { DiffViewer } from './components/DiffViewer'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useRepositoriesPersistence, useWorkspacePersistence } from './hooks/usePersistence'
 import { useWorkspaceState } from './hooks/useWorkspaceState'
@@ -31,6 +32,11 @@ interface Tab {
   path: string;
   name: string;
   isDirty: boolean;
+  type?: 'file' | 'diff';
+  diffData?: {
+    repoPath: string;
+    filepath: string;
+  };
 }
 
 function App() {
@@ -48,6 +54,7 @@ function App() {
   const [showTerminal, setShowTerminal] = useState(false);
   const [activeChatTab, setActiveChatTab] = useState<string>('bridge');
   const [sessionDuration, setSessionDuration] = useState('00:00:00');
+  const [diffContent, setDiffContent] = useState<Map<string, { oldContent: string; newContent: string }>>(new Map());
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isMigrating, setIsMigrating] = useState(false);
   const [migrationError, setMigrationError] = useState<string | null>(null);
@@ -270,10 +277,48 @@ function App() {
         id: `tab-${Date.now()}`,
         path: filePath,
         name: fileName,
-        isDirty: false
+        isDirty: false,
+        type: 'file'
       };
       setTabs([...tabs, newTab]);
       setActiveTabId(newTab.id);
+    }
+  };
+
+  const handleOpenDiff = async (repoPath: string, filepath: string) => {
+    const tabId = `diff-${repoPath}-${filepath}`;
+
+    // Check if diff tab already exists
+    const existingTab = tabs.find(tab => tab.id === tabId);
+
+    if (existingTab) {
+      setActiveTabId(existingTab.id);
+    } else {
+      // Fetch diff data
+      const diffData = await window.electronAPI.gitDiff(repoPath, filepath);
+
+      if (diffData) {
+        // Store diff content
+        setDiffContent(prev => new Map(prev).set(tabId, {
+          oldContent: diffData.oldContent,
+          newContent: diffData.newContent
+        }));
+
+        // Create new diff tab
+        const newTab: Tab = {
+          id: tabId,
+          path: filepath,
+          name: `${filepath.split('/').pop()} (diff)`,
+          isDirty: false,
+          type: 'diff',
+          diffData: {
+            repoPath,
+            filepath
+          }
+        };
+        setTabs([...tabs, newTab]);
+        setActiveTabId(newTab.id);
+      }
     }
   };
 
@@ -606,6 +651,7 @@ function App() {
                           repos={repos}
                           onFileSelect={handleFileSelect}
                           onToggleSidebar={() => setSidebarCollapsed(true)}
+                          onViewDiff={handleOpenDiff}
                         />
                       </Panel>
                       <PanelResizeHandle className="resize-handle-horizontal" />
@@ -618,6 +664,7 @@ function App() {
                               repoPath={repo.path}
                               repoName={repo.name}
                               onFileSelect={handleFileSelect}
+                              onViewDiff={(filepath) => handleOpenDiff(repo.path, filepath)}
                             />
                           ))}
                         </div>
@@ -652,13 +699,21 @@ function App() {
                               onTabClick={handleTabClick}
                               onTabClose={handleTabClose}
                             />
-                            <FileViewer
-                              ref={fileViewerRef}
-                              filePath={currentFile?.path || null}
-                              fileName={currentFile?.name || null}
-                              onDirtyChange={handleFileDirtyChange}
-                              onSaved={handleFileSaved}
-                            />
+                            {activeTab?.type === 'diff' && activeTab.diffData ? (
+                              <DiffViewer
+                                filepath={activeTab.diffData.filepath}
+                                oldContent={diffContent.get(activeTab.id)?.oldContent || ''}
+                                newContent={diffContent.get(activeTab.id)?.newContent || ''}
+                              />
+                            ) : (
+                              <FileViewer
+                                ref={fileViewerRef}
+                                filePath={currentFile?.path || null}
+                                fileName={currentFile?.name || null}
+                                onDirtyChange={handleFileDirtyChange}
+                                onSaved={handleFileSaved}
+                              />
+                            )}
                           </div>
                         </Panel>
 

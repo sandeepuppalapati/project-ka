@@ -18,6 +18,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   gitRemove: (repoPath: string, filepath: string) => ipcRenderer.invoke('git:remove', repoPath, filepath),
   gitCommit: (repoPath: string, message: string) => ipcRenderer.invoke('git:commit', repoPath, message),
   gitPush: (repoPath: string) => ipcRenderer.invoke('git:push', repoPath),
+  gitDiff: (repoPath: string, filepath: string) => ipcRenderer.invoke('git:diff', repoPath, filepath),
+  gitDiffAll: (repoPath: string) => ipcRenderer.invoke('git:diffAll', repoPath),
 
   // File System APIs
   readDir: (dirPath: string) => ipcRenderer.invoke('fs:readDir', dirPath),

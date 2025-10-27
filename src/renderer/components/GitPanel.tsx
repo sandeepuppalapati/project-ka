@@ -6,6 +6,7 @@ interface GitPanelProps {
   onRefresh?: () => void;
   onFileSelect?: (filePath: string, fileName: string) => void;
   onToggleSidebar?: () => void;
+  onViewDiff?: (repoPath: string, filepath: string) => void;
 }
 
 export interface GitPanelRef {
@@ -19,7 +20,7 @@ interface ChangedFile {
 }
 
 export const GitPanel = forwardRef<GitPanelRef, GitPanelProps>(
-  ({ repos, onRefresh, onFileSelect, onToggleSidebar }, ref) => {
+  ({ repos, onRefresh, onFileSelect, onToggleSidebar, onViewDiff }, ref) => {
   const [changedFiles, setChangedFiles] = useState<ChangedFile[]>([]);
   const [commitMessage, setCommitMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -192,10 +193,16 @@ export const GitPanel = forwardRef<GitPanelRef, GitPanelProps>(
               <div key={idx} className="file-item">
                 <div
                   className="file-info"
-                  onClick={() => onFileSelect?.(
+                  onClick={() => {
+                    if (onViewDiff && (file.status === 'modified' || file.status === 'staged')) {
+                      onViewDiff(file.repoPath, file.filepath);
+                    }
+                  }}
+                  onDoubleClick={() => onFileSelect?.(
                     `${file.repoPath}/${file.filepath}`,
                     file.filepath.split('/').pop() || file.filepath
                   )}
+                  title="Click to view diff, double-click to open file"
                 >
                   <span className="file-icon">{getStatusIcon(file.status)}</span>
                   <span className="file-name">{file.filepath}</span>

@@ -1,0 +1,213 @@
+.diff-viewer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  overflow: hidden;
+}
+
+.diff-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(180deg, #2d2d30 0%, #252526 100%);
+  border-bottom: 1px solid #3e3e42;
+}
+
+.diff-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.diff-icon {
+  font-size: 1.125rem;
+}
+
+.diff-filepath {
+  color: #fff;
+  font-weight: 600;
+}
+
+.diff-ext {
+  color: #858585;
+  font-size: 0.8125rem;
+}
+
+.diff-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.diff-mode-btn {
+  background: #3e3e42;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  color: #cccccc;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.diff-mode-btn:hover {
+  background: #4e4e4e;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.diff-mode-btn.active {
+  background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.diff-close-btn {
+  background: transparent;
+  border: none;
+  color: #858585;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.diff-close-btn:hover {
+  background: #3e3e42;
+  color: #fff;
+}
+
+.diff-content {
+  flex: 1;
+  overflow: auto;
+}
+
+.diff-unified table,
+.diff-split table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  font-size: 0.8125rem;
+}
+
+.diff-line {
+  transition: background-color 0.1s;
+}
+
+.diff-line:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.diff-line-number {
+  padding: 0.25rem 0.5rem;
+  text-align: right;
+  color: #858585;
+  background-color: #252526;
+  border-right: 1px solid #3e3e42;
+  user-select: none;
+  width: 50px;
+  min-width: 50px;
+}
+
+.diff-line-number.old {
+  background-color: #2a2020;
+}
+
+.diff-line-number.new {
+  background-color: #1e2a20;
+}
+
+.diff-line-indicator {
+  padding: 0.25rem 0.5rem;
+  text-align: center;
+  font-weight: bold;
+  user-select: none;
+  width: 30px;
+  min-width: 30px;
+}
+
+.diff-line-content {
+  padding: 0.25rem 0.75rem;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.diff-line-content pre {
+  margin: 0;
+  padding: 0;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* Line type styles */
+.diff-line-add {
+  background-color: rgba(20, 184, 166, 0.15);
+}
+
+.diff-line-add .diff-line-indicator {
+  color: #14b8a6;
+  background-color: rgba(20, 184, 166, 0.2);
+}
+
+.diff-line-add .diff-line-number {
+  background-color: rgba(20, 184, 166, 0.1);
+  color: #14b8a6;
+}
+
+.diff-line-remove {
+  background-color: rgba(239, 68, 68, 0.15);
+}
+
+.diff-line-remove .diff-line-indicator {
+  color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.2);
+}
+
+.diff-line-remove .diff-line-number {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.diff-line-context {
+  background-color: transparent;
+}
+
+/* Split view */
+.diff-split {
+  display: flex;
+  height: 100%;
+}
+
+.diff-split-pane {
+  flex: 1;
+  overflow: auto;
+  border-right: 1px solid #3e3e42;
+}
+
+.diff-split-pane:last-child {
+  border-right: none;
+}
+
+.diff-split-header {
+  position: sticky;
+  top: 0;
+  padding: 0.5rem 1rem;
+  background: #2d2d30;
+  border-bottom: 1px solid #3e3e42;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #858585;
+  z-index: 1;
+}

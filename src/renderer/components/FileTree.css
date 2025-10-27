@@ -125,3 +125,33 @@
 .file-tree-refresh-btn:active {
   transform: rotate(180deg);
 }
+
+/* Context menu */
+.file-context-menu {
+  background: #2d2d30;
+  border: 1px solid #3e3e42;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  min-width: 160px;
+}
+
+.context-menu-item {
+  width: 100%;
+  padding: 0.625rem 1rem;
+  background: transparent;
+  border: none;
+  color: #cccccc;
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.1s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.context-menu-item:hover {
+  background: #14b8a6;
+  color: white;
+}

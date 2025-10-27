@@ -98,6 +98,27 @@
   box-shadow: 0 4px 12px rgba(78, 201, 176, 0.5);
 }
 
+.disconnect-agent-btn {
+  background: transparent;
+  color: #f14c4c;
+  border: 1px solid #f14c4c;
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.disconnect-agent-btn:hover {
+  background: rgba(241, 76, 76, 0.2);
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+  transform: translateY(-2px);
+}
+
 .export-chat-btn {
   background-color: #3e3e42;
   color: #cccccc;

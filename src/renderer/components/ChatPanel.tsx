@@ -1011,25 +1011,6 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
     );
   };
 
-  const handlePostToBridge = () => {
-    // Find the last assistant message
-    const lastAssistantMessage = [...messages].reverse().find(m => m.role === 'assistant');
-    if (!lastAssistantMessage || !currentRepo) return;
-
-    bridge.postToBridge({
-      agentId: currentRepo.id,
-      agentName: `${currentRepo.name} Agent`,
-      type: 'info',
-      content: lastAssistantMessage.content,
-      metadata: {
-        repoPath: currentRepo.path,
-      }
-    });
-
-    // Show confirmation
-    alert(`Posted to Bridge from ${currentRepo.name} Agent`);
-  };
-
 
   return (
     <div
@@ -1043,15 +1024,6 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
         <div className="chat-header-actions">
           {!isBridge && currentRepo && (
             <>
-              {bridge.isAgentConnected(currentRepo.id) && (
-                <button
-                  className="post-to-bridge-btn"
-                  onClick={handlePostToBridge}
-                  title="Post last AI response to Bridge"
-                >
-                  📤 Bridge
-                </button>
-              )}
               {bridge.isAgentConnected(currentRepo.id) ? (
                 <button
                   className="disconnect-agent-btn"

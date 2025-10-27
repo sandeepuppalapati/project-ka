@@ -91,7 +91,8 @@ export async function createWorkspace(
       selectedRepo: null,
       activeChatTab: 'bridge',
       sidebarWidth: 250,
-      chatPanelWidth: 400
+      chatPanelWidth: 400,
+      disconnectedAgents: []
     }
   };
 

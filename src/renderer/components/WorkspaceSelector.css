@@ -26,6 +26,9 @@
 .workspace-icon {
   font-size: 1rem;
   flex-shrink: 0;
+  color: #007acc;
+  display: flex;
+  align-items: center;
 }
 
 .workspace-name {
@@ -108,6 +111,9 @@
 .workspace-item-icon {
   font-size: 1.25rem;
   flex-shrink: 0;
+  color: #007acc;
+  display: flex;
+  align-items: center;
 }
 
 .workspace-item-info {

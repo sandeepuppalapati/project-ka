@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Briefcase } from 'lucide-react';
 import './WorkspaceWelcome.css';
 
 interface WorkspaceWelcomeProps {
@@ -132,7 +133,9 @@ export function WorkspaceWelcome({ onCreateWorkspace, onOpenWorkspace }: Workspa
       <div className="workspace-welcome-content">
         {/* Left side - Welcome content */}
         <div className="workspace-welcome-left">
-          <div className="workspace-welcome-icon">⚡</div>
+          <div className="workspace-welcome-icon">
+            <img src="/assets/icon.svg" alt="AI IDE" style={{ width: '80px', height: '80px' }} />
+          </div>
           <h1>Welcome to AI IDE</h1>
           <p className="workspace-welcome-subtitle">For AI by AI</p>
 
@@ -144,7 +147,9 @@ export function WorkspaceWelcome({ onCreateWorkspace, onOpenWorkspace }: Workspa
               </div>
 
               <button className="workspace-welcome-button" onClick={onCreateWorkspace}>
-                <span className="workspace-welcome-button-icon">⚡</span>
+                <span className="workspace-welcome-button-icon">
+                  <Briefcase size={20} />
+                </span>
                 Create Your First Workspace
               </button>
             </>
@@ -221,7 +226,9 @@ export function WorkspaceWelcome({ onCreateWorkspace, onOpenWorkspace }: Workspa
                       className="workspace-card"
                       onClick={() => onOpenWorkspace(workspace.path)}
                     >
-                      <div className="workspace-card-icon">⚡</div>
+                      <div className="workspace-card-icon">
+                        <Briefcase size={32} strokeWidth={1.5} />
+                      </div>
                       <div className="workspace-card-info">
                         <div className="workspace-card-name">{workspace.name}</div>
                         {workspace.description && (

@@ -43,8 +43,9 @@ export function BridgeProvider({ children }: { children: ReactNode }) {
   // No longer using localStorage persistence
 
   const postToBridge = (message: Omit<BridgeMessage, 'id' | 'timestamp'>) => {
-    // Don't post to bridge if agent is disconnected
-    if (disconnectedAgents.has(message.agentId)) {
+    // Don't post to bridge if agent is disconnected, EXCEPT for info messages
+    // (which include disconnect/reconnect notifications)
+    if (disconnectedAgents.has(message.agentId) && message.type !== 'info') {
       return;
     }
 

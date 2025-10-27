@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { Briefcase } from 'lucide-react';
 import './WorkspaceSelector.css';
 
 interface WorkspaceSelectorProps {
@@ -99,7 +100,7 @@ export function WorkspaceSelector({ currentWorkspace, onWorkspaceChange }: Works
         onClick={() => setIsOpen(!isOpen)}
         title="Switch workspace"
       >
-        <span className="workspace-icon">⚡</span>
+        <span className="workspace-icon"><Briefcase size={16} /></span>
         <span className="workspace-name">{currentWorkspaceInfo.name}</span>
         <span className="workspace-chevron">{isOpen ? '▲' : '▼'}</span>
       </button>
@@ -119,7 +120,7 @@ export function WorkspaceSelector({ currentWorkspace, onWorkspaceChange }: Works
                   }`}
                   onClick={() => handleWorkspaceSelect(workspace.path)}
                 >
-                  <span className="workspace-item-icon">⚡</span>
+                  <span className="workspace-item-icon"><Briefcase size={18} /></span>
                   <div className="workspace-item-info">
                     <div className="workspace-item-name">{workspace.name}</div>
                     <div className="workspace-item-path">{workspace.path}</div>

@@ -93,6 +93,10 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
     if (loadedMessages.length > 0) {
       const deserialized = loadedMessages.map(deserializeMessage);
       setMessages(deserialized);
+      // Scroll to bottom after loading messages
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+      }, 100);
     }
   }, [tabId]);
 
@@ -230,6 +234,10 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const scrollToTop = () => {
+    messagesContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleScroll = () => {
@@ -1048,7 +1056,7 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
                   onClick={() => {
                     // Reconnect
                     bridge.reconnectAgent(currentRepo.id);
-                    // Post reconnect message to Bridge
+                    // Post reconnect message to Bridge (info messages bypass disconnect check)
                     bridge.postToBridge({
                       agentId: currentRepo.id,
                       agentName: currentRepo.name,
@@ -1080,6 +1088,28 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
           <span className="chat-status">{isBridge ? 'Coordinating' : 'Ready'}</span>
         </div>
       </div>
+
+      {/* Scroll to top button */}
+      {messagesContainerRef.current && messagesContainerRef.current.scrollTop > 200 && (
+        <button
+          className="scroll-to-top-btn"
+          onClick={scrollToTop}
+          title="Scroll to top"
+        >
+          ↑
+        </button>
+      )}
+
+      {/* Scroll to bottom button */}
+      {!autoScroll && (
+        <button
+          className="scroll-to-bottom-btn"
+          onClick={scrollToBottom}
+          title="Scroll to bottom"
+        >
+          ↓
+        </button>
+      )}
 
       <div className="chat-messages" ref={messagesContainerRef} onScroll={handleScroll}>
         {isBridge ? (

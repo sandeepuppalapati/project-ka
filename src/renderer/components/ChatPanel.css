@@ -119,6 +119,43 @@
   transform: translateY(-2px);
 }
 
+.scroll-to-top-btn,
+.scroll-to-bottom-btn {
+  position: absolute;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  background: rgba(78, 201, 176, 0.5);
+  color: #000;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.5rem;
+  font-weight: bold;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+}
+
+.scroll-to-top-btn {
+  top: 60px;
+}
+
+.scroll-to-bottom-btn {
+  bottom: 140px;
+}
+
+.scroll-to-top-btn:hover,
+.scroll-to-bottom-btn:hover {
+  background: rgba(93, 217, 192, 1);
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(78, 201, 176, 0.5);
+}
+
 .reconnect-agent-btn {
   background: transparent;
   color: #4ec9b0;

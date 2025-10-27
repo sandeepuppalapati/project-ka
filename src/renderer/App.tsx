@@ -15,6 +15,8 @@ import { WorkspaceSelector } from './components/WorkspaceSelector'
 import { WorkspaceWelcome } from './components/WorkspaceWelcome'
 import { Terminal } from './components/Terminal'
 import { DiffViewer } from './components/DiffViewer'
+import { ActivityBar } from './components/ActivityBar'
+import { StatusBar } from './components/StatusBar'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useRepositoriesPersistence, useWorkspacePersistence } from './hooks/usePersistence'
 import { useWorkspaceState } from './hooks/useWorkspaceState'
@@ -56,6 +58,7 @@ function App() {
   const [sessionDuration, setSessionDuration] = useState('00:00:00');
   const [diffContent, setDiffContent] = useState<Map<string, { oldContent: string; newContent: string }>>(new Map());
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [activityView, setActivityView] = useState<'files' | 'git' | 'chat' | 'terminal' | 'settings'>('files');
   const [isMigrating, setIsMigrating] = useState(false);
   const [migrationError, setMigrationError] = useState<string | null>(null);
   const sessionStartTime = useRef(Date.now());
@@ -687,38 +690,45 @@ function App() {
           />
         ) : (
           <div className="ide-layout">
+            <ActivityBar
+              activeView={activityView}
+              onViewChange={(view) => {
+                if (view === 'terminal') {
+                  setShowTerminal(!showTerminal);
+                } else if (view === 'settings') {
+                  setShowSettings(true);
+                } else {
+                  setActivityView(view);
+                }
+              }}
+              showTerminal={showTerminal}
+            />
             <PanelGroup direction="horizontal">
               {/* Sidebar */}
-              {!sidebarCollapsed && (
+              {!sidebarCollapsed && activityView !== 'chat' && (
                 <Panel defaultSize={20} minSize={15} maxSize={40}>
                   <aside className="sidebar">
-                    <PanelGroup direction="vertical">
-                      {/* Git Panel */}
-                      <Panel defaultSize={40} minSize={20} maxSize={60}>
-                        <GitPanel
-                          ref={gitPanelRef}
-                          repos={repos}
-                          onFileSelect={handleFileSelect}
-                          onToggleSidebar={() => setSidebarCollapsed(true)}
-                          onViewDiff={handleOpenDiff}
-                        />
-                      </Panel>
-                      <PanelResizeHandle className="resize-handle-horizontal" />
-                      {/* File Trees */}
-                      <Panel minSize={30}>
-                        <div className="file-trees-container">
-                          {repos.map(repo => (
-                            <FileTree
-                              key={repo.id}
-                              repoPath={repo.path}
-                              repoName={repo.name}
-                              onFileSelect={handleFileSelect}
-                              onViewDiff={(filepath) => handleOpenDiff(repo.path, filepath)}
-                            />
-                          ))}
-                        </div>
-                      </Panel>
-                    </PanelGroup>
+                    {activityView === 'git' ? (
+                      <GitPanel
+                        ref={gitPanelRef}
+                        repos={repos}
+                        onFileSelect={handleFileSelect}
+                        onToggleSidebar={() => setSidebarCollapsed(true)}
+                        onViewDiff={handleOpenDiff}
+                      />
+                    ) : activityView === 'files' ? (
+                      <div className="file-trees-container">
+                        {repos.map(repo => (
+                          <FileTree
+                            key={repo.id}
+                            repoPath={repo.path}
+                            repoName={repo.name}
+                            onFileSelect={handleFileSelect}
+                            onViewDiff={(filepath) => handleOpenDiff(repo.path, filepath)}
+                          />
+                        ))}
+                      </div>
+                    ) : null}
                   </aside>
                 </Panel>
               )}
@@ -813,19 +823,15 @@ function App() {
         )}
       </main>
 
-      <footer className="app-footer">
-        <div className="footer-left">
-          <span>© 2025 AI IDE</span>
-          <span>|</span>
-          <span>For AI by AI</span>
-        </div>
-        <div className="footer-right">
-          <button className="footer-button" onClick={() => setShowShortcuts(true)} title="Keyboard Shortcuts">
-            ⌨️
-          </button>
-          <span className="session-duration">⏱ {sessionDuration}</span>
-        </div>
-      </footer>
+      {currentWorkspace && (
+        <StatusBar
+          workspaceName={currentWorkspaceData?.name}
+          currentBranch={repos.length > 0 ? 'main' : undefined}
+          fileCount={tabs.length}
+          isConnected={true}
+          currentFile={activeTab?.name}
+        />
+      )}
     </div>
   )
 }

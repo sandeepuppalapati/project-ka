@@ -397,6 +397,32 @@ function App() {
     },
   });
 
+  // Start file watcher when repos change
+  useEffect(() => {
+    if (repos.length > 0) {
+      const repoPaths = repos.map(repo => repo.path);
+      window.electronAPI.startFileWatcher?.(repoPaths);
+      console.log('[App] Started file watcher for repos:', repoPaths);
+    }
+
+    // Listen for file change events
+    const cleanup = window.electronAPI.onFileChanged?.((_, event) => {
+      console.log('[App] File changed:', event);
+
+      // Refresh file tree for the affected repo
+      // The FileTree components will handle their own refresh
+
+      // Refresh git panel when files change
+      if (event.type === 'add' || event.type === 'change' || event.type === 'unlink') {
+        gitPanelRef.current?.refresh();
+      }
+    });
+
+    return () => {
+      cleanup?.();
+    };
+  }, [repos]);
+
   // Update session duration every second
   useEffect(() => {
     const interval = setInterval(() => {

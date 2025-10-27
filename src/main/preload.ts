@@ -72,6 +72,15 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onTerminalData: (callback: (event: any, terminalId: string, data: string) => void) => {
     ipcRenderer.on('terminal:data', callback);
   },
+
+  // File Watcher APIs
+  startFileWatcher: (repoPaths: string[]) => ipcRenderer.invoke('fileWatcher:start', repoPaths),
+  stopFileWatcher: (repoPath: string) => ipcRenderer.invoke('fileWatcher:stop', repoPath),
+  getWatchedPaths: () => ipcRenderer.invoke('fileWatcher:getWatchedPaths'),
+  onFileChanged: (callback: (event: any, data: any) => void) => {
+    ipcRenderer.on('file:changed', callback);
+    return () => ipcRenderer.removeAllListeners('file:changed');
+  },
 });
 
 // Expose a separate electron API for IPC event handling

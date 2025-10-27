@@ -57,6 +57,12 @@ export interface ElectronAPI {
   resizeTerminal?: (terminalId: string, cols: number, rows: number) => Promise<void>;
   closeTerminal?: (terminalId: string) => Promise<void>;
   onTerminalData?: (callback: (event: any, terminalId: string, data: string) => void) => void;
+
+  // File Watcher API
+  startFileWatcher?: (repoPaths: string[]) => Promise<void>;
+  stopFileWatcher?: (repoPath: string) => Promise<void>;
+  getWatchedPaths?: () => Promise<string[]>;
+  onFileChanged?: (callback: (event: any, data: FileChangeEvent) => void) => () => void;
 }
 
 export interface GitStatus {
@@ -81,6 +87,13 @@ export interface GitDiff {
   filepath: string;
   oldContent: string;
   newContent: string;
+}
+
+export interface FileChangeEvent {
+  type: 'add' | 'change' | 'unlink' | 'addDir' | 'unlinkDir';
+  repoPath: string;
+  filePath: string;
+  absolutePath: string;
 }
 
 declare global {

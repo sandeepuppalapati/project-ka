@@ -35,6 +35,24 @@ export function FileTree({ repoPath, repoName, onFileSelect, onViewDiff }: FileT
     }
   }, [contextMenu]);
 
+  // Listen for file changes and auto-refresh
+  useEffect(() => {
+    const cleanup = window.electronAPI.onFileChanged?.((_, event) => {
+      // Only refresh if the change is in this repo
+      if (event.repoPath === repoPath) {
+        console.log('[FileTree] File changed in repo, refreshing:', event.filePath);
+        // Debounce refresh to avoid too many updates
+        setTimeout(() => {
+          loadDirectory(repoPath);
+        }, 500);
+      }
+    });
+
+    return () => {
+      cleanup?.();
+    };
+  }, [repoPath]);
+
   const handleRefresh = () => {
     loadDirectory(repoPath);
   };

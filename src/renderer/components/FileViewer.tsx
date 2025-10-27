@@ -19,12 +19,27 @@ export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
   const [content, setContent] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
+  const [externalChange, setExternalChange] = useState(false);
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
 
   useEffect(() => {
     if (filePath) {
       loadFile(filePath);
     }
+  }, [filePath]);
+
+  // Listen for external file changes
+  useEffect(() => {
+    const cleanup = window.electronAPI.onFileChanged?.((_, event) => {
+      if (filePath && event.absolutePath === filePath && event.type === 'change') {
+        console.log('[FileViewer] File changed externally:', filePath);
+        setExternalChange(true);
+      }
+    });
+
+    return () => {
+      cleanup?.();
+    };
   }, [filePath]);
 
   const loadFile = async (path: string) => {
@@ -134,8 +149,24 @@ export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
     );
   };
 
+  const handleReload = async () => {
+    if (filePath) {
+      await loadFile(filePath);
+      setExternalChange(false);
+    }
+  };
+
   return (
     <div className="file-viewer">
+      {externalChange && (
+        <div className="external-change-banner">
+          <span>⚠️ This file has been changed externally</span>
+          <div className="banner-actions">
+            <button className="banner-button" onClick={handleReload}>Reload</button>
+            <button className="banner-button dismiss" onClick={() => setExternalChange(false)}>Dismiss</button>
+          </div>
+        </div>
+      )}
       <div className="file-viewer-header">
         <div className="file-info">
           <span className="file-icon">📄</span>

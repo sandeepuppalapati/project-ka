@@ -9,6 +9,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import * as dotenv from 'dotenv';
 import * as workspace from './workspace';
 import * as terminal from './terminal';
+import * as fileWatcher from './fileWatcher';
 
 const execAsync = promisify(exec);
 
@@ -72,6 +73,9 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => {
   // Clean up terminals
   terminal.closeAllTerminals();
+
+  // Clean up file watchers
+  fileWatcher.stopAllWatchers();
 
   if (process.platform !== 'darwin') {
     app.quit();
@@ -1092,4 +1096,20 @@ ipcMain.handle('terminal:resize', async (_event, terminalId: string, cols: numbe
 
 ipcMain.handle('terminal:close', async (_event, terminalId: string) => {
   terminal.closeTerminal(terminalId);
+});
+
+// File watcher IPC handlers
+ipcMain.handle('fileWatcher:start', async (event, repoPaths: string[]) => {
+  const window = BrowserWindow.fromWebContents(event.sender);
+  if (window) {
+    fileWatcher.startWatching(window, repoPaths);
+  }
+});
+
+ipcMain.handle('fileWatcher:stop', async (_event, repoPath: string) => {
+  fileWatcher.stopWatching(repoPath);
+});
+
+ipcMain.handle('fileWatcher:getWatchedPaths', async () => {
+  return fileWatcher.getWatchedPaths();
 });

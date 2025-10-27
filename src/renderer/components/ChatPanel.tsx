@@ -1042,13 +1042,26 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
         <h3>{isBridge ? '🌐 Bridge' : `🤖 ${currentRepo?.name || 'AI Agent'}`}</h3>
         <div className="chat-header-actions">
           {!isBridge && currentRepo && (
-            <button
-              className="post-to-bridge-btn"
-              onClick={handlePostToBridge}
-              title="Post last AI response to Bridge"
-            >
-              📤 Bridge
-            </button>
+            <>
+              <button
+                className="post-to-bridge-btn"
+                onClick={handlePostToBridge}
+                title="Post last AI response to Bridge"
+              >
+                📤 Bridge
+              </button>
+              <button
+                className="disconnect-agent-btn"
+                onClick={() => {
+                  if (confirm(`Disconnect ${currentRepo.name} Agent from the Bridge? This will remove all messages from this agent.`)) {
+                    bridge.disconnectAgent(currentRepo.id);
+                  }
+                }}
+                title="Disconnect this agent from Bridge"
+              >
+                🔌 Disconnect
+              </button>
+            </>
           )}
           <button
             className="export-chat-btn"
@@ -1084,23 +1097,8 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
               <div key={bridgeMsg.id} className="message assistant bridge-message">
                 <div className="message-avatar">📡</div>
                 <div className="message-content">
-                  <div className="bridge-agent-header">
-                    <div className="bridge-agent-label">
-                      [{bridgeMsg.agentName}]
-                    </div>
-                    {bridgeMsg.agentId !== 'user' && (
-                      <button
-                        className="disconnect-agent-btn"
-                        onClick={() => {
-                          if (confirm(`Disconnect ${bridgeMsg.agentName} from the Bridge? This will remove all messages from this agent.`)) {
-                            bridge.disconnectAgent(bridgeMsg.agentId);
-                          }
-                        }}
-                        title={`Disconnect ${bridgeMsg.agentName}`}
-                      >
-                        🔌 Disconnect
-                      </button>
-                    )}
+                  <div className="bridge-agent-label">
+                    [{bridgeMsg.agentName}]
                   </div>
                   <div className="message-text">
                     {renderMessageWithCommands(bridgeMsg.content)}

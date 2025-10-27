@@ -23,6 +23,8 @@ interface BridgeContextType {
   postToBridge: (message: Omit<BridgeMessage, 'id' | 'timestamp'>) => void;
   getRecentMessages: (count?: number) => BridgeMessage[];
   clearMessages: () => void;
+  disconnectAgent: (agentId: string) => void;
+  getConnectedAgents: () => string[];
   loadMessagesFromWorkspace: (workspacePath: string) => Promise<void>;
   saveMessagesToWorkspace: (workspacePath: string) => Promise<void>;
 }
@@ -51,6 +53,15 @@ export function BridgeProvider({ children }: { children: ReactNode }) {
   const clearMessages = useCallback(() => {
     setMessages([]);
   }, []);
+
+  const disconnectAgent = useCallback((agentId: string) => {
+    setMessages(prev => prev.filter(msg => msg.agentId !== agentId));
+  }, []);
+
+  const getConnectedAgents = useCallback(() => {
+    const agentIds = new Set(messages.map(msg => msg.agentId));
+    return Array.from(agentIds).filter(id => id !== 'user');
+  }, [messages]);
 
   const loadMessagesFromWorkspace = useCallback(async (workspacePath: string) => {
     try {
@@ -102,6 +113,8 @@ export function BridgeProvider({ children }: { children: ReactNode }) {
       postToBridge,
       getRecentMessages,
       clearMessages,
+      disconnectAgent,
+      getConnectedAgents,
       loadMessagesFromWorkspace,
       saveMessagesToWorkspace
     }}>

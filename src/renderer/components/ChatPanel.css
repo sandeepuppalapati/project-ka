@@ -896,12 +896,35 @@
   padding-left: 0.5rem;
 }
 
+.bridge-agent-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+
 .bridge-agent-label {
   font-size: 0.75rem;
   font-weight: 600;
   color: #4ec9b0;
-  margin-bottom: 0.25rem;
   font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+}
+
+.disconnect-agent-btn {
+  background: transparent;
+  border: 1px solid #858585;
+  color: #858585;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.disconnect-agent-btn:hover {
+  background: rgba(241, 76, 76, 0.2);
+  border-color: #f14c4c;
+  color: #f14c4c;
 }
 
 /* Streaming text indicator */

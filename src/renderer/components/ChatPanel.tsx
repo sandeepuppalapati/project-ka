@@ -82,7 +82,9 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
   const [isBridgeActivityCollapsed, setIsBridgeActivityCollapsed] = useState(false);
   const [hasOpenAIKey, setHasOpenAIKey] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [autoScroll, setAutoScroll] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const inputHistory = useRef<string[]>([]);
 
@@ -230,9 +232,21 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const handleScroll = () => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+
+    // Check if user is at the bottom (within 50px threshold)
+    const isAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 50;
+    setAutoScroll(isAtBottom);
+  };
+
+  // Auto-scroll when messages change, but only if autoScroll is enabled
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    if (autoScroll) {
+      scrollToBottom();
+    }
+  }, [messages, bridge.messages, autoScroll]);
 
   // Set up streaming listener (skip for Bridge tab)
   useEffect(() => {
@@ -1054,7 +1068,7 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
         </div>
       </div>
 
-      <div className="chat-messages">
+      <div className="chat-messages" ref={messagesContainerRef} onScroll={handleScroll}>
         {isBridge ? (
           // Bridge tab: show bridge messages
           <>
@@ -1070,8 +1084,23 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
               <div key={bridgeMsg.id} className="message assistant bridge-message">
                 <div className="message-avatar">📡</div>
                 <div className="message-content">
-                  <div className="bridge-agent-label">
-                    [{bridgeMsg.agentName}]
+                  <div className="bridge-agent-header">
+                    <div className="bridge-agent-label">
+                      [{bridgeMsg.agentName}]
+                    </div>
+                    {bridgeMsg.agentId !== 'user' && (
+                      <button
+                        className="disconnect-agent-btn"
+                        onClick={() => {
+                          if (confirm(`Disconnect ${bridgeMsg.agentName} from the Bridge? This will remove all messages from this agent.`)) {
+                            bridge.disconnectAgent(bridgeMsg.agentId);
+                          }
+                        }}
+                        title={`Disconnect ${bridgeMsg.agentName}`}
+                      >
+                        🔌 Disconnect
+                      </button>
+                    )}
                   </div>
                   <div className="message-text">
                     {renderMessageWithCommands(bridgeMsg.content)}

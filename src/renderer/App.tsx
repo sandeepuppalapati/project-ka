@@ -68,6 +68,20 @@ function App() {
   // Workspace state management with auto-save
   const workspaceState = useWorkspaceState(currentWorkspace);
 
+  // Save disconnected agents to workspace whenever they change
+  useEffect(() => {
+    if (currentWorkspace) {
+      const disconnectedList = Array.from(bridge.disconnectedAgents);
+      // Only save if different from current state
+      if (JSON.stringify(disconnectedList) !== JSON.stringify(workspaceState.state.disconnectedAgents)) {
+        workspaceState.immediateSave({
+          ...workspaceState.state,
+          disconnectedAgents: disconnectedList
+        });
+      }
+    }
+  }, [bridge.disconnectedAgents, currentWorkspace]);
+
   // Load workspace and all its data
   const loadWorkspace = useCallback(async (workspacePath: string) => {
     try {
@@ -103,6 +117,10 @@ function App() {
         // Restore UI state
         if (state.ui.activeChatTab) {
           setActiveChatTab(state.ui.activeChatTab);
+        }
+        // Restore disconnected agents
+        if (state.ui.disconnectedAgents) {
+          bridge.setDisconnectedAgents(state.ui.disconnectedAgents);
         }
         // TODO: Restore open files, cursor positions, etc.
       }

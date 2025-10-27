@@ -1050,10 +1050,10 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
               >
                 📤 Bridge
               </button>
-              <button
-                className="disconnect-agent-btn"
-                onClick={() => {
-                  if (confirm(`Disconnect ${currentRepo.name} Agent from the Bridge? This will remove all messages from this agent.`)) {
+              {bridge.isAgentConnected(currentRepo.id) ? (
+                <button
+                  className="disconnect-agent-btn"
+                  onClick={() => {
                     // Post disconnect message to Bridge
                     bridge.postToBridge({
                       agentId: currentRepo.id,
@@ -1063,12 +1063,30 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
                     });
                     // Then disconnect
                     bridge.disconnectAgent(currentRepo.id);
-                  }
-                }}
-                title="Disconnect this agent from Bridge"
-              >
-                🔌 Disconnect
-              </button>
+                  }}
+                  title="Disconnect this agent from Bridge (stops syncing, keeps local messages)"
+                >
+                  🔌 Disconnect
+                </button>
+              ) : (
+                <button
+                  className="reconnect-agent-btn"
+                  onClick={() => {
+                    // Reconnect
+                    bridge.reconnectAgent(currentRepo.id);
+                    // Post reconnect message to Bridge
+                    bridge.postToBridge({
+                      agentId: currentRepo.id,
+                      agentName: currentRepo.name,
+                      type: 'info',
+                      content: `${currentRepo.name} Agent has reconnected to the Bridge.`
+                    });
+                  }}
+                  title="Reconnect this agent to Bridge"
+                >
+                  🔌 Reconnect
+                </button>
+              )}
             </>
           )}
           <button

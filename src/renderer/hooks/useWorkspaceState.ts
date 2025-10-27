@@ -10,6 +10,7 @@ export function useWorkspaceState(workspacePath: string | null) {
     activeChatTab: 'bridge',
     sidebarWidth: 250,
     chatPanelWidth: 400,
+    disconnectedAgents: [],
   });
 
   const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -27,6 +28,7 @@ export function useWorkspaceState(workspacePath: string | null) {
         activeChatTab: 'bridge',
         sidebarWidth: 250,
         chatPanelWidth: 400,
+        disconnectedAgents: [],
       });
       workspacePathRef.current = null;
       return;

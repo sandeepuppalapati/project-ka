@@ -20,24 +20,34 @@ export interface BridgeMessage {
 
 interface BridgeContextType {
   messages: BridgeMessage[];
+  disconnectedAgents: Set<string>;
   postToBridge: (message: Omit<BridgeMessage, 'id' | 'timestamp'>) => void;
   getRecentMessages: (count?: number) => BridgeMessage[];
   clearMessages: () => void;
   disconnectAgent: (agentId: string) => void;
+  reconnectAgent: (agentId: string) => void;
+  isAgentConnected: (agentId: string) => boolean;
   getConnectedAgents: () => string[];
   loadMessagesFromWorkspace: (workspacePath: string) => Promise<void>;
   saveMessagesToWorkspace: (workspacePath: string) => Promise<void>;
+  setDisconnectedAgents: (agents: string[]) => void;
 }
 
 const BridgeContext = createContext<BridgeContextType | undefined>(undefined);
 
 export function BridgeProvider({ children }: { children: ReactNode }) {
   const [messages, setMessages] = useState<BridgeMessage[]>([]);
+  const [disconnectedAgents, setDisconnectedAgentsState] = useState<Set<string>>(new Set());
 
   // Note: Messages are now loaded from workspace files via loadMessagesFromWorkspace()
   // No longer using localStorage persistence
 
   const postToBridge = (message: Omit<BridgeMessage, 'id' | 'timestamp'>) => {
+    // Don't post to bridge if agent is disconnected
+    if (disconnectedAgents.has(message.agentId)) {
+      return;
+    }
+
     const newMessage: BridgeMessage = {
       ...message,
       id: `bridge-${Date.now()}-${Math.random()}`,
@@ -55,13 +65,29 @@ export function BridgeProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const disconnectAgent = useCallback((agentId: string) => {
-    setMessages(prev => prev.filter(msg => msg.agentId !== agentId));
+    setDisconnectedAgentsState(prev => new Set([...prev, agentId]));
   }, []);
+
+  const reconnectAgent = useCallback((agentId: string) => {
+    setDisconnectedAgentsState(prev => {
+      const next = new Set(prev);
+      next.delete(agentId);
+      return next;
+    });
+  }, []);
+
+  const isAgentConnected = useCallback((agentId: string) => {
+    return !disconnectedAgents.has(agentId);
+  }, [disconnectedAgents]);
 
   const getConnectedAgents = useCallback(() => {
     const agentIds = new Set(messages.map(msg => msg.agentId));
-    return Array.from(agentIds).filter(id => id !== 'user');
-  }, [messages]);
+    return Array.from(agentIds).filter(id => id !== 'user' && !disconnectedAgents.has(id));
+  }, [messages, disconnectedAgents]);
+
+  const setDisconnectedAgents = useCallback((agents: string[]) => {
+    setDisconnectedAgentsState(new Set(agents));
+  }, []);
 
   const loadMessagesFromWorkspace = useCallback(async (workspacePath: string) => {
     try {
@@ -110,13 +136,17 @@ export function BridgeProvider({ children }: { children: ReactNode }) {
   return (
     <BridgeContext.Provider value={{
       messages,
+      disconnectedAgents,
       postToBridge,
       getRecentMessages,
       clearMessages,
       disconnectAgent,
+      reconnectAgent,
+      isAgentConnected,
       getConnectedAgents,
       loadMessagesFromWorkspace,
-      saveMessagesToWorkspace
+      saveMessagesToWorkspace,
+      setDisconnectedAgents
     }}>
       {children}
     </BridgeContext.Provider>

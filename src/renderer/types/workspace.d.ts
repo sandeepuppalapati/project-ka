@@ -34,6 +34,7 @@ export interface UIState {
   activeChatTab: string;
   sidebarWidth: number;
   chatPanelWidth: number;
+  disconnectedAgents: string[]; // IDs of agents disconnected from Bridge
 }
 
 export interface OpenFile {

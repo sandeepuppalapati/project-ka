@@ -1043,13 +1043,15 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
         <div className="chat-header-actions">
           {!isBridge && currentRepo && (
             <>
-              <button
-                className="post-to-bridge-btn"
-                onClick={handlePostToBridge}
-                title="Post last AI response to Bridge"
-              >
-                📤 Bridge
-              </button>
+              {bridge.isAgentConnected(currentRepo.id) && (
+                <button
+                  className="post-to-bridge-btn"
+                  onClick={handlePostToBridge}
+                  title="Post last AI response to Bridge"
+                >
+                  📤 Bridge
+                </button>
+              )}
               {bridge.isAgentConnected(currentRepo.id) ? (
                 <button
                   className="disconnect-agent-btn"

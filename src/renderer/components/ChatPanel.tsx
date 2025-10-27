@@ -1054,6 +1054,14 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
                 className="disconnect-agent-btn"
                 onClick={() => {
                   if (confirm(`Disconnect ${currentRepo.name} Agent from the Bridge? This will remove all messages from this agent.`)) {
+                    // Post disconnect message to Bridge
+                    bridge.postToBridge({
+                      agentId: currentRepo.id,
+                      agentName: currentRepo.name,
+                      type: 'info',
+                      content: `${currentRepo.name} Agent has disconnected from the Bridge.`
+                    });
+                    // Then disconnect
                     bridge.disconnectAgent(currentRepo.id);
                   }
                 }}

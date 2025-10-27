@@ -4,6 +4,13 @@
   height: 100%;
   background: linear-gradient(180deg, #1e1e1e 0%, #1a1a1a 100%);
   position: relative;
+  transition: all 0.2s ease;
+}
+
+.chat-panel.drag-over {
+  background: linear-gradient(180deg, #2a3a2a 0%, #1f2f1f 100%);
+  outline: 3px dashed #4ec9b0;
+  outline-offset: -10px;
 }
 
 .chat-panel::before {
@@ -468,6 +475,45 @@
   color: #6a9955;
   font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
   font-size: 0.875rem;
+}
+
+.dropped-file-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: linear-gradient(135deg, #2a3a2a 0%, #1f2f1f 100%);
+  border: 2px solid rgba(78, 201, 176, 0.4);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 2px 8px rgba(78, 201, 176, 0.2);
+}
+
+.dropped-file-indicator .file-icon {
+  font-size: 1rem;
+}
+
+.dropped-file-indicator .file-name {
+  color: #4ec9b0;
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  flex: 1;
+}
+
+.remove-file-btn {
+  background: transparent;
+  border: none;
+  color: #f14c4c;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+  transition: all 0.2s;
+}
+
+.remove-file-btn:hover {
+  background: rgba(241, 76, 76, 0.2);
+  color: #ff6b6b;
 }
 
 .input-row {

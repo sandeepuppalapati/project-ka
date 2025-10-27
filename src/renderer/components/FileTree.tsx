@@ -180,6 +180,17 @@ export function FileTree({ repoPath, repoName, onFileSelect, onViewDiff }: FileT
     }
   };
 
+  const handleDragStart = (e: React.DragEvent, node: FileNode) => {
+    if (!node.isDirectory) {
+      e.dataTransfer.effectAllowed = 'copy';
+      e.dataTransfer.setData('application/json', JSON.stringify({
+        type: 'file',
+        path: node.path,
+        name: node.name
+      }));
+    }
+  };
+
   const renderNode = (node: FileNode, depth: number = 0) => {
     return (
       <div key={node.path}>
@@ -188,6 +199,8 @@ export function FileTree({ repoPath, repoName, onFileSelect, onViewDiff }: FileT
           style={{ paddingLeft: `${depth * 16 + 8}px` }}
           onClick={() => handleNodeClick(node)}
           onContextMenu={(e) => handleContextMenu(e, node)}
+          draggable={!node.isDirectory}
+          onDragStart={(e) => handleDragStart(e, node)}
         >
           {node.isDirectory && (
             <span className="icon">{node.isExpanded ? '📂' : '📁'}</span>

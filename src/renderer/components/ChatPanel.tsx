@@ -81,6 +81,7 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
   const [isStreaming, setIsStreaming] = useState(false);
   const [isBridgeActivityCollapsed, setIsBridgeActivityCollapsed] = useState(false);
   const [hasOpenAIKey, setHasOpenAIKey] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const inputHistory = useRef<string[]>([]);
@@ -701,6 +702,37 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
     }
   };
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+
+    try {
+      const data = e.dataTransfer.getData('application/json');
+      if (data) {
+        const fileData = JSON.parse(data);
+        if (fileData.type === 'file') {
+          // Just add the file path to input
+          setInput(prev => prev + (prev ? ' ' : '') + fileData.path);
+        }
+      }
+    } catch (error) {
+      console.error('Error handling drop:', error);
+    }
+  };
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -986,7 +1018,12 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
 
 
   return (
-    <div className="chat-panel">
+    <div
+      className={`chat-panel ${isDragOver ? 'drag-over' : ''}`}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
       <div className="chat-header">
         <h3>{isBridge ? '🌐 Bridge' : `🤖 ${currentRepo?.name || 'AI Agent'}`}</h3>
         <div className="chat-header-actions">

@@ -337,6 +337,11 @@ function App() {
     }
   };
 
+  const handleCloseAllTabs = () => {
+    setTabs([]);
+    setActiveTabId(null);
+  };
+
   const handleFileDirtyChange = (isDirty: boolean) => {
     if (activeTabId) {
       setTabs(tabs.map(tab =>
@@ -724,6 +729,7 @@ function App() {
                               activeTabId={activeTabId}
                               onTabClick={handleTabClick}
                               onTabClose={handleTabClose}
+                              onCloseAll={handleCloseAllTabs}
                             />
                             {activeTab?.type === 'diff' && activeTab.diffData ? (
                               <DiffViewer

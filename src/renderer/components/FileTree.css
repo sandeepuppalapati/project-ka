@@ -60,6 +60,15 @@
   transition: background-color 0.1s;
 }
 
+.file-node.file[draggable="true"] {
+  cursor: grab;
+}
+
+.file-node.file[draggable="true"]:active {
+  cursor: grabbing;
+  opacity: 0.6;
+}
+
 .file-node:hover {
   background-color: #2a2d2e;
 }

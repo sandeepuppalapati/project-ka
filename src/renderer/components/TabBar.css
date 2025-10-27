@@ -1,11 +1,18 @@
 .tab-bar {
   display: flex;
+  align-items: center;
   background-color: #2d2d30;
   border-bottom: 1px solid #3e3e42;
-  overflow-x: auto;
-  overflow-y: hidden;
   height: 35px;
   flex-shrink: 0;
+  gap: 0.5rem;
+}
+
+.tab-list {
+  display: flex;
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .tab {
@@ -76,19 +83,38 @@
   color: #fff;
 }
 
+.close-all-btn {
+  background: transparent;
+  border: 1px solid #858585;
+  color: #858585;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  margin-right: 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.close-all-btn:hover {
+  background: rgba(241, 76, 76, 0.2);
+  border-color: #f14c4c;
+  color: #f14c4c;
+}
+
 /* Scrollbar for tab overflow */
-.tab-bar::-webkit-scrollbar {
+.tab-list::-webkit-scrollbar {
   height: 3px;
 }
 
-.tab-bar::-webkit-scrollbar-track {
+.tab-list::-webkit-scrollbar-track {
   background: #2d2d30;
 }
 
-.tab-bar::-webkit-scrollbar-thumb {
+.tab-list::-webkit-scrollbar-thumb {
   background: #424242;
 }
 
-.tab-bar::-webkit-scrollbar-thumb:hover {
+.tab-list::-webkit-scrollbar-thumb:hover {
   background: #4e4e4e;
 }

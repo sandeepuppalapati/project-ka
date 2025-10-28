@@ -32,9 +32,15 @@ jobs:
       - name: Build application
         run: npm run build
 
-      - name: Package application (macOS)
+      - name: Package application (macOS arm64)
         if: matrix.os == 'macos-latest'
-        run: npx electron-builder --mac --arm64 --x64 --publish never
+        run: npx electron-builder --mac --arm64 --publish never
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      - name: Package application (macOS x64)
+        if: matrix.os == 'macos-latest'
+        run: npx electron-builder --mac --x64 --publish never
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
 

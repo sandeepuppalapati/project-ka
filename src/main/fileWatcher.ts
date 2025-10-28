@@ -18,6 +18,8 @@ export function startWatching(window: BrowserWindow, repoPaths: string[]): void 
     const watcher = chokidar.watch(repoPath, {
       ignored: [
         /(^|[\/\\])\../, // Ignore dotfiles
+        /\.asar$/, // Ignore .asar files (Electron packages)
+        /\.asar[\/\\]/, // Ignore paths inside .asar
         '**/node_modules/**',
         '**/.git/**',
         '**/dist/**',
@@ -33,8 +35,6 @@ export function startWatching(window: BrowserWindow, repoPaths: string[]): void 
         '**/venv/**',
         '**/.venv/**',
         '**/vendor/**', // PHP/Go
-        '**/*.asar', // Electron packages
-        '**/*.asar/**',
       ],
       persistent: true,
       ignoreInitial: true, // Don't fire events for existing files
@@ -107,6 +107,10 @@ export function startWatching(window: BrowserWindow, repoPaths: string[]): void 
 
     // Error handling
     watcher.on('error', (error) => {
+      // Suppress .asar file errors (common with VS Code and Electron apps)
+      if (error.message && error.message.includes('.asar')) {
+        return; // Silently ignore .asar errors
+      }
       console.error('[FileWatcher] Error:', error);
     });
 

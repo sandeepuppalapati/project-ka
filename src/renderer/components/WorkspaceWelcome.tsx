@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Briefcase } from 'lucide-react';
+import { Briefcase, Code2 } from 'lucide-react';
 import './WorkspaceWelcome.css';
 
 interface WorkspaceWelcomeProps {
@@ -134,7 +134,7 @@ export function WorkspaceWelcome({ onCreateWorkspace, onOpenWorkspace }: Workspa
         {/* Left side - Welcome content */}
         <div className="workspace-welcome-left">
           <div className="workspace-welcome-icon">
-            <img src="/assets/icon.svg" alt="AI IDE" style={{ width: '80px', height: '80px' }} />
+            <Code2 size={80} strokeWidth={1.5} />
           </div>
           <h1>Welcome to AI IDE</h1>
           <p className="workspace-welcome-subtitle">For AI by AI</p>

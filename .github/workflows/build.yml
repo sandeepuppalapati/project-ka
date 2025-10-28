@@ -32,9 +32,15 @@ jobs:
       - name: Build application
         run: npm run build
 
+      - name: Rebuild native modules for macOS
+        if: matrix.os == 'macos-latest'
+        run: npm rebuild node-pty --update-binary
+
       - name: Package application (macOS)
         if: matrix.os == 'macos-latest'
         run: npx electron-builder --mac --arm64 --x64 --publish never
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
 
       - name: Package application (Windows)
         if: matrix.os == 'windows-latest'

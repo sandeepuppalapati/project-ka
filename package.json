@@ -68,17 +68,11 @@
       "target": [
         {
           "target": "dmg",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
+          "arch": "arm64"
         },
         {
           "target": "zip",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
+          "arch": "arm64"
         }
       ],
       "icon": "assets/icon.icns"
@@ -93,8 +87,7 @@
       ],
       "icon": "assets/icon.ico"
     },
-    "npmRebuild": true,
-    "buildDependenciesFromSource": false,
+    "npmRebuild": false,
     "linux": {
       "target": [
         "AppImage",

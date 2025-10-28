@@ -33,6 +33,8 @@ export function startWatching(window: BrowserWindow, repoPaths: string[]): void 
         '**/venv/**',
         '**/.venv/**',
         '**/vendor/**', // PHP/Go
+        '**/*.asar', // Electron packages
+        '**/*.asar/**',
       ],
       persistent: true,
       ignoreInitial: true, // Don't fire events for existing files
@@ -122,11 +124,24 @@ export function stopWatching(repoPath: string): void {
   }
 }
 
-export function stopAllWatchers(): void {
+export async function stopAllWatchers(): Promise<void> {
+  const closePromises: Promise<void>[] = [];
+
   for (const [repoPath, watcherInfo] of watchers.entries()) {
-    watcherInfo.watcher.close();
-    console.log('[FileWatcher] Stopped watching:', repoPath);
+    // Close watchers in parallel with timeout
+    const closePromise = Promise.race([
+      watcherInfo.watcher.close(),
+      new Promise<void>((resolve) => setTimeout(resolve, 1000)) // 1s timeout
+    ]).then(() => {
+      console.log('[FileWatcher] Stopped watching:', repoPath);
+    }).catch((err) => {
+      console.error('[FileWatcher] Error stopping watcher:', err);
+    });
+
+    closePromises.push(closePromise);
   }
+
+  await Promise.all(closePromises);
   watchers.clear();
 }
 

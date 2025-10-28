@@ -70,12 +70,12 @@ app.whenReady().then(() => {
   });
 });
 
-app.on('window-all-closed', () => {
+app.on('window-all-closed', async () => {
   // Clean up terminals
   terminal.closeAllTerminals();
 
-  // Clean up file watchers
-  fileWatcher.stopAllWatchers();
+  // Clean up file watchers (async with timeout)
+  await fileWatcher.stopAllWatchers();
 
   if (process.platform !== 'darwin') {
     app.quit();

@@ -70,7 +70,7 @@ export function FileTree({ repoPath, repoName, onFileSelect, onViewDiff }: FileT
     try {
       const entries = await window.electronAPI.readDir(dirPath);
       if (entries) {
-        const nodes = entries
+        let nodes = entries
           .filter(entry => !entry.name.startsWith('.')) // Hide hidden files
           .filter(entry => {
             // Skip common heavy directories for better performance
@@ -90,6 +90,16 @@ export function FileTree({ repoPath, repoName, onFileSelect, onViewDiff }: FileT
             if (!a.isDirectory && b.isDirectory) return 1;
             return a.name.localeCompare(b.name);
           });
+
+        // Performance: Limit items shown per directory (show directories, then files up to limit)
+        const MAX_ITEMS = 500;
+        if (nodes.length > MAX_ITEMS) {
+          const directories = nodes.filter(n => n.isDirectory);
+          const files = nodes.filter(n => !n.isDirectory);
+          nodes = [...directories, ...files.slice(0, MAX_ITEMS - directories.length)];
+          console.warn(`[FileTree] Directory has ${entries.length} items, showing ${nodes.length} for performance`);
+        }
+
         setRootNodes(nodes);
       } else {
         console.error('No entries returned');
@@ -128,7 +138,7 @@ export function FileTree({ repoPath, repoName, onFileSelect, onViewDiff }: FileT
     if (!node.isExpanded && (!node.children || node.children.length === 0)) {
       const entries = await window.electronAPI.readDir(node.path);
       if (entries) {
-        const children = entries
+        let children = entries
           .filter(entry => !entry.name.startsWith('.'))
           .filter(entry => {
             // Skip common heavy directories for better performance
@@ -147,6 +157,15 @@ export function FileTree({ repoPath, repoName, onFileSelect, onViewDiff }: FileT
             if (!a.isDirectory && b.isDirectory) return 1;
             return a.name.localeCompare(b.name);
           });
+
+        // Performance: Limit items shown per directory
+        const MAX_ITEMS = 500;
+        if (children.length > MAX_ITEMS) {
+          const directories = children.filter(n => n.isDirectory);
+          const files = children.filter(n => !n.isDirectory);
+          children = [...directories, ...files.slice(0, MAX_ITEMS - directories.length)];
+          console.warn(`[FileTree] Directory ${node.name} has ${entries.length} items, showing ${children.length} for performance`);
+        }
 
         const updateWithChildren = (nodes: FileNode[]): FileNode[] => {
           return nodes.map(n => {

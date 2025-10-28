@@ -26,13 +26,21 @@ export function startWatching(window: BrowserWindow, repoPaths: string[]): void 
         '**/coverage/**',
         '**/.next/**',
         '**/.nuxt/**',
+        '**/target/**', // Rust/Java
+        '**/bin/**',
+        '**/obj/**', // .NET
+        '**/__pycache__/**', // Python
+        '**/venv/**',
+        '**/.venv/**',
+        '**/vendor/**', // PHP/Go
       ],
       persistent: true,
       ignoreInitial: true, // Don't fire events for existing files
       awaitWriteFinish: {
-        stabilityThreshold: 300, // Wait for file to stop changing
+        stabilityThreshold: 500, // Increased for better performance with large repos
         pollInterval: 100,
       },
+      depth: 10, // Limit recursion depth for performance
     });
 
     // File added

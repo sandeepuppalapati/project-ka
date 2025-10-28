@@ -106,9 +106,9 @@ export function startWatching(window: BrowserWindow, repoPaths: string[]): void 
     });
 
     // Error handling
-    watcher.on('error', (error: Error) => {
+    watcher.on('error', (error: unknown) => {
       // Suppress .asar file errors (common with VS Code and Electron apps)
-      if (error.message && error.message.includes('.asar')) {
+      if (error instanceof Error && error.message.includes('.asar')) {
         return; // Silently ignore .asar errors
       }
       console.error('[FileWatcher] Error:', error);

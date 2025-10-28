@@ -94,6 +94,7 @@
       "icon": "assets/icon.ico"
     },
     "npmRebuild": true,
+    "buildDependenciesFromSource": false,
     "linux": {
       "target": [
         "AppImage",

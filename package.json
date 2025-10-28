@@ -39,6 +39,7 @@
     "xterm-addon-fit": "^0.8.0"
   },
   "devDependencies": {
+    "@electron/rebuild": "^4.0.1",
     "@types/chokidar": "^1.7.5",
     "@types/diff": "^7.0.2",
     "@types/node": "^22.10.2",
@@ -62,6 +63,9 @@
     "files": [
       "dist/**/*",
       "package.json"
+    ],
+    "asarUnpack": [
+      "node_modules/node-pty/**/*"
     ],
     "mac": {
       "category": "public.app-category.developer-tools",

@@ -35,16 +35,24 @@ export function FileTree({ repoPath, repoName, onFileSelect, onViewDiff }: FileT
     }
   }, [contextMenu]);
 
-  // Listen for file changes and auto-refresh
+  // Listen for file changes and auto-refresh with debouncing
   useEffect(() => {
+    let refreshTimer: NodeJS.Timeout | null = null;
+
     const cleanup = window.electronAPI.onFileChanged?.((_, event) => {
       // Only refresh if the change is in this repo
       if (event.repoPath === repoPath) {
-        console.log('[FileTree] File changed in repo, refreshing:', event.filePath);
-        // Debounce refresh to avoid too many updates
-        setTimeout(() => {
+        console.log('[FileTree] File changed in repo, will refresh:', event.filePath);
+
+        // Cancel previous timer and set new one (debounce)
+        if (refreshTimer) {
+          clearTimeout(refreshTimer);
+        }
+
+        refreshTimer = setTimeout(() => {
           loadDirectory(repoPath);
-        }, 500);
+          refreshTimer = null;
+        }, 1000); // Increased debounce time for better performance
       }
     });
 

@@ -33,6 +33,10 @@ jobs:
       - name: Build application
         run: npm run build
 
+      - name: Rebuild native modules (macOS only)
+        if: matrix.os == 'macos-latest'
+        run: npm rebuild node-pty --update-binary
+
       - name: Package application (macOS arm64)
         if: matrix.os == 'macos-latest'
         run: npx electron-builder --mac --arm64 --publish never
@@ -48,6 +52,8 @@ jobs:
       - name: Package application (Windows)
         if: matrix.os == 'windows-latest'
         run: npx electron-builder --win --x64 --publish never
+        env:
+          ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES: true
 
       - name: Package application (Linux)
         if: matrix.os == 'ubuntu-latest'

@@ -1,6 +1,6 @@
 {
   "name": "ai-ide",
-  "version": "0.5.7",
+  "version": "0.5.8",
   "description": "AI-based IDE - For AI by AI",
   "main": "dist/main/main.js",
   "author": {
@@ -85,7 +85,6 @@
       ],
       "icon": "assets/icon.ico"
     },
-    "npmRebuild": false,
     "linux": {
       "target": [
         "AppImage",

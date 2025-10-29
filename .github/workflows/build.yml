@@ -33,31 +33,27 @@ jobs:
       - name: Build application
         run: npm run build
 
-      - name: Rebuild native modules (macOS only)
-        if: matrix.os == 'macos-latest'
-        run: npm rebuild node-pty --update-binary
-
       - name: Package application (macOS arm64)
         if: matrix.os == 'macos-latest'
-        run: npx electron-builder --mac --arm64 --publish never
+        run: npx electron-builder --mac --arm64 --publish never -c.npmRebuild=true
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
 
       - name: Package application (macOS x64)
         if: matrix.os == 'macos-latest'
-        run: npx electron-builder --mac --x64 --publish never
+        run: npx electron-builder --mac --x64 --publish never -c.npmRebuild=true
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
 
       - name: Package application (Windows)
         if: matrix.os == 'windows-latest'
-        run: npx electron-builder --win --x64 --publish never
+        run: npx electron-builder --win --x64 --publish never -c.npmRebuild=false -c.buildDependenciesFromSource=false
         env:
           ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES: true
 
       - name: Package application (Linux)
         if: matrix.os == 'ubuntu-latest'
-        run: npx electron-builder --linux --x64 --publish never
+        run: npx electron-builder --linux --x64 --publish never -c.npmRebuild=true
 
       - name: Upload artifacts (macOS)
         if: matrix.os == 'macos-latest'

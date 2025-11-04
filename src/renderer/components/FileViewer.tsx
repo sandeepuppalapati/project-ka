@@ -1,6 +1,7 @@
 import { useState, useEffect, useImperativeHandle, forwardRef, useRef } from 'react';
 import Editor from '@monaco-editor/react';
 import type { editor } from 'monaco-editor';
+import { useTheme } from '../contexts/ThemeContext';
 import './FileViewer.css';
 
 interface FileViewerProps {
@@ -16,6 +17,7 @@ export interface FileViewerRef {
 
 export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
   ({ filePath, fileName, onDirtyChange, onSaved }, ref) => {
+  const { actualTheme } = useTheme();
   const [content, setContent] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
@@ -194,7 +196,7 @@ export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
           defaultValue={content}
           onChange={handleEditorChange}
           onMount={handleEditorMount}
-          theme="vs-dark"
+          theme={actualTheme === 'light' ? 'vs-light' : 'vs-dark'}
           options={{
             minimap: { enabled: true },
             fontSize: 14,

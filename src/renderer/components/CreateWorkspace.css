@@ -37,7 +37,7 @@
 .create-workspace-header h2 {
   margin: 0;
   font-size: 1.25rem;
-  color: #fff;
+  color: var(--color-text-primary);
   font-weight: 600;
 }
 
@@ -59,7 +59,7 @@
 
 .create-workspace-close:hover {
   background: var(--color-border-primary);
-  color: #fff;
+  color: var(--color-text-primary);
 }
 
 .create-workspace-content {
@@ -103,7 +103,7 @@
 
 .create-workspace-input:focus {
   outline: none;
-  border-color: #007acc;
+  border-color: var(--color-primary);
 }
 
 .create-workspace-input::placeholder {
@@ -126,7 +126,7 @@
 
 .create-workspace-textarea:focus {
   outline: none;
-  border-color: #007acc;
+  border-color: var(--color-primary);
 }
 
 .create-workspace-textarea::placeholder {
@@ -146,10 +146,10 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.375rem 0.625rem;
-  background: #007acc;
+  background: var(--color-primary);
   border-radius: 4px;
   font-size: 0.8125rem;
-  color: #fff;
+  color: var(--color-text-primary);
   font-weight: 500;
 }
 
@@ -172,7 +172,7 @@
 }
 
 .tag-remove:hover {
-  color: #fff;
+  color: var(--color-text-primary);
 }
 
 .tag-input-group {
@@ -199,7 +199,7 @@
 
 .tag-add-button:hover {
   background: var(--color-text-disabled);
-  border-color: #007acc;
+  border-color: var(--color-primary);
 }
 
 .repos-list {
@@ -294,7 +294,7 @@
 
 .add-repo-button:hover {
   background: var(--color-text-disabled);
-  border-color: #007acc;
+  border-color: var(--color-primary);
 }
 
 .workspace-path-display {
@@ -356,8 +356,8 @@
 }
 
 .create-workspace-button.primary {
-  background: #007acc;
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-text-primary);
 }
 
 .create-workspace-button.primary:hover:not(:disabled) {

@@ -28,7 +28,7 @@
 }
 
 .diff-filepath {
-  color: #fff;
+  color: var(--color-text-primary);
   font-weight: 600;
 }
 
@@ -63,7 +63,7 @@
 .diff-mode-btn.active {
   background: var(--color-primary);
   border-color: rgba(255, 255, 255, 0.2);
-  color: white;
+  color: var(--color-text-primary);
 }
 
 .diff-close-btn {
@@ -84,7 +84,7 @@
 
 .diff-close-btn:hover {
   background: var(--color-border-primary);
-  color: #fff;
+  color: var(--color-text-primary);
 }
 
 .diff-content {

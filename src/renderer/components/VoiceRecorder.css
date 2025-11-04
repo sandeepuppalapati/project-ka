@@ -10,7 +10,7 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: 2px solid #4ec9b0;
+  border: 2px solid var(--color-primary);
   background: #2d2d2d;
   color: #e0e0e0;
   cursor: pointer;
@@ -24,7 +24,7 @@
 
 .voice-button:hover:not(:disabled) {
   background: #3d3d3d;
-  border-color: #5dd9c0;
+  border-color: var(--color-primary-light);
   transform: scale(1.05);
 }
 
@@ -40,7 +40,7 @@
 
 /* Idle state */
 .voice-button.idle {
-  border-color: #4ec9b0;
+  border-color: var(--color-primary);
 }
 
 /* Recording state */
@@ -160,14 +160,14 @@
 
 /* Live transcript */
 .live-transcript {
-  color: #4ec9b0;
+  color: var(--color-primary);
   font-size: 11px;
   font-weight: 400;
   font-style: italic;
   padding: 0.25rem 0.5rem;
   background: rgba(78, 201, 176, 0.1);
   border-radius: 4px;
-  border-left: 2px solid #4ec9b0;
+  border-left: 2px solid var(--color-primary);
   max-width: 300px;
   word-wrap: break-word;
   line-height: 1.4;

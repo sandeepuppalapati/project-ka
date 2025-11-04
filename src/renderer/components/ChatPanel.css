@@ -9,7 +9,7 @@
 
 .chat-panel.drag-over {
   background: var(--color-primary);
-  outline: 3px dashed #4ec9b0;
+  outline: 3px dashed var(--color-primary);
   outline-offset: -10px;
 }
 
@@ -36,7 +36,7 @@
   align-items: center;
   padding: 0.4rem 0.65rem;
   background: var(--color-primary);
-  border-bottom: 2px solid #4ec9b0;
+  border-bottom: 2px solid var(--color-primary);
   box-shadow: 0 4px 12px rgba(78, 201, 176, 0.2);
   position: relative;
   min-height: 32px;
@@ -79,7 +79,7 @@
 
 .post-to-bridge-btn {
   background: var(--color-primary);
-  color: #000;
+  color: var(--color-text-on-primary);
   border: none;
   padding: 0.45rem 0.85rem;
   border-radius: 6px;
@@ -100,8 +100,8 @@
 
 .disconnect-agent-btn {
   background: transparent;
-  color: #f14c4c;
-  border: 1px solid #f14c4c;
+  color: var(--color-error);
+  border: 1px solid var(--color-error);
   padding: 0.4rem 0.75rem;
   border-radius: 6px;
   cursor: pointer;
@@ -114,8 +114,8 @@
 
 .disconnect-agent-btn:hover {
   background: rgba(241, 76, 76, 0.2);
-  border-color: #ff6b6b;
-  color: #ff6b6b;
+  border-color: var(--color-error);
+  color: var(--color-error);
   transform: translateY(-2px);
 }
 
@@ -126,7 +126,7 @@
   width: 40px;
   height: 40px;
   background: rgba(78, 201, 176, 0.5);
-  color: #000;
+  color: var(--color-text-on-primary);
   border: none;
   border-radius: 50%;
   cursor: pointer;
@@ -158,8 +158,8 @@
 
 .reconnect-agent-btn {
   background: transparent;
-  color: #4ec9b0;
-  border: 1px solid #4ec9b0;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
   padding: 0.4rem 0.75rem;
   border-radius: 6px;
   cursor: pointer;
@@ -172,15 +172,15 @@
 
 .reconnect-agent-btn:hover {
   background: rgba(78, 201, 176, 0.2);
-  border-color: #5dd9c0;
-  color: #5dd9c0;
+  border-color: var(--color-primary-light);
+  color: var(--color-primary-light);
   transform: translateY(-2px);
 }
 
 .export-chat-btn {
   background-color: var(--color-border-primary);
   color: var(--color-text-secondary);
-  border: 1px solid #555;
+  border: 1px solid var(--color-border-primary);
   padding: 0.4rem 0.75rem;
   border-radius: 4px;
   cursor: pointer;
@@ -190,16 +190,16 @@
 }
 
 .export-chat-btn:hover {
-  background-color: #4ec9b0;
-  border-color: #4ec9b0;
-  color: white;
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-text-primary);
   transform: translateY(-1px);
 }
 
 .clear-chat-btn {
   background-color: var(--color-border-primary);
   color: var(--color-text-secondary);
-  border: 1px solid #555;
+  border: 1px solid var(--color-border-primary);
   padding: 0.4rem 0.75rem;
   border-radius: 4px;
   cursor: pointer;
@@ -209,15 +209,15 @@
 }
 
 .clear-chat-btn:hover {
-  background-color: #f14c4c;
-  border-color: #f14c4c;
-  color: white;
+  background-color: var(--color-error);
+  border-color: var(--color-error);
+  color: var(--color-text-primary);
   transform: translateY(-1px);
 }
 
 .chat-status {
   font-size: 0.75rem;
-  color: #6a9955;
+  color: var(--color-syntax-comment);
 }
 
 .chat-messages {
@@ -340,9 +340,9 @@
 }
 
 .message.user .message-text {
-  background: #4ec9b0;
-  border: 1px solid #5dd9c0;
-  color: #000;
+  background: var(--color-primary);
+  border: 1px solid var(--color-primary-light);
+  color: var(--color-text-on-primary);
   box-shadow: 0 2px 8px rgba(78, 201, 176, 0.3);
   font-weight: 500;
 }
@@ -437,7 +437,7 @@
 /* Bridge activity widget */
 .bridge-activity {
   background: var(--color-primary-bg);
-  border: 2px solid #4ec9b0;
+  border: 2px solid var(--color-primary);
   border-radius: 8px;
   padding: 0.65rem 0.75rem;
   margin-bottom: 0.5rem;
@@ -468,7 +468,7 @@
   align-items: center;
   font-size: 0.8rem;
   font-weight: 600;
-  color: #4ec9b0;
+  color: var(--color-primary);
 }
 
 .bridge-activity-controls {
@@ -478,7 +478,7 @@
 }
 
 .bridge-activity-count {
-  background-color: #4ec9b0;
+  background-color: var(--color-primary);
   color: var(--color-bg-primary);
   padding: 0.125rem 0.5rem;
   border-radius: 10px;
@@ -487,8 +487,8 @@
 
 .bridge-activity-minimize {
   background-color: transparent;
-  border: 1px solid #4ec9b0;
-  color: #4ec9b0;
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
   padding: 0.15rem 0.4rem;
   border-radius: 3px;
   cursor: pointer;
@@ -499,7 +499,7 @@
 }
 
 .bridge-activity-minimize:hover {
-  background-color: #4ec9b0;
+  background-color: var(--color-primary);
   color: var(--color-bg-primary);
   transform: translateY(-1px);
 }
@@ -521,7 +521,7 @@
 }
 
 .bridge-activity-agent {
-  color: #4ec9b0;
+  color: var(--color-primary);
   font-weight: 600;
   font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
   flex-shrink: 0;
@@ -551,7 +551,7 @@
 }
 
 .context-path {
-  color: #6a9955;
+  color: var(--color-syntax-comment);
   font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
   font-size: 0.875rem;
 }
@@ -574,7 +574,7 @@
 }
 
 .dropped-file-indicator .file-name {
-  color: #4ec9b0;
+  color: var(--color-primary);
   font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
   flex: 1;
 }
@@ -582,7 +582,7 @@
 .remove-file-btn {
   background: transparent;
   border: none;
-  color: #f14c4c;
+  color: var(--color-error);
   cursor: pointer;
   font-size: 1rem;
   padding: 0.25rem 0.5rem;
@@ -592,7 +592,7 @@
 
 .remove-file-btn:hover {
   background: rgba(241, 76, 76, 0.2);
-  color: #ff6b6b;
+  color: var(--color-error);
 }
 
 .input-row {
@@ -608,7 +608,7 @@
 }
 
 .voice-button {
-  background-color: #3c3c3c;
+  background-color: var(--color-bg-tertiary);
   border: 2px solid var(--color-border-primary);
   border-radius: 50%;
   width: 3rem;
@@ -624,12 +624,12 @@
 
 .voice-button:hover:not(:disabled) {
   background-color: var(--color-text-disabled);
-  border-color: #0e639c;
+  border-color: var(--color-accent-blue);
 }
 
 .voice-button.recording {
-  background-color: #f14c4c;
-  border-color: #f14c4c;
+  background-color: var(--color-error);
+  border-color: var(--color-error);
   animation: pulse 1.5s infinite;
 }
 
@@ -674,7 +674,7 @@
 }
 
 .chat-input:focus {
-  border-color: #0e639c;
+  border-color: var(--color-accent-blue);
   background-color: var(--color-bg-secondary);
   box-shadow: 0 2px 8px rgba(14, 99, 156, 0.3);
 }
@@ -689,10 +689,10 @@
   left: 0;
   right: 0;
   background-color: rgba(14, 99, 156, 0.2);
-  border: 1px solid #0e639c;
+  border: 1px solid var(--color-accent-blue);
   border-radius: 4px 4px 0 0;
   padding: 0.5rem;
-  color: #0e639c;
+  color: var(--color-accent-blue);
   font-size: 0.875rem;
   font-style: italic;
   margin-bottom: -1px;
@@ -708,7 +708,7 @@
 
 .chat-run {
   background: var(--color-primary);
-  color: white;
+  color: var(--color-text-primary);
   border: none;
   padding: 0.75rem 1rem;
   border-radius: 8px;
@@ -742,7 +742,7 @@
 
 .chat-send {
   background: var(--color-primary);
-  color: white;
+  color: var(--color-text-primary);
   border: none;
   padding: 0.75rem 1rem;
   border-radius: 8px;
@@ -772,7 +772,7 @@
 
 .chat-cancel {
   background: var(--color-primary);
-  color: white;
+  color: var(--color-text-primary);
   border: none;
   padding: 0.75rem 1rem;
   border-radius: 8px;
@@ -797,31 +797,31 @@
 
 /* Command message styling */
 .command-message {
-  background-color: #0d1117;
+  background-color: var(--color-bg-primary);
   border-radius: 6px;
   overflow: hidden;
-  border: 1px solid #30363d;
-  border-left: 3px solid #58a6ff;
+  border: 1px solid var(--color-bg-elevated);
+  border-left: 3px solid var(--color-accent-blue);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .command-input {
-  background-color: #161b22;
+  background-color: var(--color-bg-secondary);
   padding: 0.75rem 1rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  border-bottom: 1px solid #30363d;
+  border-bottom: 1px solid var(--color-bg-elevated);
 }
 
 .command-prompt {
-  color: #6a9955;
+  color: var(--color-syntax-comment);
   font-weight: bold;
   font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
 }
 
 .command-input code {
-  color: #c9d1d9;
+  color: var(--color-text-secondary);
   font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
   font-size: 0.875rem;
 }
@@ -830,14 +830,14 @@
   display: flex;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background-color: #161b22;
-  border-top: 1px solid #30363d;
+  background-color: var(--color-bg-secondary);
+  border-top: 1px solid var(--color-bg-elevated);
 }
 
 .command-control-button {
-  background-color: #21262d;
-  color: #c9d1d9;
-  border: 1px solid #30363d;
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-bg-elevated);
   padding: 0.25rem 0.75rem;
   border-radius: 4px;
   cursor: pointer;
@@ -847,16 +847,16 @@
 }
 
 .command-control-button:hover {
-  background-color: #30363d;
-  border-color: #58a6ff;
+  background-color: var(--color-bg-elevated);
+  border-color: var(--color-accent-blue);
 }
 
 .command-output {
   padding: 0.75rem 1rem;
   font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
   font-size: 0.875rem;
-  border-top: 1px solid #30363d;
-  background-color: #0d1117;
+  border-top: 1px solid var(--color-bg-elevated);
+  background-color: var(--color-bg-primary);
 }
 
 .command-output.success {
@@ -880,7 +880,7 @@
 }
 
 .command-output .stderr {
-  color: #f14c4c;
+  color: var(--color-error);
   margin-top: 0.5rem;
 }
 
@@ -914,7 +914,7 @@
 
 .inline-command-block .command-label {
   font-size: 0.7rem;
-  color: #4ec9b0;
+  color: var(--color-primary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-weight: 700;
@@ -934,7 +934,7 @@
   flex: 1;
   font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
   font-size: 0.875rem;
-  color: #c9d1d9;
+  color: var(--color-text-secondary);
   white-space: pre-wrap;
   word-wrap: break-word;
 }
@@ -945,7 +945,7 @@
 
 .inline-run-button {
   background: var(--color-primary);
-  color: #000;
+  color: var(--color-text-on-primary);
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 6px;
@@ -971,14 +971,14 @@
 
 /* Bridge message styling */
 .bridge-message {
-  border-left: 3px solid #4ec9b0;
+  border-left: 3px solid var(--color-primary);
   padding-left: 0.5rem;
 }
 
 .bridge-agent-label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #4ec9b0;
+  color: var(--color-primary);
   margin-bottom: 0.25rem;
   font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
 }
@@ -990,7 +990,7 @@
 
 .message.assistant.streaming .message-text::after {
   content: '▊';
-  color: #4ec9b0;
+  color: var(--color-primary);
   animation: blink 1s infinite;
   margin-left: 2px;
 }
@@ -1019,21 +1019,21 @@
 
 .tool-status.executing {
   background-color: rgba(78, 201, 176, 0.1);
-  border-color: #4ec9b0;
-  color: #4ec9b0;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 .tool-status.complete {
   background-color: rgba(106, 153, 85, 0.1);
-  border-color: #6a9955;
-  color: #6a9955;
+  border-color: var(--color-syntax-comment);
+  color: var(--color-syntax-comment);
   opacity: 0.7;
 }
 
 .tool-status.error {
   background-color: rgba(241, 76, 76, 0.1);
-  border-color: #f14c4c;
-  color: #f14c4c;
+  border-color: var(--color-error);
+  color: var(--color-error);
 }
 
 .tool-status .spinner {
@@ -1041,7 +1041,7 @@
   width: 10px;
   height: 10px;
   border: 2px solid rgba(78, 201, 176, 0.3);
-  border-top-color: #4ec9b0;
+  border-top-color: var(--color-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -1065,7 +1065,7 @@
 }
 
 .chat-messages::-webkit-scrollbar-thumb {
-  background: #424242;
+  background: var(--color-bg-elevated);
   border-radius: 5px;
 }
 
@@ -1096,7 +1096,7 @@
   width: 12px;
   height: 12px;
   border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #007acc;
+  border-top-color: var(--color-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   margin-right: 0.5rem;
@@ -1117,7 +1117,7 @@
 .tools-toggle {
   background: none;
   border: none;
-  color: #4ec9b0;
+  color: var(--color-primary);
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
@@ -1128,7 +1128,7 @@
 }
 
 .tools-toggle:hover {
-  color: #5dd9c0;
+  color: var(--color-primary-light);
   transform: translateX(2px);
 }
 
@@ -1160,11 +1160,11 @@
 }
 
 .tool-execution.complete {
-  color: #4ec9b0;
+  color: var(--color-primary);
 }
 
 .tool-execution.error {
-  color: #f14c4c;
+  color: var(--color-error);
 }
 
 .tool-execution strong {
@@ -1174,7 +1174,7 @@
 
 .tool-error {
   margin-top: 0.25rem;
-  color: #f14c4c;
+  color: var(--color-error);
   font-size: 0.8rem;
 }
 
@@ -1214,7 +1214,7 @@
 .code-action-btn {
   background-color: var(--color-border-primary);
   color: var(--color-text-secondary);
-  border: 1px solid #555;
+  border: 1px solid var(--color-border-primary);
   padding: 0.35rem 0.65rem;
   border-radius: 4px;
   cursor: pointer;
@@ -1228,21 +1228,21 @@
 
 .code-action-btn:hover {
   background-color: var(--color-text-disabled);
-  border-color: #0e639c;
+  border-color: var(--color-accent-blue);
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .code-action-btn.copy-btn:hover {
-  background-color: #4ec9b0;
-  border-color: #4ec9b0;
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
   color: var(--color-bg-primary);
 }
 
 .code-action-btn.run-btn:hover {
-  background-color: #6a9955;
-  border-color: #6a9955;
-  color: white;
+  background-color: var(--color-syntax-comment);
+  border-color: var(--color-syntax-comment);
+  color: var(--color-text-primary);
 }
 
 .code-block-body {
@@ -1268,10 +1268,10 @@
 /* Inline code styling */
 .inline-code {
   background-color: var(--color-border-primary);
-  color: #4ec9b0;
+  color: var(--color-primary);
   padding: 0.15rem 0.4rem;
   border-radius: 3px;
   font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
   font-size: 0.85em;
-  border: 1px solid #555;
+  border: 1px solid var(--color-border-primary);
 }

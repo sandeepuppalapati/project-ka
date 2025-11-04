@@ -20,7 +20,7 @@
 }
 
 .chat-tabs-header::-webkit-scrollbar-thumb {
-  background: #555;
+  background: var(--color-border-primary);
   border-radius: 2px;
 }
 
@@ -49,8 +49,8 @@
 
 .chat-tab.active {
   background: var(--color-bg-primary);
-  color: #fff;
-  border-bottom: 2px solid #007acc;
+  color: var(--color-text-primary);
+  border-bottom: 2px solid var(--color-primary);
 }
 
 .chat-tab .tab-icon {
@@ -75,7 +75,7 @@
 }
 
 .chat-tab.active[title*="Bridge"] {
-  border-bottom-color: #4ec9b0;
+  border-bottom-color: var(--color-primary);
 }
 
 /* Chat content area */

@@ -812,6 +812,7 @@ function App() {
                         <Terminal
                           terminalId="main"
                           cwd={repos.length > 0 ? repos[0].path : undefined}
+                          onClose={() => setShowTerminal(false)}
                         />
                       </Panel>
                     </>

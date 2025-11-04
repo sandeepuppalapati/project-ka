@@ -1,15 +1,17 @@
 import { useEffect, useRef } from 'react';
 import { Terminal as XTerm } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
+import { X } from 'lucide-react';
 import 'xterm/css/xterm.css';
 import './Terminal.css';
 
 interface TerminalProps {
   terminalId: string;
   cwd?: string;
+  onClose?: () => void;
 }
 
-export function Terminal({ terminalId, cwd }: TerminalProps) {
+export function Terminal({ terminalId, cwd, onClose }: TerminalProps) {
   const terminalRef = useRef<HTMLDivElement>(null);
   const xtermRef = useRef<XTerm | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
@@ -112,8 +114,19 @@ export function Terminal({ terminalId, cwd }: TerminalProps) {
   return (
     <div className="terminal-container">
       <div className="terminal-header">
-        <span className="terminal-title">Terminal</span>
-        <span className="terminal-cwd">{cwd || '~'}</span>
+        <div className="terminal-header-left">
+          <span className="terminal-title">Terminal</span>
+          <span className="terminal-cwd">{cwd || '~'}</span>
+        </div>
+        {onClose && (
+          <button
+            className="terminal-close-btn"
+            onClick={onClose}
+            title="Close Terminal (Ctrl+`)"
+          >
+            <X size={16} />
+          </button>
+        )}
       </div>
       <div ref={terminalRef} className="terminal-content" onClick={handleClick} />
     </div>

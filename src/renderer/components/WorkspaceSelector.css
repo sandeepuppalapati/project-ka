@@ -20,13 +20,13 @@
 
 .workspace-selector-button:hover {
   background: var(--color-text-disabled);
-  border-color: #007acc;
+  border-color: var(--color-primary);
 }
 
 .workspace-icon {
   font-size: 1rem;
   flex-shrink: 0;
-  color: #007acc;
+  color: var(--color-primary);
   display: flex;
   align-items: center;
 }
@@ -111,7 +111,7 @@
 .workspace-item-icon {
   font-size: 1.25rem;
   flex-shrink: 0;
-  color: #007acc;
+  color: var(--color-primary);
   display: flex;
   align-items: center;
 }
@@ -139,6 +139,6 @@
 
 .workspace-item-check {
   font-size: 1rem;
-  color: #007acc;
+  color: var(--color-primary);
   flex-shrink: 0;
 }

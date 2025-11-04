@@ -30,11 +30,12 @@
 }
 
 .tab:hover {
-  background-color: #37373d;
+  background-color: var(--color-bg-hover);
 }
 
 .tab.active {
   background-color: var(--color-bg-primary);
+  border-bottom: 2px solid var(--color-primary);
 }
 
 .tab-icon {
@@ -52,11 +53,11 @@
 }
 
 .tab.active .tab-name {
-  color: #fff;
+  color: var(--color-text-primary);
 }
 
 .tab-dirty {
-  color: #f14c4c;
+  color: var(--color-error);
   font-size: 1rem;
   flex-shrink: 0;
 }
@@ -80,7 +81,7 @@
 
 .tab-close:hover {
   background-color: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  color: var(--color-text-primary);
 }
 
 .close-all-btn {
@@ -98,8 +99,8 @@
 
 .close-all-btn:hover {
   background: rgba(241, 76, 76, 0.2);
-  border-color: #f14c4c;
-  color: #f14c4c;
+  border-color: var(--color-error);
+  color: var(--color-error);
 }
 
 /* Scrollbar for tab overflow */
@@ -112,7 +113,7 @@
 }
 
 .tab-list::-webkit-scrollbar-thumb {
-  background: #424242;
+  background: var(--color-bg-elevated);
 }
 
 .tab-list::-webkit-scrollbar-thumb:hover {

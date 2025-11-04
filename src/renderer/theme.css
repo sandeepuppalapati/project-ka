@@ -29,6 +29,7 @@
   --color-text-tertiary: #858585;
   --color-text-muted: #6c6c6c;
   --color-text-disabled: #4e4e4e;
+  --color-text-on-primary: #000000; /* Text color for primary buttons */
 
   /* Border Colors */
   --color-border-primary: #3e3e42;
@@ -156,6 +157,7 @@
   --color-text-tertiary: #737373;
   --color-text-muted: #a3a3a3;
   --color-text-disabled: #d4d4d4;
+  --color-text-on-primary: #ffffff; /* Text color for primary buttons in light mode */
 
   /* Border Colors */
   --color-border-primary: #e5e5e5;

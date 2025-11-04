@@ -15,6 +15,12 @@
   border-bottom: 1px solid var(--color-border-primary);
 }
 
+.terminal-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 .terminal-title {
   font-size: 0.875rem;
   font-weight: 600;
@@ -25,6 +31,24 @@
   font-size: 0.75rem;
   color: var(--color-text-tertiary);
   font-family: 'Courier New', monospace;
+}
+
+.terminal-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--color-text-tertiary);
+  padding: 0.25rem;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.terminal-close-btn:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-error);
 }
 
 .terminal-content {

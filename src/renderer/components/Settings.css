@@ -37,7 +37,7 @@
 .settings-header h2 {
   margin: 0;
   font-size: 1.25rem;
-  color: #fff;
+  color: var(--color-text-primary);
   font-weight: 600;
 }
 
@@ -66,7 +66,7 @@
 
 .settings-close:hover {
   background: var(--color-border-primary);
-  color: #fff;
+  color: var(--color-text-primary);
 }
 
 .settings-content {
@@ -118,7 +118,7 @@
 .settings-input:focus,
 .settings-select:focus {
   outline: none;
-  border-color: #007acc;
+  border-color: var(--color-primary);
 }
 
 .settings-input::placeholder {
@@ -140,7 +140,7 @@
 
 .toggle-visibility:hover {
   background: var(--color-text-disabled);
-  border-color: #007acc;
+  border-color: var(--color-primary);
 }
 
 .browse-button {
@@ -158,7 +158,7 @@
 
 .browse-button:hover {
   background: var(--color-text-disabled);
-  border-color: #007acc;
+  border-color: var(--color-primary);
 }
 
 .settings-error {
@@ -217,8 +217,8 @@
 }
 
 .settings-button.primary {
-  background: #007acc;
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-text-primary);
 }
 
 .settings-button.primary:hover:not(:disabled) {
@@ -232,8 +232,8 @@
 }
 
 .settings-button.danger {
-  background: #d32f2f;
-  color: #fff;
+  background: var(--color-error);
+  color: var(--color-text-primary);
   width: 100%;
   justify-content: center;
   display: flex;
@@ -242,7 +242,7 @@
 }
 
 .settings-button.danger:hover {
-  background: #b71c1c;
+  background: var(--color-error);
 }
 
 /* Theme Selector */

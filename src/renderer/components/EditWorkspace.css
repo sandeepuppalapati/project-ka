@@ -37,7 +37,7 @@
 .edit-workspace-header h2 {
   margin: 0;
   font-size: 1.25rem;
-  color: #fff;
+  color: var(--color-text-primary);
   font-weight: 600;
 }
 
@@ -59,7 +59,7 @@
 
 .edit-workspace-close:hover {
   background: var(--color-border-primary);
-  color: #fff;
+  color: var(--color-text-primary);
 }
 
 .edit-workspace-content {
@@ -98,7 +98,7 @@
 
 .edit-workspace-input:focus {
   outline: none;
-  border-color: #007acc;
+  border-color: var(--color-primary);
 }
 
 .edit-workspace-input::placeholder {
@@ -121,7 +121,7 @@
 
 .edit-workspace-textarea:focus {
   outline: none;
-  border-color: #007acc;
+  border-color: var(--color-primary);
 }
 
 .edit-workspace-textarea::placeholder {
@@ -220,7 +220,7 @@
 
 .add-repo-button:hover {
   background: var(--color-text-disabled);
-  border-color: #007acc;
+  border-color: var(--color-primary);
 }
 
 .edit-workspace-error {
@@ -263,8 +263,8 @@
 }
 
 .edit-workspace-button.primary {
-  background: #007acc;
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-text-primary);
 }
 
 .edit-workspace-button.primary:hover:not(:disabled) {

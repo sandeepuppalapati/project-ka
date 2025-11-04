@@ -18,12 +18,12 @@
 .repo-manager-header h2 {
   margin: 0;
   font-size: 1.25rem;
-  color: #fff;
+  color: var(--color-text-primary);
 }
 
 .repo-manager-header button {
-  background-color: #0e639c;
-  color: white;
+  background-color: var(--color-accent-blue);
+  color: var(--color-text-primary);
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 4px;
@@ -77,7 +77,7 @@
 }
 
 .repo-item:hover {
-  border-color: #0e639c;
+  border-color: var(--color-accent-blue);
 }
 
 .repo-info {
@@ -87,7 +87,7 @@
 .repo-name {
   font-size: 1rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--color-text-primary);
   margin-bottom: 0.25rem;
 }
 
@@ -105,7 +105,7 @@
 }
 
 .repo-branch {
-  color: #4ec9b0;
+  color: var(--color-primary);
 }
 
 .repo-changes {
@@ -113,7 +113,7 @@
 }
 
 .repo-clean {
-  color: #6a9955;
+  color: var(--color-syntax-comment);
 }
 
 .repo-remove {
@@ -133,6 +133,6 @@
 }
 
 .repo-remove:hover {
-  background-color: #f14c4c;
-  color: white;
+  background-color: var(--color-error);
+  color: var(--color-text-primary);
 }

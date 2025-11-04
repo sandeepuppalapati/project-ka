@@ -20,7 +20,7 @@
   font-size: 5rem;
   margin-bottom: 1.5rem;
   animation: pulse 2s ease-in-out infinite;
-  color: #007acc;
+  color: var(--color-primary);
 }
 
 @keyframes pulse {
@@ -38,7 +38,7 @@
   margin: 0 0 0.5rem 0;
   font-size: 3rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--color-text-primary);
   background: var(--color-primary);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -90,7 +90,7 @@
   background: var(--color-primary);
   border: none;
   border-radius: 8px;
-  color: #fff;
+  color: var(--color-text-primary);
   font-size: 1.125rem;
   font-weight: 600;
   cursor: pointer;
@@ -269,7 +269,7 @@
 .workspace-card-icon {
   font-size: 2rem;
   flex-shrink: 0;
-  color: #007acc;
+  color: var(--color-primary);
 }
 
 .workspace-card-info {
@@ -280,7 +280,7 @@
 .workspace-card-name {
   font-size: 1rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--color-text-primary);
   margin-bottom: 0.25rem;
 }
 
@@ -328,7 +328,7 @@
 
 .workspace-card:hover .workspace-card-arrow {
   transform: translateX(4px);
-  color: #007acc;
+  color: var(--color-primary);
 }
 
 .workspace-welcome-features {
@@ -362,7 +362,7 @@
 
 .feature-text strong {
   font-size: 0.875rem;
-  color: #fff;
+  color: var(--color-text-primary);
   font-weight: 600;
 }
 
@@ -388,7 +388,7 @@
   width: 40px;
   height: 40px;
   background: var(--color-border-primary);
-  border: 1px solid #555;
+  border: 1px solid var(--color-border-primary);
   border-radius: 6px;
   color: #f48771;
   font-size: 1.25rem;
@@ -405,9 +405,9 @@
 }
 
 .workspace-card-delete:hover {
-  background: #d32f2f;
-  border-color: #d32f2f;
-  color: #fff;
+  background: var(--color-error);
+  border-color: var(--color-error);
+  color: var(--color-text-primary);
   transform: scale(1.05);
 }
 
@@ -442,7 +442,7 @@
   width: 90%;
   max-width: 500px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
-  border: 1px solid #555;
+  border: 1px solid var(--color-border-primary);
   animation: slideUp 0.3s ease;
 }
 
@@ -459,7 +459,7 @@
 
 .workspace-delete-header {
   padding: 1.5rem;
-  border-bottom: 1px solid #555;
+  border-bottom: 1px solid var(--color-border-primary);
 }
 
 .workspace-delete-header h3 {
@@ -476,7 +476,7 @@
 .workspace-delete-warning {
   margin: 0 0 1rem 0;
   font-size: 1rem;
-  color: #fff;
+  color: var(--color-text-primary);
   line-height: 1.5;
 }
 
@@ -522,16 +522,16 @@
   margin: 0.75rem 0 0 0;
   padding: 0.75rem;
   background: rgba(76, 175, 80, 0.1);
-  border-left: 3px solid #4caf50;
+  border-left: 3px solid var(--color-success);
   border-radius: 4px;
   font-size: 0.875rem;
-  color: #81c784;
+  color: var(--color-success);
   line-height: 1.5;
 }
 
 .workspace-delete-footer {
   padding: 1rem 1.5rem;
-  border-top: 1px solid #555;
+  border-top: 1px solid var(--color-border-primary);
   display: flex;
   gap: 0.75rem;
   justify-content: flex-end;
@@ -558,11 +558,11 @@
 }
 
 .workspace-delete-confirm {
-  background: #d32f2f;
-  color: #fff;
+  background: var(--color-error);
+  color: var(--color-text-primary);
 }
 
 .workspace-delete-confirm:hover {
-  background: #b71c1c;
+  background: var(--color-error);
   transform: scale(1.02);
 }

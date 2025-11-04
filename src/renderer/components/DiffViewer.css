@@ -151,17 +151,17 @@
 
 /* Line type styles */
 .diff-line-add {
-  background-color: rgba(20, 184, 166, 0.15);
+  background-color: rgba(86, 156, 214, 0.15);
 }
 
 .diff-line-add .diff-line-indicator {
-  color: #14b8a6;
-  background-color: rgba(20, 184, 166, 0.2);
+  color: var(--color-success);
+  background-color: rgba(86, 156, 214, 0.2);
 }
 
 .diff-line-add .diff-line-number {
-  background-color: rgba(20, 184, 166, 0.1);
-  color: #14b8a6;
+  background-color: rgba(86, 156, 214, 0.1);
+  color: var(--color-success);
 }
 
 .diff-line-remove {

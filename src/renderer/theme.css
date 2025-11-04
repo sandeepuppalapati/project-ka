@@ -3,12 +3,12 @@
 /* Dark Theme (Default) */
 :root,
 [data-theme="dark"] {
-  /* Primary Colors - Teal/Blue theme for AI feel */
-  --color-primary: #14b8a6;
-  --color-primary-hover: #0d9488;
-  --color-primary-active: #0f766e;
-  --color-primary-light: #5eead4;
-  --color-primary-bg: rgba(20, 184, 166, 0.1);
+  /* Primary Colors - Soft blue theme, easy on eyes */
+  --color-primary: #569cd6;
+  --color-primary-hover: #4a8cc2;
+  --color-primary-active: #3e7cb0;
+  --color-primary-light: #75bfff;
+  --color-primary-bg: rgba(86, 156, 214, 0.1);
 
   /* Accent Colors */
   --color-accent-blue: #3b82f6;
@@ -131,12 +131,12 @@
 
 /* Light Theme */
 [data-theme="light"] {
-  /* Primary Colors - Same teal/blue for consistency */
-  --color-primary: #14b8a6;
-  --color-primary-hover: #0d9488;
-  --color-primary-active: #0f766e;
-  --color-primary-light: #2dd4bf;
-  --color-primary-bg: rgba(20, 184, 166, 0.1);
+  /* Primary Colors - Soft blue theme, easy on eyes */
+  --color-primary: #0066cc;
+  --color-primary-hover: #0052a3;
+  --color-primary-active: #004080;
+  --color-primary-light: #3399ff;
+  --color-primary-bg: rgba(0, 102, 204, 0.08);
 
   /* Accent Colors */
   --color-accent-blue: #3b82f6;

@@ -66,8 +66,8 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: rgba(0, 0, 0, 0.2);
-  border-left: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--color-bg-secondary);
+  border-left: 1px solid var(--color-border-primary);
   overflow-y: auto;
 }
 
@@ -95,12 +95,12 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 16px rgba(0, 122, 204, 0.3);
+  box-shadow: 0 4px 16px rgba(86, 156, 214, 0.2);
 }
 
 .workspace-welcome-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(0, 122, 204, 0.5);
+  box-shadow: 0 6px 24px rgba(86, 156, 214, 0.3);
   background: var(--color-primary);
 }
 
@@ -144,10 +144,10 @@
 
 .workspace-create-new {
   padding: 0.5rem 1rem;
-  background: rgba(0, 122, 204, 0.1);
-  border: 1px solid rgba(0, 122, 204, 0.3);
+  background: var(--color-primary-bg);
+  border: 1px solid rgba(86, 156, 214, 0.2);
   border-radius: 6px;
-  color: #4fc3f7;
+  color: var(--color-primary-light);
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
@@ -155,8 +155,8 @@
 }
 
 .workspace-create-new:hover {
-  background: rgba(0, 122, 204, 0.2);
-  border-color: rgba(0, 122, 204, 0.5);
+  background: var(--color-primary-bg);
+  border-color: rgba(86, 156, 214, 0.3);
 }
 
 .workspace-search {
@@ -167,8 +167,8 @@
 .workspace-search-input {
   width: 100%;
   padding: 0.75rem 2.5rem 0.75rem 0.875rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--color-border-subtle);
+  border: 1px solid var(--color-bg-hover);
   border-radius: 6px;
   color: var(--color-text-secondary);
   font-size: 0.875rem;
@@ -177,8 +177,8 @@
 
 .workspace-search-input:focus {
   outline: none;
-  border-color: rgba(0, 122, 204, 0.5);
-  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(86, 156, 214, 0.3);
+  background: var(--color-border-subtle);
 }
 
 .workspace-search-input::placeholder {
@@ -206,7 +206,7 @@
 }
 
 .workspace-search-clear:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-bg-hover);
   color: var(--color-text-secondary);
 }
 
@@ -215,8 +215,8 @@
   text-align: center;
   color: var(--color-text-tertiary);
   font-size: 0.875rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--color-border-subtle);
+  border: 1px solid var(--color-border-subtle);
   border-radius: 8px;
 }
 
@@ -234,17 +234,17 @@
 }
 
 .workspace-list::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--color-border-subtle);
   border-radius: 4px;
 }
 
 .workspace-list::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--color-border-primary);
   border-radius: 4px;
 }
 
 .workspace-list::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: var(--color-text-tertiary);
 }
 
 .workspace-card {
@@ -252,8 +252,8 @@
   align-items: center;
   gap: 1rem;
   padding: 1.25rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--color-border-subtle);
+  border: 1px solid var(--color-border-subtle);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
@@ -261,8 +261,8 @@
 }
 
 .workspace-card:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(0, 122, 204, 0.5);
+  background: var(--color-bg-hover);
+  border-color: rgba(86, 156, 214, 0.3);
   transform: translateX(4px);
 }
 
@@ -286,7 +286,7 @@
 
 .workspace-card-description {
   font-size: 0.8125rem;
-  color: #b3b3b3;
+  color: var(--color-text-tertiary);
   line-height: 1.4;
   margin-bottom: 0.5rem;
 }
@@ -301,11 +301,11 @@
 .workspace-tag {
   display: inline-block;
   padding: 0.25rem 0.5rem;
-  background: rgba(0, 122, 204, 0.15);
-  border: 1px solid rgba(0, 122, 204, 0.3);
+  background: var(--color-primary-bg);
+  border: 1px solid var(--color-primary);
   border-radius: 4px;
   font-size: 0.6875rem;
-  color: #4fc3f7;
+  color: var(--color-primary);
   font-weight: 500;
 }
 
@@ -315,7 +315,7 @@
 }
 
 .workspace-last-accessed {
-  color: #4fc3f7;
+  color: var(--color-primary-light);
   font-weight: 500;
 }
 
@@ -343,9 +343,9 @@
   align-items: center;
   gap: 1rem;
   padding: 1rem;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--color-border-subtle);
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-border-subtle);
   text-align: left;
 }
 
@@ -390,7 +390,7 @@
   background: var(--color-border-primary);
   border: 1px solid var(--color-border-primary);
   border-radius: 6px;
-  color: #f48771;
+  color: var(--color-error);
   font-size: 1.25rem;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -418,7 +418,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -465,7 +465,7 @@
 .workspace-delete-header h3 {
   margin: 0;
   font-size: 1.25rem;
-  color: #f48771;
+  color: var(--color-error);
   font-weight: 600;
 }
 
@@ -481,7 +481,7 @@
 }
 
 .workspace-delete-warning strong {
-  color: #4fc3f7;
+  color: var(--color-primary-light);
 }
 
 .workspace-delete-info {
@@ -506,11 +506,11 @@
 .workspace-delete-note {
   margin: 1rem 0 0.5rem 0;
   padding: 0.75rem;
-  background: rgba(244, 135, 113, 0.1);
-  border-left: 3px solid #f48771;
+  background: var(--color-error-bg);
+  border-left: 3px solid var(--color-error);
   border-radius: 4px;
   font-size: 0.875rem;
-  color: #f48771;
+  color: var(--color-error);
   line-height: 1.5;
 }
 
@@ -521,7 +521,7 @@
 .workspace-delete-repos-note {
   margin: 0.75rem 0 0 0;
   padding: 0.75rem;
-  background: rgba(76, 175, 80, 0.1);
+  background: var(--color-success-bg);
   border-left: 3px solid var(--color-success);
   border-radius: 4px;
   font-size: 0.875rem;

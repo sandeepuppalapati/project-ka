@@ -77,7 +77,7 @@
   bottom: 0;
   left: 0;
   height: 4px;
-  background: linear-gradient(90deg, #4ec9b0, #5dd9c0);
+  background: var(--color-primary);
   transition: width 0.1s ease;
   z-index: 1;
 }

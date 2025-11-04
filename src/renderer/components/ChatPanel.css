@@ -2,13 +2,13 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: linear-gradient(180deg, var(--color-bg-primary) 0%, #1a1a1a 100%);
+  background: var(--color-primary) 0%, #1a1a1a 100%);
   position: relative;
   transition: all 0.2s ease;
 }
 
 .chat-panel.drag-over {
-  background: linear-gradient(180deg, #2a3a2a 0%, #1f2f1f 100%);
+  background: var(--color-primary);
   outline: 3px dashed #4ec9b0;
   outline-offset: -10px;
 }
@@ -20,7 +20,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #4ec9b0 0%, #569cd6 25%, #c586c0 50%, #569cd6 75%, #4ec9b0 100%);
+  background: var(--color-primary);
   background-size: 200% 100%;
   animation: shimmer 3s linear infinite;
 }
@@ -35,7 +35,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.4rem 0.65rem;
-  background: linear-gradient(135deg, #1a4d4a 0%, #0d3a47 100%);
+  background: var(--color-primary);
   border-bottom: 2px solid #4ec9b0;
   box-shadow: 0 4px 12px rgba(78, 201, 176, 0.2);
   position: relative;
@@ -49,7 +49,7 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, transparent 0%, #4ec9b0 50%, transparent 100%);
+  background: var(--color-primary);
   animation: glow 2s ease-in-out infinite;
 }
 
@@ -62,7 +62,7 @@
   margin: 0;
   font-size: 0.75rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #4ec9b0 0%, #5dd9c0 100%);
+  background: var(--color-primary);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -78,7 +78,7 @@
 }
 
 .post-to-bridge-btn {
-  background: linear-gradient(135deg, #4ec9b0 0%, #5dd9c0 100%);
+  background: var(--color-primary);
   color: #000;
   border: none;
   padding: 0.45rem 0.85rem;
@@ -93,7 +93,7 @@
 }
 
 .post-to-bridge-btn:hover {
-  background: linear-gradient(135deg, #5dd9c0 0%, #6fe9d0 100%);
+  background: var(--color-primary);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(78, 201, 176, 0.5);
 }
@@ -228,7 +228,7 @@
   flex-direction: column;
   gap: 0.75rem;
   align-items: center;
-  background: linear-gradient(180deg, var(--color-bg-primary) 0%, #1a1a1b 50%, var(--color-bg-primary) 100%);
+  background: var(--color-primary) 0%, #1a1a1b 50%, var(--color-bg-primary) 100%);
 }
 
 .chat-messages > * {
@@ -293,12 +293,12 @@
 }
 
 .message.user .message-avatar {
-  background: linear-gradient(135deg, #4ec9b0 0%, #5dd9c0 100%);
+  background: var(--color-primary);
   box-shadow: 0 0 15px rgba(78, 201, 176, 0.4);
 }
 
 .message.assistant .message-avatar {
-  background: linear-gradient(135deg, #569cd6 0%, #6aacd6 100%);
+  background: var(--color-primary);
   box-shadow: 0 0 15px rgba(86, 156, 214, 0.4);
 }
 
@@ -322,7 +322,7 @@
 }
 
 .message-text {
-  background: linear-gradient(135deg, var(--color-bg-tertiary) 0%, var(--color-bg-secondary) 100%);
+  background: var(--color-primary) 0%, var(--color-bg-secondary) 100%);
   padding: 0.65rem 0.875rem;
   border-radius: 10px;
   color: var(--color-text-secondary);
@@ -352,7 +352,7 @@
 }
 
 .message.assistant .message-text {
-  background: linear-gradient(135deg, var(--color-bg-tertiary) 0%, var(--color-bg-secondary) 100%);
+  background: var(--color-primary) 0%, var(--color-bg-secondary) 100%);
   border-color: var(--color-border-primary);
 }
 
@@ -426,7 +426,7 @@
 
 .chat-input-container {
   padding: 0.75rem;
-  background: linear-gradient(180deg, #1a1a1b 0%, var(--color-bg-primary) 100%);
+  background: var(--color-primary) 100%);
   border-top: 2px solid rgba(78, 201, 176, 0.2);
   display: flex;
   flex-direction: column;
@@ -436,7 +436,7 @@
 
 /* Bridge activity widget */
 .bridge-activity {
-  background: linear-gradient(135deg, rgba(78, 201, 176, 0.15) 0%, rgba(78, 201, 176, 0.08) 100%);
+  background: var(--color-primary) 0%, rgba(78, 201, 176, 0.08) 100%);
   border: 2px solid #4ec9b0;
   border-radius: 8px;
   padding: 0.65rem 0.75rem;
@@ -453,7 +453,7 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  background: var(--color-primary), transparent);
   animation: slide 3s infinite;
 }
 
@@ -539,7 +539,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  background: linear-gradient(180deg, #1a1a1b 0%, var(--color-bg-primary) 100%);
+  background: var(--color-primary) 100%);
   border: 2px solid rgba(78, 201, 176, 0.2);
   border-radius: 4px;
   font-size: 0.875rem;
@@ -561,7 +561,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  background: linear-gradient(135deg, #2a3a2a 0%, #1f2f1f 100%);
+  background: var(--color-primary);
   border: 2px solid rgba(78, 201, 176, 0.4);
   border-radius: 6px;
   font-size: 0.875rem;
@@ -707,7 +707,7 @@
 }
 
 .chat-run {
-  background: linear-gradient(135deg, #6a9955 0%, #7fb069 100%);
+  background: var(--color-primary);
   color: white;
   border: none;
   padding: 0.75rem 1rem;
@@ -726,7 +726,7 @@
 }
 
 .chat-run:hover:not(:disabled) {
-  background: linear-gradient(135deg, #7fb069 0%, #8fc574 100%);
+  background: var(--color-primary);
   transform: translateY(-1px);
   box-shadow: 0 4px 10px rgba(106, 153, 85, 0.4);
 }
@@ -741,7 +741,7 @@
 }
 
 .chat-send {
-  background: linear-gradient(135deg, #0e639c 0%, #1177bb 100%);
+  background: var(--color-primary);
   color: white;
   border: none;
   padding: 0.75rem 1rem;
@@ -756,7 +756,7 @@
 }
 
 .chat-send:hover:not(:disabled) {
-  background: linear-gradient(135deg, #1177bb 0%, #1a8acc 100%);
+  background: var(--color-primary);
   transform: translateY(-1px);
   box-shadow: 0 4px 10px rgba(14, 99, 156, 0.4);
 }
@@ -771,7 +771,7 @@
 }
 
 .chat-cancel {
-  background: linear-gradient(135deg, #f14c4c 0%, #d43f3f 100%);
+  background: var(--color-primary);
   color: white;
   border: none;
   padding: 0.75rem 1rem;
@@ -786,7 +786,7 @@
 }
 
 .chat-cancel:hover {
-  background: linear-gradient(135deg, #d43f3f 0%, #c23535 100%);
+  background: var(--color-primary);
   transform: translateY(-1px);
   box-shadow: 0 4px 10px rgba(241, 76, 76, 0.4);
 }
@@ -892,7 +892,7 @@
 
 /* Inline command blocks in AI messages */
 .inline-command-block {
-  background: linear-gradient(135deg, var(--color-bg-tertiary) 0%, var(--color-bg-secondary) 100%);
+  background: var(--color-primary) 0%, var(--color-bg-secondary) 100%);
   border: 1px solid var(--color-border-primary);
   border-radius: 8px;
   margin: 0.75rem 0;
@@ -904,7 +904,7 @@
 }
 
 .inline-command-block .command-header {
-  background: linear-gradient(135deg, rgba(78, 201, 176, 0.15) 0%, rgba(78, 201, 176, 0.08) 100%);
+  background: var(--color-primary) 0%, rgba(78, 201, 176, 0.08) 100%);
   padding: 0.5rem 0.75rem;
   border-bottom: 1px solid rgba(78, 201, 176, 0.2);
   display: flex;
@@ -926,7 +926,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  background: linear-gradient(135deg, var(--color-bg-tertiary) 0%, var(--color-bg-secondary) 100%);
+  background: var(--color-primary) 0%, var(--color-bg-secondary) 100%);
 }
 
 .inline-command-block pre {
@@ -944,7 +944,7 @@
 }
 
 .inline-run-button {
-  background: linear-gradient(135deg, #4ec9b0 0%, #5dd9c0 100%);
+  background: var(--color-primary);
   color: #000;
   border: none;
   padding: 0.5rem 1rem;
@@ -959,7 +959,7 @@
 }
 
 .inline-run-button:hover:not(:disabled) {
-  background: linear-gradient(135deg, #5dd9c0 0%, #6fe9d0 100%);
+  background: var(--color-primary);
   transform: translateY(-1px);
   box-shadow: 0 3px 8px rgba(78, 201, 176, 0.4);
 }
@@ -1107,7 +1107,7 @@
 .tools-display {
   margin: 0.75rem 0;
   padding: 0.75rem;
-  background: linear-gradient(135deg, var(--color-bg-tertiary) 0%, var(--color-bg-secondary) 100%);
+  background: var(--color-primary) 0%, var(--color-bg-secondary) 100%);
   border: 1px solid var(--color-border-primary);
   border-radius: 8px;
   animation: slideIn 0.3s ease-in;

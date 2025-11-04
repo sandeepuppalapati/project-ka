@@ -58,11 +58,11 @@
 }
 
 .home-button:hover {
-  background: linear-gradient(135deg, #007acc 0%, #005a9e 100%);
-  border-color: rgba(255, 255, 255, 0.15);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
   color: var(--color-text-primary);
   transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(0, 122, 204, 0.25);
+  box-shadow: var(--shadow-primary);
 }
 
 .app-header h1 {
@@ -72,10 +72,6 @@
   line-height: 1;
   font-weight: 700;
   letter-spacing: -0.02em;
-  background: linear-gradient(135deg, var(--color-text-primary)fff 0%, #b3d9ff 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .motto {
@@ -100,16 +96,16 @@
 
 .toggle-repos,
 .create-workspace-button {
-  background: linear-gradient(135deg, #0e639c 0%, #0a4f7d 100%);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--color-primary);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-primary);
   padding: 0.5rem 1rem;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   font-size: 0.8125rem;
   font-weight: 600;
-  transition: all 0.2s;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-sm);
   height: 34px;
   display: flex;
   align-items: center;
@@ -117,9 +113,10 @@
 
 .toggle-repos:hover,
 .create-workspace-button:hover {
-  background: linear-gradient(135deg, #1177bb 0%, #0e639c 100%);
+  background: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
   transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(0, 122, 204, 0.3);
+  box-shadow: var(--shadow-primary);
 }
 
 .edit-workspace-btn {
@@ -140,11 +137,11 @@
 }
 
 .edit-workspace-btn:hover {
-  background: linear-gradient(135deg, #007acc 0%, #005a9e 100%);
-  color: white;
-  border-color: rgba(255, 255, 255, 0.15);
+  background: var(--color-primary);
+  color: var(--color-text-primary);
+  border-color: var(--color-primary);
   transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(0, 122, 204, 0.25);
+  box-shadow: var(--shadow-primary);
 }
 
 .header-settings-btn {
@@ -165,11 +162,11 @@
 }
 
 .header-settings-btn:hover {
-  background: linear-gradient(135deg, #4e4e4e 0%, var(--color-border-primary) 100%);
-  border-color: rgba(255, 255, 255, 0.15);
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-primary);
   color: var(--color-text-primary);
   transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-md);
 }
 
 .terminal-toggle-btn {
@@ -190,18 +187,18 @@
 }
 
 .terminal-toggle-btn:hover {
-  background: linear-gradient(135deg, #4e4e4e 0%, var(--color-border-primary) 100%);
-  border-color: rgba(255, 255, 255, 0.15);
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-primary);
   color: var(--color-text-primary);
   transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-md);
 }
 
 .terminal-toggle-btn.active {
-  background: linear-gradient(135deg, #007acc 0%, #005a9e 100%);
-  color: white;
-  border-color: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 3px 8px rgba(0, 122, 204, 0.25);
+  background: var(--color-primary);
+  color: var(--color-text-primary);
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-primary);
 }
 
 .app-main {

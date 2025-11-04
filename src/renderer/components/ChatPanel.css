@@ -217,7 +217,8 @@
 
 .chat-status {
   font-size: 0.75rem;
-  color: var(--color-syntax-comment);
+  color: var(--color-success);
+  font-weight: 600;
 }
 
 .chat-messages {

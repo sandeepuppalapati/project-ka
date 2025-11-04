@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Folder, FolderOpen, File, BarChart3, RefreshCw, ChevronDown, ChevronRight } from 'lucide-react';
 import './FileTree.css';
 
 interface FileTreeProps {
@@ -230,9 +231,15 @@ export function FileTree({ repoPath, repoName, onFileSelect, onViewDiff }: FileT
           onDragStart={(e) => handleDragStart(e, node)}
         >
           {node.isDirectory && (
-            <span className="icon">{node.isExpanded ? '📂' : '📁'}</span>
+            <span className="icon">
+              {node.isExpanded ? <FolderOpen size={16} /> : <Folder size={16} />}
+            </span>
           )}
-          {!node.isDirectory && <span className="icon">📄</span>}
+          {!node.isDirectory && (
+            <span className="icon">
+              <File size={16} />
+            </span>
+          )}
           <span className="name">{node.name}</span>
         </div>
         {node.isDirectory && node.isExpanded && node.children && (
@@ -260,7 +267,9 @@ export function FileTree({ repoPath, repoName, onFileSelect, onViewDiff }: FileT
     <div className={`file-tree ${isCollapsed ? 'collapsed' : ''}`}>
       <div className="file-tree-header">
         <div onClick={() => setIsCollapsed(!isCollapsed)} style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
-          <span className="collapse-icon">{isCollapsed ? '▶' : '▼'}</span>
+          <span className="collapse-icon">
+            {isCollapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
+          </span>
           <span>{repoName}</span>
         </div>
         <button
@@ -268,7 +277,7 @@ export function FileTree({ repoPath, repoName, onFileSelect, onViewDiff }: FileT
           onClick={(e) => { e.stopPropagation(); handleRefresh(); }}
           title="Refresh file tree"
         >
-          ↻
+          <RefreshCw size={14} />
         </button>
       </div>
       {!isCollapsed && (
@@ -288,7 +297,8 @@ export function FileTree({ repoPath, repoName, onFileSelect, onViewDiff }: FileT
           onClick={(e) => e.stopPropagation()}
         >
           <button className="context-menu-item" onClick={handleViewDiff}>
-            📊 View Diff
+            <BarChart3 size={16} />
+            <span>View Diff</span>
           </button>
         </div>
       )}

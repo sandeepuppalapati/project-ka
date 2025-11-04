@@ -1,0 +1,134 @@
+/* AI IDE Design System - Color Palette & Variables */
+
+:root {
+  /* Primary Colors - Teal/Blue theme for AI feel */
+  --color-primary: #14b8a6;
+  --color-primary-hover: #0d9488;
+  --color-primary-active: #0f766e;
+  --color-primary-light: #5eead4;
+  --color-primary-bg: rgba(20, 184, 166, 0.1);
+
+  /* Accent Colors */
+  --color-accent-blue: #3b82f6;
+  --color-accent-purple: #8b5cf6;
+  --color-accent-orange: #f59e0b;
+
+  /* Background Colors */
+  --color-bg-primary: #1e1e1e;
+  --color-bg-secondary: #252526;
+  --color-bg-tertiary: #2d2d30;
+  --color-bg-elevated: #323233;
+  --color-bg-hover: #2a2d2e;
+  --color-bg-active: #37373d;
+
+  /* Text Colors */
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #cccccc;
+  --color-text-tertiary: #858585;
+  --color-text-muted: #6c6c6c;
+  --color-text-disabled: #4e4e4e;
+
+  /* Border Colors */
+  --color-border-primary: #3e3e42;
+  --color-border-secondary: #2d2d30;
+  --color-border-focus: var(--color-primary);
+  --color-border-subtle: rgba(255, 255, 255, 0.08);
+
+  /* Semantic Colors */
+  --color-success: #4ade80;
+  --color-success-bg: rgba(74, 222, 128, 0.1);
+  --color-warning: #fbbf24;
+  --color-warning-bg: rgba(251, 191, 36, 0.1);
+  --color-error: #ef4444;
+  --color-error-bg: rgba(239, 68, 68, 0.1);
+  --color-info: #3b82f6;
+  --color-info-bg: rgba(59, 130, 246, 0.1);
+
+  /* Code Syntax Colors (for Monaco editor) */
+  --color-syntax-keyword: #569cd6;
+  --color-syntax-string: #ce9178;
+  --color-syntax-comment: #6a9955;
+  --color-syntax-function: #4ec9b0;
+  --color-syntax-variable: #9cdcfe;
+  --color-syntax-constant: #4fc3f7;
+
+  /* Spacing Scale */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 0.75rem;
+  --space-lg: 1rem;
+  --space-xl: 1.5rem;
+  --space-2xl: 2rem;
+  --space-3xl: 3rem;
+
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 8px 16px rgba(0, 0, 0, 0.35);
+  --shadow-primary: 0 4px 12px rgba(20, 184, 166, 0.25);
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 200ms ease;
+  --transition-slow: 300ms ease;
+
+  /* Font Sizes */
+  --text-xs: 0.6875rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+
+  /* Font Weights */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+
+  /* Z-Index Scale */
+  --z-base: 1;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-fixed: 300;
+  --z-modal-backdrop: 400;
+  --z-modal: 500;
+  --z-popover: 600;
+  --z-tooltip: 700;
+
+  /* Activity Bar Colors */
+  --color-activity-bar-bg: #2d2d30;
+  --color-activity-bar-active: var(--color-primary);
+  --color-activity-bar-hover: #323233;
+
+  /* Status Bar Colors */
+  --color-status-bar-bg: var(--color-bg-tertiary);
+  --color-status-bar-text: var(--color-text-secondary);
+
+  /* Terminal Colors */
+  --color-terminal-bg: #1a1a1b;
+  --color-terminal-fg: #d4d4d4;
+  --color-terminal-cursor: var(--color-primary);
+
+  /* Chat/AI Colors */
+  --color-ai-message-bg: #1a4d4a;
+  --color-user-message-bg: #252526;
+  --color-agent-active: var(--color-success);
+  --color-agent-inactive: var(--color-text-muted);
+}
+
+/* Dark mode adjustments (future-proofing) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Already dark, no changes needed */
+  }
+}

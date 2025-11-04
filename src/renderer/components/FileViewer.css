@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: #1e1e1e;
+  background-color: var(--color-bg-primary);
 }
 
 .file-viewer.empty {
@@ -13,7 +13,7 @@
 
 .empty-state {
   text-align: center;
-  color: #858585;
+  color: var(--color-text-tertiary);
 }
 
 .empty-icon {
@@ -33,8 +33,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 1rem;
-  background-color: #2d2d30;
-  border-bottom: 1px solid #3e3e42;
+  background-color: var(--color-bg-tertiary);
+  border-bottom: 1px solid var(--color-border-primary);
 }
 
 .file-info {
@@ -60,13 +60,13 @@
 
 .file-name {
   font-size: 0.875rem;
-  color: #cccccc;
+  color: var(--color-text-secondary);
   font-weight: 500;
 }
 
 .file-breadcrumbs {
   font-size: 0.75rem;
-  color: #858585;
+  color: var(--color-text-tertiary);
   display: flex;
   align-items: center;
   overflow: hidden;
@@ -125,7 +125,7 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: #858585;
+  color: var(--color-text-tertiary);
 }
 
 .external-change-banner {

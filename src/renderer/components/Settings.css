@@ -13,7 +13,7 @@
 }
 
 .settings-modal {
-  background: #2d2d30;
+  background: var(--color-bg-tertiary);
   border-radius: 8px;
   width: 90%;
   max-width: 500px;
@@ -22,16 +22,16 @@
   display: flex;
   flex-direction: column;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
-  border: 1px solid #3e3e42;
+  border: 1px solid var(--color-border-primary);
 }
 
 .settings-header {
   padding: 1.5rem;
-  border-bottom: 1px solid #3e3e42;
+  border-bottom: 1px solid var(--color-border-primary);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #252526;
+  background: var(--color-bg-secondary);
 }
 
 .settings-header h2 {
@@ -44,7 +44,7 @@
 .settings-version {
   margin: 0.25rem 0 0 0;
   font-size: 0.75rem;
-  color: #858585;
+  color: var(--color-text-tertiary);
   font-weight: 400;
 }
 
@@ -52,7 +52,7 @@
   background: none;
   border: none;
   font-size: 2rem;
-  color: #858585;
+  color: var(--color-text-tertiary);
   cursor: pointer;
   padding: 0;
   width: 32px;
@@ -65,7 +65,7 @@
 }
 
 .settings-close:hover {
-  background: #3e3e42;
+  background: var(--color-border-primary);
   color: #fff;
 }
 
@@ -87,7 +87,7 @@
   display: block;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #cccccc;
+  color: var(--color-text-secondary);
   margin-bottom: 0.5rem;
 }
 
@@ -106,10 +106,10 @@
 .settings-select {
   width: 100%;
   padding: 0.625rem 0.75rem;
-  background: #1e1e1e;
-  border: 1px solid #3e3e42;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border-primary);
   border-radius: 4px;
-  color: #cccccc;
+  color: var(--color-text-secondary);
   font-size: 0.875rem;
   font-family: 'Courier New', monospace;
   transition: border-color 0.2s;
@@ -122,34 +122,34 @@
 }
 
 .settings-input::placeholder {
-  color: #6c6c6c;
+  color: var(--color-text-muted);
 }
 
 .toggle-visibility {
   flex-shrink: 0;
   width: 40px;
   padding: 0.625rem;
-  background: #3e3e42;
-  border: 1px solid #3e3e42;
+  background: var(--color-border-primary);
+  border: 1px solid var(--color-border-primary);
   border-radius: 4px;
-  color: #cccccc;
+  color: var(--color-text-secondary);
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .toggle-visibility:hover {
-  background: #4e4e4e;
+  background: var(--color-text-disabled);
   border-color: #007acc;
 }
 
 .browse-button {
   flex-shrink: 0;
   padding: 0.625rem 1rem;
-  background: #3e3e42;
-  border: 1px solid #3e3e42;
+  background: var(--color-border-primary);
+  border: 1px solid var(--color-border-primary);
   border-radius: 4px;
-  color: #cccccc;
+  color: var(--color-text-secondary);
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s;
@@ -157,7 +157,7 @@
 }
 
 .browse-button:hover {
-  background: #4e4e4e;
+  background: var(--color-text-disabled);
   border-color: #007acc;
 }
 
@@ -175,7 +175,7 @@
 .settings-help {
   margin: 0.5rem 0 0 0;
   font-size: 0.75rem;
-  color: #858585;
+  color: var(--color-text-tertiary);
   line-height: 1.4;
 }
 
@@ -190,11 +190,11 @@
 
 .settings-footer {
   padding: 1rem 1.5rem;
-  border-top: 1px solid #3e3e42;
+  border-top: 1px solid var(--color-border-primary);
   display: flex;
   gap: 0.75rem;
   justify-content: flex-end;
-  background: #252526;
+  background: var(--color-bg-secondary);
 }
 
 .settings-button {
@@ -208,12 +208,12 @@
 }
 
 .settings-button.secondary {
-  background: #3e3e42;
-  color: #cccccc;
+  background: var(--color-border-primary);
+  color: var(--color-text-secondary);
 }
 
 .settings-button.secondary:hover {
-  background: #4e4e4e;
+  background: var(--color-text-disabled);
 }
 
 .settings-button.primary {
@@ -226,8 +226,8 @@
 }
 
 .settings-button.primary:disabled {
-  background: #3e3e42;
-  color: #6c6c6c;
+  background: var(--color-border-primary);
+  color: var(--color-text-muted);
   cursor: not-allowed;
 }
 

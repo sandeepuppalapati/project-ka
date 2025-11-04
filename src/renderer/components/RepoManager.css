@@ -3,7 +3,7 @@
   flex-direction: column;
   height: 100%;
   padding: 1rem;
-  background-color: #1e1e1e;
+  background-color: var(--color-bg-primary);
 }
 
 .repo-manager-header {
@@ -12,7 +12,7 @@
   align-items: center;
   margin-bottom: 1rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #3e3e42;
+  border-bottom: 1px solid var(--color-border-primary);
 }
 
 .repo-manager-header h2 {
@@ -47,7 +47,7 @@
   align-items: center;
   justify-content: center;
   flex: 1;
-  color: #858585;
+  color: var(--color-text-tertiary);
   text-align: center;
 }
 
@@ -70,8 +70,8 @@
   justify-content: space-between;
   align-items: flex-start;
   padding: 1rem;
-  background-color: #252526;
-  border: 1px solid #3e3e42;
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-primary);
   border-radius: 4px;
   transition: border-color 0.2s;
 }
@@ -93,7 +93,7 @@
 
 .repo-path {
   font-size: 0.75rem;
-  color: #858585;
+  color: var(--color-text-tertiary);
   margin-bottom: 0.5rem;
   font-family: 'Courier New', monospace;
 }
@@ -119,7 +119,7 @@
 .repo-remove {
   background: none;
   border: none;
-  color: #858585;
+  color: var(--color-text-tertiary);
   font-size: 1.5rem;
   cursor: pointer;
   padding: 0;

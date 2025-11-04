@@ -13,7 +13,7 @@
 }
 
 .edit-workspace-modal {
-  background: #2d2d30;
+  background: var(--color-bg-tertiary);
   border-radius: 8px;
   width: 90%;
   max-width: 600px;
@@ -22,16 +22,16 @@
   display: flex;
   flex-direction: column;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
-  border: 1px solid #3e3e42;
+  border: 1px solid var(--color-border-primary);
 }
 
 .edit-workspace-header {
   padding: 1.5rem;
-  border-bottom: 1px solid #3e3e42;
+  border-bottom: 1px solid var(--color-border-primary);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #252526;
+  background: var(--color-bg-secondary);
 }
 
 .edit-workspace-header h2 {
@@ -45,7 +45,7 @@
   background: none;
   border: none;
   font-size: 2rem;
-  color: #858585;
+  color: var(--color-text-tertiary);
   cursor: pointer;
   padding: 0;
   width: 32px;
@@ -58,7 +58,7 @@
 }
 
 .edit-workspace-close:hover {
-  background: #3e3e42;
+  background: var(--color-border-primary);
   color: #fff;
 }
 
@@ -80,17 +80,17 @@
   display: block;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #cccccc;
+  color: var(--color-text-secondary);
   margin-bottom: 0.5rem;
 }
 
 .edit-workspace-input {
   width: 100%;
   padding: 0.625rem 0.75rem;
-  background: #1e1e1e;
-  border: 1px solid #3e3e42;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border-primary);
   border-radius: 4px;
-  color: #cccccc;
+  color: var(--color-text-secondary);
   font-size: 0.875rem;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   transition: border-color 0.2s;
@@ -102,16 +102,16 @@
 }
 
 .edit-workspace-input::placeholder {
-  color: #6c6c6c;
+  color: var(--color-text-muted);
 }
 
 .edit-workspace-textarea {
   width: 100%;
   padding: 0.625rem 0.75rem;
-  background: #1e1e1e;
-  border: 1px solid #3e3e42;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border-primary);
   border-radius: 4px;
-  color: #cccccc;
+  color: var(--color-text-secondary);
   font-size: 0.875rem;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   transition: border-color 0.2s;
@@ -125,12 +125,12 @@
 }
 
 .edit-workspace-textarea::placeholder {
-  color: #6c6c6c;
+  color: var(--color-text-muted);
 }
 
 .repos-list {
-  background: #1e1e1e;
-  border: 1px solid #3e3e42;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border-primary);
   border-radius: 4px;
   min-height: 120px;
   max-height: 240px;
@@ -141,7 +141,7 @@
 .repos-empty {
   padding: 2rem;
   text-align: center;
-  color: #858585;
+  color: var(--color-text-tertiary);
   font-size: 0.875rem;
 }
 
@@ -150,7 +150,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem;
-  border-bottom: 1px solid #3e3e42;
+  border-bottom: 1px solid var(--color-border-primary);
   transition: background 0.2s;
 }
 
@@ -159,7 +159,7 @@
 }
 
 .repo-item:hover {
-  background: #252526;
+  background: var(--color-bg-secondary);
 }
 
 .repo-info {
@@ -170,13 +170,13 @@
 .repo-name {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #cccccc;
+  color: var(--color-text-secondary);
   margin-bottom: 0.25rem;
 }
 
 .repo-path {
   font-size: 0.75rem;
-  color: #858585;
+  color: var(--color-text-tertiary);
   font-family: 'Courier New', monospace;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -188,7 +188,7 @@
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: #858585;
+  color: var(--color-text-tertiary);
   cursor: pointer;
   padding: 0;
   width: 28px;
@@ -202,24 +202,24 @@
 }
 
 .repo-remove:hover {
-  background: #3e3e42;
+  background: var(--color-border-primary);
   color: #f48771;
 }
 
 .add-repo-button {
   width: 100%;
   padding: 0.625rem;
-  background: #3e3e42;
-  border: 1px solid #3e3e42;
+  background: var(--color-border-primary);
+  border: 1px solid var(--color-border-primary);
   border-radius: 4px;
-  color: #cccccc;
+  color: var(--color-text-secondary);
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .add-repo-button:hover {
-  background: #4e4e4e;
+  background: var(--color-text-disabled);
   border-color: #007acc;
 }
 
@@ -236,11 +236,11 @@
 
 .edit-workspace-footer {
   padding: 1rem 1.5rem;
-  border-top: 1px solid #3e3e42;
+  border-top: 1px solid var(--color-border-primary);
   display: flex;
   gap: 0.75rem;
   justify-content: flex-end;
-  background: #252526;
+  background: var(--color-bg-secondary);
 }
 
 .edit-workspace-button {
@@ -254,12 +254,12 @@
 }
 
 .edit-workspace-button.secondary {
-  background: #3e3e42;
-  color: #cccccc;
+  background: var(--color-border-primary);
+  color: var(--color-text-secondary);
 }
 
 .edit-workspace-button.secondary:hover {
-  background: #4e4e4e;
+  background: var(--color-text-disabled);
 }
 
 .edit-workspace-button.primary {
@@ -272,7 +272,7 @@
 }
 
 .edit-workspace-button.primary:disabled {
-  background: #3e3e42;
-  color: #6c6c6c;
+  background: var(--color-border-primary);
+  color: var(--color-text-muted);
   cursor: not-allowed;
 }

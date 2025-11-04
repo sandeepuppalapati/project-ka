@@ -1,8 +1,8 @@
 .tab-bar {
   display: flex;
   align-items: center;
-  background-color: #2d2d30;
-  border-bottom: 1px solid #3e3e42;
+  background-color: var(--color-bg-tertiary);
+  border-bottom: 1px solid var(--color-border-primary);
   height: 35px;
   flex-shrink: 0;
   gap: 0.5rem;
@@ -20,8 +20,8 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background-color: #2d2d30;
-  border-right: 1px solid #3e3e42;
+  background-color: var(--color-bg-tertiary);
+  border-right: 1px solid var(--color-border-primary);
   cursor: pointer;
   user-select: none;
   transition: background-color 0.1s;
@@ -34,7 +34,7 @@
 }
 
 .tab.active {
-  background-color: #1e1e1e;
+  background-color: var(--color-bg-primary);
 }
 
 .tab-icon {
@@ -44,7 +44,7 @@
 
 .tab-name {
   font-size: 0.875rem;
-  color: #cccccc;
+  color: var(--color-text-secondary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -64,7 +64,7 @@
 .tab-close {
   background: none;
   border: none;
-  color: #858585;
+  color: var(--color-text-tertiary);
   font-size: 1.25rem;
   cursor: pointer;
   padding: 0;
@@ -85,8 +85,8 @@
 
 .close-all-btn {
   background: transparent;
-  border: 1px solid #858585;
-  color: #858585;
+  border: 1px solid var(--color-text-tertiary);
+  color: var(--color-text-tertiary);
   font-size: 0.75rem;
   padding: 0.25rem 0.75rem;
   margin-right: 0.5rem;
@@ -108,7 +108,7 @@
 }
 
 .tab-list::-webkit-scrollbar-track {
-  background: #2d2d30;
+  background: var(--color-bg-tertiary);
 }
 
 .tab-list::-webkit-scrollbar-thumb {
@@ -116,5 +116,5 @@
 }
 
 .tab-list::-webkit-scrollbar-thumb:hover {
-  background: #4e4e4e;
+  background: var(--color-text-disabled);
 }

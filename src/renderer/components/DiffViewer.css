@@ -2,8 +2,8 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: #1e1e1e;
-  color: #d4d4d4;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-secondary);
   overflow: hidden;
 }
 
@@ -12,8 +12,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 1rem;
-  background: linear-gradient(180deg, #2d2d30 0%, #252526 100%);
-  border-bottom: 1px solid #3e3e42;
+  background: linear-gradient(180deg, var(--color-bg-tertiary) 0%, var(--color-bg-secondary) 100%);
+  border-bottom: 1px solid var(--color-border-primary);
 }
 
 .diff-title {
@@ -33,7 +33,7 @@
 }
 
 .diff-ext {
-  color: #858585;
+  color: var(--color-text-tertiary);
   font-size: 0.8125rem;
 }
 
@@ -44,10 +44,10 @@
 }
 
 .diff-mode-btn {
-  background: #3e3e42;
+  background: var(--color-border-primary);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 4px;
-  color: #cccccc;
+  color: var(--color-text-secondary);
   padding: 0.375rem 0.75rem;
   font-size: 0.75rem;
   font-weight: 600;
@@ -56,7 +56,7 @@
 }
 
 .diff-mode-btn:hover {
-  background: #4e4e4e;
+  background: var(--color-text-disabled);
   border-color: rgba(255, 255, 255, 0.15);
 }
 
@@ -69,7 +69,7 @@
 .diff-close-btn {
   background: transparent;
   border: none;
-  color: #858585;
+  color: var(--color-text-tertiary);
   font-size: 1.5rem;
   cursor: pointer;
   padding: 0;
@@ -83,7 +83,7 @@
 }
 
 .diff-close-btn:hover {
-  background: #3e3e42;
+  background: var(--color-border-primary);
   color: #fff;
 }
 
@@ -111,9 +111,9 @@
 .diff-line-number {
   padding: 0.25rem 0.5rem;
   text-align: right;
-  color: #858585;
-  background-color: #252526;
-  border-right: 1px solid #3e3e42;
+  color: var(--color-text-tertiary);
+  background-color: var(--color-bg-secondary);
+  border-right: 1px solid var(--color-border-primary);
   user-select: none;
   width: 50px;
   min-width: 50px;
@@ -191,7 +191,7 @@
 .diff-split-pane {
   flex: 1;
   overflow: auto;
-  border-right: 1px solid #3e3e42;
+  border-right: 1px solid var(--color-border-primary);
 }
 
 .diff-split-pane:last-child {
@@ -202,12 +202,12 @@
   position: sticky;
   top: 0;
   padding: 0.5rem 1rem;
-  background: #2d2d30;
-  border-bottom: 1px solid #3e3e42;
+  background: var(--color-bg-tertiary);
+  border-bottom: 1px solid var(--color-border-primary);
   font-weight: 600;
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: #858585;
+  color: var(--color-text-tertiary);
   z-index: 1;
 }

@@ -3,7 +3,7 @@
   align-items: stretch;
   justify-content: center;
   height: 100%;
-  background: linear-gradient(135deg, #1e1e1e 0%, #2d2d30 100%);
+  background: linear-gradient(135deg, var(--color-bg-primary) 0%, var(--color-bg-tertiary) 100%);
   padding: 0;
   overflow: hidden;
 }
@@ -48,7 +48,7 @@
 .workspace-welcome-subtitle {
   margin: 0 0 2rem 0;
   font-size: 1.125rem;
-  color: #858585;
+  color: var(--color-text-tertiary);
   font-style: italic;
 }
 
@@ -78,7 +78,7 @@
 .workspace-welcome-message p {
   margin: 0.5rem 0;
   font-size: 1rem;
-  color: #cccccc;
+  color: var(--color-text-secondary);
   line-height: 1.6;
 }
 
@@ -115,7 +115,7 @@
 .workspace-welcome-loading {
   margin: 2rem 0;
   font-size: 1rem;
-  color: #858585;
+  color: var(--color-text-tertiary);
 }
 
 .workspace-list-section {
@@ -137,7 +137,7 @@
 .workspace-list-header span {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #cccccc;
+  color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -170,7 +170,7 @@
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 6px;
-  color: #cccccc;
+  color: var(--color-text-secondary);
   font-size: 0.875rem;
   transition: all 0.2s;
 }
@@ -182,7 +182,7 @@
 }
 
 .workspace-search-input::placeholder {
-  color: #6c6c6c;
+  color: var(--color-text-muted);
 }
 
 .workspace-search-clear {
@@ -193,7 +193,7 @@
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: #858585;
+  color: var(--color-text-tertiary);
   cursor: pointer;
   padding: 0;
   width: 28px;
@@ -207,13 +207,13 @@
 
 .workspace-search-clear:hover {
   background: rgba(255, 255, 255, 0.1);
-  color: #cccccc;
+  color: var(--color-text-secondary);
 }
 
 .workspace-search-empty {
   padding: 2rem;
   text-align: center;
-  color: #858585;
+  color: var(--color-text-tertiary);
   font-size: 0.875rem;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.05);
@@ -311,7 +311,7 @@
 
 .workspace-card-meta {
   font-size: 0.75rem;
-  color: #858585;
+  color: var(--color-text-tertiary);
 }
 
 .workspace-last-accessed {
@@ -321,7 +321,7 @@
 
 .workspace-card-arrow {
   font-size: 1.5rem;
-  color: #858585;
+  color: var(--color-text-tertiary);
   flex-shrink: 0;
   transition: transform 0.2s;
 }
@@ -368,7 +368,7 @@
 
 .feature-text span {
   font-size: 0.75rem;
-  color: #858585;
+  color: var(--color-text-tertiary);
 }
 
 /* Workspace card wrapper for delete button */
@@ -387,7 +387,7 @@
   flex-shrink: 0;
   width: 40px;
   height: 40px;
-  background: #3e3e42;
+  background: var(--color-border-primary);
   border: 1px solid #555;
   border-radius: 6px;
   color: #f48771;
@@ -437,7 +437,7 @@
 }
 
 .workspace-delete-modal {
-  background: #2d2d30;
+  background: var(--color-bg-tertiary);
   border-radius: 8px;
   width: 90%;
   max-width: 500px;
@@ -487,14 +487,14 @@
 .workspace-delete-info {
   margin: 1rem 0 0.5rem 0;
   font-size: 0.875rem;
-  color: #cccccc;
+  color: var(--color-text-secondary);
   font-weight: 600;
 }
 
 .workspace-delete-list {
   margin: 0 0 1rem 0;
   padding-left: 1.5rem;
-  color: #858585;
+  color: var(--color-text-tertiary);
   font-size: 0.875rem;
   line-height: 1.6;
 }
@@ -549,12 +549,12 @@
 }
 
 .workspace-delete-cancel {
-  background: #3e3e42;
-  color: #cccccc;
+  background: var(--color-border-primary);
+  color: var(--color-text-secondary);
 }
 
 .workspace-delete-cancel:hover {
-  background: #4e4e4e;
+  background: var(--color-text-disabled);
 }
 
 .workspace-delete-confirm {

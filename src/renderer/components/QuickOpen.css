@@ -13,8 +13,8 @@
 }
 
 .quick-open-modal {
-  background-color: #2d2d30;
-  border: 1px solid #3e3e42;
+  background-color: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-primary);
   border-radius: 6px;
   width: 600px;
   max-height: 500px;
@@ -37,17 +37,17 @@
 
 .quick-open-input {
   width: 100%;
-  background-color: #1e1e1e;
+  background-color: var(--color-bg-primary);
   border: none;
-  border-bottom: 1px solid #3e3e42;
+  border-bottom: 1px solid var(--color-border-primary);
   padding: 1rem;
-  color: #cccccc;
+  color: var(--color-text-secondary);
   font-size: 1rem;
   outline: none;
 }
 
 .quick-open-input::placeholder {
-  color: #858585;
+  color: var(--color-text-tertiary);
 }
 
 .quick-open-results {
@@ -59,7 +59,7 @@
 .file-result {
   padding: 0.75rem 1rem;
   cursor: pointer;
-  border-bottom: 1px solid #2d2d30;
+  border-bottom: 1px solid var(--color-bg-tertiary);
   transition: background-color 0.1s;
 }
 
@@ -76,28 +76,28 @@
 
 .file-result-path {
   font-size: 0.75rem;
-  color: #858585;
+  color: var(--color-text-tertiary);
 }
 
 .no-results {
   padding: 2rem;
   text-align: center;
-  color: #858585;
+  color: var(--color-text-tertiary);
   font-size: 0.875rem;
 }
 
 .quick-open-footer {
   padding: 0.75rem 1rem;
-  background-color: #252526;
-  border-top: 1px solid #3e3e42;
+  background-color: var(--color-bg-secondary);
+  border-top: 1px solid var(--color-border-primary);
   font-size: 0.75rem;
-  color: #858585;
+  color: var(--color-text-tertiary);
   text-align: center;
 }
 
 .quick-open-footer kbd {
   background-color: #3c3c3c;
-  border: 1px solid #3e3e42;
+  border: 1px solid var(--color-border-primary);
   border-radius: 3px;
   padding: 0.125rem 0.375rem;
   font-family: monospace;
@@ -111,7 +111,7 @@
 }
 
 .quick-open-results::-webkit-scrollbar-track {
-  background: #2d2d30;
+  background: var(--color-bg-tertiary);
 }
 
 .quick-open-results::-webkit-scrollbar-thumb {
@@ -120,5 +120,5 @@
 }
 
 .quick-open-results::-webkit-scrollbar-thumb:hover {
-  background: #4e4e4e;
+  background: var(--color-text-disabled);
 }

@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: linear-gradient(180deg, #252526 0%, #1e1e1e 100%);
+  background: linear-gradient(180deg, var(--color-bg-secondary) 0%, var(--color-bg-primary) 100%);
   overflow: hidden;
   position: relative;
 }
@@ -46,7 +46,7 @@
 .collapse-sidebar-button {
   background: transparent;
   border: none;
-  color: #858585;
+  color: var(--color-text-tertiary);
   font-size: 16px;
   padding: 0;
   cursor: pointer;
@@ -61,13 +61,13 @@
 
 .collapse-sidebar-button:hover {
   color: #fff;
-  background-color: #3e3e42;
+  background-color: var(--color-border-primary);
 }
 
 .refresh-button {
   background: transparent;
   border: none;
-  color: #858585;
+  color: var(--color-text-tertiary);
   font-size: 20px;
   padding: 0;
   cursor: pointer;
@@ -87,14 +87,14 @@
 
 .repo-selector {
   padding: 0.5rem 1rem;
-  border-bottom: 1px solid #3e3e42;
+  border-bottom: 1px solid var(--color-border-primary);
 }
 
 .repo-selector select {
   width: 100%;
   background-color: #3c3c3c;
-  color: #cccccc;
-  border: 1px solid #3e3e42;
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border-primary);
   padding: 0.5rem;
   border-radius: 4px;
   font-size: 0.875rem;
@@ -105,7 +105,7 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, #1e1e1e 0%, #1a1a1b 50%, #1e1e1e 100%);
+  background: linear-gradient(180deg, var(--color-bg-primary) 0%, #1a1a1b 50%, var(--color-bg-primary) 100%);
 }
 
 .changed-files {
@@ -119,10 +119,10 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.25rem 0.75rem;
-  background: linear-gradient(135deg, #2d2d30 0%, #252526 100%);
+  background: linear-gradient(135deg, var(--color-bg-tertiary) 0%, var(--color-bg-secondary) 100%);
   font-size: 0.75rem;
   font-weight: 600;
-  color: #cccccc;
+  color: var(--color-text-secondary);
   border-bottom: 1px solid rgba(78, 201, 176, 0.15);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
@@ -151,7 +151,7 @@
 .no-changes {
   padding: 2rem 1rem;
   text-align: center;
-  color: #858585;
+  color: var(--color-text-tertiary);
   font-size: 0.875rem;
 }
 
@@ -160,7 +160,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 1rem;
-  border-bottom: 1px solid #2d2d30;
+  border-bottom: 1px solid var(--color-bg-tertiary);
   transition: all 0.2s;
   border-left: 3px solid transparent;
 }
@@ -186,7 +186,7 @@
 
 .file-name {
   font-size: 0.875rem;
-  color: #cccccc;
+  color: var(--color-text-secondary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -201,7 +201,7 @@
 }
 
 .stage-button {
-  background: linear-gradient(135deg, #3c3c3c 0%, #2d2d30 100%);
+  background: linear-gradient(135deg, #3c3c3c 0%, var(--color-bg-tertiary) 100%);
   color: #4ec9b0;
   border: 1px solid #4ec9b0;
   border-radius: 4px;
@@ -226,7 +226,7 @@
 }
 
 .unstage-button {
-  background: linear-gradient(135deg, #3c3c3c 0%, #2d2d30 100%);
+  background: linear-gradient(135deg, #3c3c3c 0%, var(--color-bg-tertiary) 100%);
   color: #4ec9b0;
   border: 1px solid #4ec9b0;
   border-radius: 4px;
@@ -252,7 +252,7 @@
 
 .commit-section {
   padding: 0.75rem;
-  background: linear-gradient(180deg, #1a1a1b 0%, #1e1e1e 100%);
+  background: linear-gradient(180deg, #1a1a1b 0%, var(--color-bg-primary) 100%);
   border-top: 2px solid rgba(78, 201, 176, 0.2);
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
 }
@@ -260,10 +260,10 @@
 .commit-message {
   width: 100%;
   background: linear-gradient(135deg, #3c3c3c 0%, #333 100%);
-  border: 2px solid #3e3e42;
+  border: 2px solid var(--color-border-primary);
   border-radius: 6px;
   padding: 0.75rem;
-  color: #cccccc;
+  color: var(--color-text-secondary);
   font-size: 0.875rem;
   font-family: inherit;
   resize: none;
@@ -279,7 +279,7 @@
 }
 
 .commit-message::placeholder {
-  color: #858585;
+  color: var(--color-text-tertiary);
 }
 
 .commit-actions {
@@ -320,7 +320,7 @@
 }
 
 .push-button:hover:not(:disabled) {
-  background-color: #4e4e4e;
+  background-color: var(--color-text-disabled);
 }
 
 /* Scrollbar */
@@ -331,7 +331,7 @@
 
 .changed-files::-webkit-scrollbar-track,
 .git-content::-webkit-scrollbar-track {
-  background: #1e1e1e;
+  background: var(--color-bg-primary);
   border-radius: 5px;
 }
 
@@ -339,7 +339,7 @@
 .git-content::-webkit-scrollbar-thumb {
   background: linear-gradient(180deg, #4ec9b0 0%, #3a9d88 100%);
   border-radius: 5px;
-  border: 2px solid #1e1e1e;
+  border: 2px solid var(--color-bg-primary);
   box-shadow: 0 0 6px rgba(78, 201, 176, 0.3);
 }
 

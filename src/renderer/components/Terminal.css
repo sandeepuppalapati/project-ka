@@ -2,8 +2,8 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: #1e1e1e;
-  border-top: 1px solid #3e3e42;
+  background: var(--color-bg-primary);
+  border-top: 1px solid var(--color-border-primary);
 }
 
 .terminal-header {
@@ -11,19 +11,19 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.5rem 1rem;
-  background: #252526;
-  border-bottom: 1px solid #3e3e42;
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border-primary);
 }
 
 .terminal-title {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #cccccc;
+  color: var(--color-text-secondary);
 }
 
 .terminal-cwd {
   font-size: 0.75rem;
-  color: #858585;
+  color: var(--color-text-tertiary);
   font-family: 'Courier New', monospace;
 }
 

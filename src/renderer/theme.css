@@ -1,6 +1,8 @@
 /* AI IDE Design System - Color Palette & Variables */
 
-:root {
+/* Dark Theme (Default) */
+:root,
+[data-theme="dark"] {
   /* Primary Colors - Teal/Blue theme for AI feel */
   --color-primary: #14b8a6;
   --color-primary-hover: #0d9488;
@@ -126,9 +128,101 @@
   --color-agent-inactive: var(--color-text-muted);
 }
 
-/* Dark mode adjustments (future-proofing) */
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Already dark, no changes needed */
+/* Light Theme */
+[data-theme="light"] {
+  /* Primary Colors - Same teal/blue for consistency */
+  --color-primary: #14b8a6;
+  --color-primary-hover: #0d9488;
+  --color-primary-active: #0f766e;
+  --color-primary-light: #2dd4bf;
+  --color-primary-bg: rgba(20, 184, 166, 0.1);
+
+  /* Accent Colors */
+  --color-accent-blue: #3b82f6;
+  --color-accent-purple: #8b5cf6;
+  --color-accent-orange: #f59e0b;
+
+  /* Background Colors - Inverted for light theme */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f5f5f5;
+  --color-bg-tertiary: #e5e5e5;
+  --color-bg-elevated: #fafafa;
+  --color-bg-hover: #ebebeb;
+  --color-bg-active: #d4d4d4;
+
+  /* Text Colors - Inverted for light theme */
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: #404040;
+  --color-text-tertiary: #737373;
+  --color-text-muted: #a3a3a3;
+  --color-text-disabled: #d4d4d4;
+
+  /* Border Colors */
+  --color-border-primary: #e5e5e5;
+  --color-border-secondary: #d4d4d4;
+  --color-border-focus: var(--color-primary);
+  --color-border-subtle: rgba(0, 0, 0, 0.08);
+
+  /* Semantic Colors */
+  --color-success: #16a34a;
+  --color-success-bg: rgba(22, 163, 74, 0.1);
+  --color-warning: #ea580c;
+  --color-warning-bg: rgba(234, 88, 12, 0.1);
+  --color-error: #dc2626;
+  --color-error-bg: rgba(220, 38, 38, 0.1);
+  --color-info: #2563eb;
+  --color-info-bg: rgba(37, 99, 235, 0.1);
+
+  /* Code Syntax Colors (adjusted for light background) */
+  --color-syntax-keyword: #0066cc;
+  --color-syntax-string: #a31515;
+  --color-syntax-comment: #008000;
+  --color-syntax-function: #267f99;
+  --color-syntax-variable: #001080;
+  --color-syntax-constant: #0070c1;
+
+  /* Shadows - More subtle in light theme */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 8px 16px rgba(0, 0, 0, 0.12);
+  --shadow-primary: 0 4px 12px rgba(20, 184, 166, 0.15);
+
+  /* Activity Bar Colors */
+  --color-activity-bar-bg: #f5f5f5;
+  --color-activity-bar-active: var(--color-primary);
+  --color-activity-bar-hover: #e5e5e5;
+
+  /* Status Bar Colors */
+  --color-status-bar-bg: #e5e5e5;
+  --color-status-bar-text: var(--color-text-secondary);
+
+  /* Terminal Colors */
+  --color-terminal-bg: #ffffff;
+  --color-terminal-fg: #1a1a1a;
+  --color-terminal-cursor: var(--color-primary);
+
+  /* Chat/AI Colors */
+  --color-ai-message-bg: #e0f2f1;
+  --color-user-message-bg: #f5f5f5;
+  --color-agent-active: var(--color-success);
+  --color-agent-inactive: var(--color-text-muted);
+}
+
+/* Respect system preference */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    /* Apply light theme variables */
+    --color-bg-primary: #ffffff;
+    --color-bg-secondary: #f5f5f5;
+    --color-bg-tertiary: #e5e5e5;
+    --color-text-primary: #1a1a1a;
+    --color-text-secondary: #404040;
+    /* ... (inherits from light theme) */
   }
+}
+
+/* Smooth theme transitions */
+* {
+  transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease;
 }

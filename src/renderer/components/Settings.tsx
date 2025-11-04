@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { Sun, Moon, Monitor, Settings as SettingsIcon } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 import './Settings.css';
 
 interface SettingsProps {
@@ -18,6 +20,7 @@ const AVAILABLE_MODELS = [
 ];
 
 export function Settings({ onClose }: SettingsProps) {
+  const { theme, setTheme } = useTheme();
   const [apiKey, setApiKey] = useState('');
   const [model, setModel] = useState('claude-sonnet-4-5-20250929');
   const [openaiApiKey, setOpenaiApiKey] = useState('');
@@ -135,13 +138,46 @@ export function Settings({ onClose }: SettingsProps) {
       <div className="settings-modal" onClick={(e) => e.stopPropagation()} onKeyDown={handleKeyDown}>
         <div className="settings-header">
           <div>
-            <h2>⚙️ Settings</h2>
-            <p className="settings-version">AI IDE v0.4.0</p>
+            <h2><SettingsIcon size={20} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }} /> Settings</h2>
+            <p className="settings-version">AI IDE v0.6.0</p>
           </div>
           <button className="settings-close" onClick={onClose}>×</button>
         </div>
 
         <div className="settings-content">
+          <div className="settings-section">
+            <label>Theme</label>
+            <div className="theme-selector">
+              <button
+                className={`theme-option ${theme === 'light' ? 'active' : ''}`}
+                onClick={() => setTheme('light')}
+                title="Light theme"
+              >
+                <Sun size={18} />
+                <span>Light</span>
+              </button>
+              <button
+                className={`theme-option ${theme === 'dark' ? 'active' : ''}`}
+                onClick={() => setTheme('dark')}
+                title="Dark theme"
+              >
+                <Moon size={18} />
+                <span>Dark</span>
+              </button>
+              <button
+                className={`theme-option ${theme === 'auto' ? 'active' : ''}`}
+                onClick={() => setTheme('auto')}
+                title="Auto (system preference)"
+              >
+                <Monitor size={18} />
+                <span>Auto</span>
+              </button>
+            </div>
+            <p className="settings-help">
+              Choose your preferred color theme or follow system settings
+            </p>
+          </div>
+
           <div className="settings-section">
             <label htmlFor="api-key">
               Anthropic API Key

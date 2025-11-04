@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: var(--color-primary) 0%, #1a1a1a 100%);
+  background: var(--color-bg-primary);
   position: relative;
   transition: all 0.2s ease;
 }
@@ -228,7 +228,7 @@
   flex-direction: column;
   gap: 0.75rem;
   align-items: center;
-  background: var(--color-primary) 0%, #1a1a1b 50%, var(--color-bg-primary) 100%);
+  background: var(--color-bg-primary);
 }
 
 .chat-messages > * {
@@ -322,7 +322,7 @@
 }
 
 .message-text {
-  background: var(--color-primary) 0%, var(--color-bg-secondary) 100%);
+  background: var(--color-bg-secondary);
   padding: 0.65rem 0.875rem;
   border-radius: 10px;
   color: var(--color-text-secondary);
@@ -352,7 +352,7 @@
 }
 
 .message.assistant .message-text {
-  background: var(--color-primary) 0%, var(--color-bg-secondary) 100%);
+  background: var(--color-bg-secondary);
   border-color: var(--color-border-primary);
 }
 
@@ -426,7 +426,7 @@
 
 .chat-input-container {
   padding: 0.75rem;
-  background: var(--color-primary) 100%);
+  background: var(--color-bg-tertiary);
   border-top: 2px solid rgba(78, 201, 176, 0.2);
   display: flex;
   flex-direction: column;
@@ -436,7 +436,7 @@
 
 /* Bridge activity widget */
 .bridge-activity {
-  background: var(--color-primary) 0%, rgba(78, 201, 176, 0.08) 100%);
+  background: var(--color-primary-bg);
   border: 2px solid #4ec9b0;
   border-radius: 8px;
   padding: 0.65rem 0.75rem;
@@ -539,7 +539,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  background: var(--color-primary) 100%);
+  background: var(--color-bg-tertiary);
   border: 2px solid rgba(78, 201, 176, 0.2);
   border-radius: 4px;
   font-size: 0.875rem;
@@ -892,7 +892,7 @@
 
 /* Inline command blocks in AI messages */
 .inline-command-block {
-  background: var(--color-primary) 0%, var(--color-bg-secondary) 100%);
+  background: var(--color-bg-secondary);
   border: 1px solid var(--color-border-primary);
   border-radius: 8px;
   margin: 0.75rem 0;
@@ -904,7 +904,7 @@
 }
 
 .inline-command-block .command-header {
-  background: var(--color-primary) 0%, rgba(78, 201, 176, 0.08) 100%);
+  background: var(--color-primary-bg);
   padding: 0.5rem 0.75rem;
   border-bottom: 1px solid rgba(78, 201, 176, 0.2);
   display: flex;
@@ -926,7 +926,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  background: var(--color-primary) 0%, var(--color-bg-secondary) 100%);
+  background: var(--color-bg-secondary);
 }
 
 .inline-command-block pre {
@@ -1107,7 +1107,7 @@
 .tools-display {
   margin: 0.75rem 0;
   padding: 0.75rem;
-  background: var(--color-primary) 0%, var(--color-bg-secondary) 100%);
+  background: var(--color-bg-secondary);
   border: 1px solid var(--color-border-primary);
   border-radius: 8px;
   animation: slideIn 0.3s ease-in;

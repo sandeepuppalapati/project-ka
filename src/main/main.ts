@@ -17,6 +17,8 @@ const execAsync = promisify(exec);
 dotenv.config();
 
 function createWindow() {
+  const isDevelopment = process.env.NODE_ENV === 'development';
+
   const mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
@@ -29,6 +31,7 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
       allowRunningInsecureContent: false,
+      devTools: isDevelopment, // Disable DevTools in production builds
     },
   });
 
@@ -52,7 +55,7 @@ function createWindow() {
   mainWindow.webContents.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
 
   // Load the app
-  if (process.env.NODE_ENV === 'development') {
+  if (isDevelopment) {
     mainWindow.loadURL('http://localhost:3000');
     mainWindow.webContents.openDevTools();
   } else {

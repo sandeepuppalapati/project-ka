@@ -73,6 +73,17 @@ export function Settings({ onClose }: SettingsProps) {
   }, []);
 
   useEffect(() => {
+    // Load version
+    const loadVersion = async () => {
+      if (window.electronAPI.getAppVersion) {
+        const version = await window.electronAPI.getAppVersion();
+        setAppVersion(version);
+      }
+    };
+    loadVersion();
+  }, []);
+
+  useEffect(() => {
     // Load log files and log level
     const loadLogs = async () => {
       if (window.electronAPI?.getLogFiles) {
@@ -85,10 +96,6 @@ export function Settings({ onClose }: SettingsProps) {
       if (window.electronAPI?.getLogLevel) {
         const level = await window.electronAPI.getLogLevel();
         setLogLevel(level);
-      }
-      if (window.electronAPI?.getAppVersion) {
-        const version = await window.electronAPI.getAppVersion();
-        setAppVersion(version);
       }
     };
     loadLogs();

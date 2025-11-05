@@ -1,9 +1,11 @@
-import { useState, useEffect, useImperativeHandle, forwardRef, useRef } from 'react';
-import Editor from '@monaco-editor/react';
+import { useState, useEffect, useImperativeHandle, forwardRef, useRef, lazy, Suspense } from 'react';
 import type { editor } from 'monaco-editor';
 import { FileText, AlertTriangle } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import './FileViewer.css';
+
+// Lazy load Monaco editor for better initial load performance
+const Editor = lazy(() => import('@monaco-editor/react'));
 
 interface FileViewerProps {
   filePath: string | null;
@@ -191,21 +193,23 @@ export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
       {loading ? (
         <div className="file-viewer-loading">Loading...</div>
       ) : (
-        <Editor
-          height="100%"
-          language={getLanguage(fileName)}
-          defaultValue={content}
-          onChange={handleEditorChange}
-          onMount={handleEditorMount}
-          theme={actualTheme === 'light' ? 'vs-light' : 'vs-dark'}
-          options={{
-            minimap: { enabled: true },
-            fontSize: 14,
-            wordWrap: 'on',
-            automaticLayout: true,
-            lineNumbers: 'on',
-          }}
-        />
+        <Suspense fallback={<div className="file-viewer-loading">Loading editor...</div>}>
+          <Editor
+            height="100%"
+            language={getLanguage(fileName)}
+            defaultValue={content}
+            onChange={handleEditorChange}
+            onMount={handleEditorMount}
+            theme={actualTheme === 'light' ? 'vs-light' : 'vs-dark'}
+            options={{
+              minimap: { enabled: true },
+              fontSize: 14,
+              wordWrap: 'on',
+              automaticLayout: true,
+              lineNumbers: 'on',
+            }}
+          />
+        </Suspense>
       )}
     </div>
   );

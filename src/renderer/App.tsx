@@ -257,7 +257,7 @@ function App() {
       if (currentWorkspaceRef.current) {
         bridge.saveMessagesToWorkspace(currentWorkspaceRef.current);
       }
-    }, 2000); // Save after 2s of inactivity
+    }, 5000); // Save after 5s of inactivity (better performance)
 
     return () => clearTimeout(timer);
   }, [bridge.messages, bridge.saveMessagesToWorkspace]);
@@ -450,7 +450,7 @@ function App() {
     };
   }, [repos]);
 
-  // Update session duration every second
+  // Update session duration every 5 seconds (better performance)
   useEffect(() => {
     const interval = setInterval(() => {
       const elapsed = Date.now() - sessionStartTime.current;
@@ -460,7 +460,7 @@ function App() {
       setSessionDuration(
         `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
       );
-    }, 1000);
+    }, 5000); // Changed from 1000ms to 5000ms for better performance
     return () => clearInterval(interval);
   }, []);
 

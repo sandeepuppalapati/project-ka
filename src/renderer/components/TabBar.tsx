@@ -1,4 +1,5 @@
 import './TabBar.css';
+import { FileText, X } from 'lucide-react';
 
 interface Tab {
   id: string;
@@ -37,7 +38,7 @@ export function TabBar({ tabs, activeTabId, onTabClick, onTabClose, onCloseAll }
             className={`tab ${tab.id === activeTabId ? 'active' : ''}`}
             onClick={() => onTabClick(tab.id)}
           >
-            <span className="tab-icon">📄</span>
+            <span className="tab-icon"><FileText size={14} /></span>
             <span className="tab-name">{tab.name}</span>
             {tab.isDirty && <span className="tab-dirty">●</span>}
             <button
@@ -45,7 +46,7 @@ export function TabBar({ tabs, activeTabId, onTabClick, onTabClose, onCloseAll }
               onClick={(e) => handleClose(e, tab.id)}
               title="Close (Cmd+W)"
             >
-              ×
+              <X size={14} />
             </button>
           </div>
         ))}
@@ -56,7 +57,8 @@ export function TabBar({ tabs, activeTabId, onTabClick, onTabClose, onCloseAll }
           onClick={handleCloseAll}
           title="Close all tabs"
         >
-          ✕ Close All
+          <X size={14} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+          Close All
         </button>
       )}
     </div>

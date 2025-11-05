@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import './QuickOpen.css';
+import { FileText } from 'lucide-react';
 
 interface QuickOpenProps {
   repos: Array<{ id: string; path: string; name: string }>;
@@ -138,7 +139,10 @@ export function QuickOpen({ repos, onFileSelect, onClose }: QuickOpenProps) {
                 onClick={() => handleFileClick(file)}
                 onMouseEnter={() => setSelectedIndex(index)}
               >
-                <div className="file-result-name">📄 {file.name}</div>
+                <div className="file-result-name">
+                  <FileText size={16} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }} />
+                  {file.name}
+                </div>
                 <div className="file-result-path">
                   {file.repoName} › {getRelativePath(file.path, file.repoName)}
                 </div>

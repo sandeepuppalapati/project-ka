@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels'
+import { Home, Zap, Edit2, ChevronDown, ChevronUp, Settings as SettingsIcon } from 'lucide-react'
 import './App.css'
 import { RepoManager } from './components/RepoManager'
 import { FileTree } from './components/FileTree'
@@ -631,7 +632,7 @@ function App() {
                 onClick={unloadWorkspace}
                 title="Back to workspaces"
               >
-                🏠
+                <Home size={18} />
               </button>
               <WorkspaceSelector
                 currentWorkspace={currentWorkspace}
@@ -649,7 +650,8 @@ function App() {
             onClick={() => setShowCreateWorkspace(true)}
             title="Create Workspace"
           >
-            ⚡ New Workspace
+            <Zap size={16} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+            New Workspace
           </button>
           {currentWorkspace && (
             <button
@@ -657,7 +659,8 @@ function App() {
               onClick={() => setShowEditWorkspace(true)}
               title="Edit Workspace"
             >
-              ✏️ Edit
+              <Edit2 size={16} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+              Edit
             </button>
           )}
           {currentWorkspace && (
@@ -666,7 +669,8 @@ function App() {
               onClick={() => setShowTerminal(!showTerminal)}
               title={showTerminal ? 'Hide Terminal' : 'Show Terminal (Ctrl+`)'}
             >
-              {showTerminal ? '▼' : '▲'} Terminal
+              {showTerminal ? <ChevronDown size={16} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} /> : <ChevronUp size={16} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />}
+              Terminal
             </button>
           )}
           <button
@@ -674,7 +678,7 @@ function App() {
             onClick={() => setShowSettings(true)}
             title="Settings"
           >
-            ⚙️
+            <SettingsIcon size={18} />
           </button>
         </div>
       </header>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Briefcase, Code2 } from 'lucide-react';
+import { Briefcase, Code2, MessageSquare, Trash2, AlertTriangle } from 'lucide-react';
 import './WorkspaceWelcome.css';
 
 interface WorkspaceWelcomeProps {
@@ -168,7 +168,7 @@ export function WorkspaceWelcome({ onCreateWorkspace, onOpenWorkspace }: Workspa
               </div>
             </div>
             <div className="workspace-feature">
-              <span className="feature-icon">💬</span>
+              <span className="feature-icon"><MessageSquare size={24} /></span>
               <div className="feature-text">
                 <strong>Persistent Chats</strong>
                 <span>All conversations saved per workspace</span>
@@ -260,7 +260,7 @@ export function WorkspaceWelcome({ onCreateWorkspace, onOpenWorkspace }: Workspa
                       onClick={(e) => handleDeleteWorkspace(workspace, e)}
                       title="Delete workspace"
                     >
-                      🗑️
+                      <Trash2 size={16} />
                     </button>
                   </div>
                   ))
@@ -276,7 +276,10 @@ export function WorkspaceWelcome({ onCreateWorkspace, onOpenWorkspace }: Workspa
         <div className="workspace-delete-overlay" onClick={cancelDelete}>
           <div className="workspace-delete-modal" onClick={(e) => e.stopPropagation()}>
             <div className="workspace-delete-header">
-              <h3>⚠️ Delete Workspace</h3>
+              <h3>
+                <AlertTriangle size={20} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }} />
+                Delete Workspace
+              </h3>
             </div>
             <div className="workspace-delete-content">
               <p className="workspace-delete-warning">
@@ -291,7 +294,8 @@ export function WorkspaceWelcome({ onCreateWorkspace, onOpenWorkspace }: Workspa
                 <li>Workspace configuration</li>
               </ul>
               <p className="workspace-delete-note">
-                ⚠️ <strong>This action cannot be undone.</strong>
+                <AlertTriangle size={16} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+                <strong>This action cannot be undone.</strong>
               </p>
               <p className="workspace-delete-repos-note">
                 Note: Your actual repository files will NOT be deleted.

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import './CreateWorkspace.css';
+import { AlertTriangle, Settings } from 'lucide-react';
 
 interface CreateWorkspaceProps {
   onClose: () => void;
@@ -115,7 +116,10 @@ export function CreateWorkspace({ onClose, onCreated }: CreateWorkspaceProps) {
     <div className="create-workspace-overlay" onClick={onClose}>
       <div className="create-workspace-modal" onClick={(e) => e.stopPropagation()} onKeyDown={handleKeyDown}>
         <div className="create-workspace-header">
-          <h2>⚡ Create Workspace</h2>
+          <h2>
+            <Settings size={20} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }} />
+            Create Workspace
+          </h2>
           <button className="create-workspace-close" onClick={onClose}>×</button>
         </div>
 
@@ -239,7 +243,8 @@ export function CreateWorkspace({ onClose, onCreated }: CreateWorkspaceProps) {
 
           {error && (
             <div className="create-workspace-error">
-              ⚠️ {error}
+              <AlertTriangle size={16} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+              {error}
             </div>
           )}
         </div>

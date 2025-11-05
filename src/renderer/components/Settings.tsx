@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Sun, Moon, Monitor, Settings as SettingsIcon } from 'lucide-react';
+import { Sun, Moon, Monitor, Settings as SettingsIcon, AlertTriangle, Folder, Trash2 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import './Settings.css';
 
@@ -203,7 +203,8 @@ export function Settings({ onClose }: SettingsProps) {
             </div>
             {validationError && (
               <p className="settings-error">
-                ⚠️ {validationError}
+                <AlertTriangle size={16} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+                {validationError}
               </p>
             )}
             <p className="settings-help">
@@ -289,7 +290,8 @@ export function Settings({ onClose }: SettingsProps) {
                 }}
                 title="Browse for folder"
               >
-                📁 Browse
+                <Folder size={16} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+                Browse
               </button>
             </div>
             <p className="settings-help">
@@ -304,7 +306,8 @@ export function Settings({ onClose }: SettingsProps) {
               onClick={handleClearStorage}
               type="button"
             >
-              🗑️ Clear All Storage
+              <Trash2 size={16} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+              Clear All Storage
             </button>
             <p className="settings-help">
               Deletes all chat history, workspace state, repositories, and settings. This action cannot be undone.

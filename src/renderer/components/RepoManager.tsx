@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import './RepoManager.css';
+import { Check } from 'lucide-react';
 
 interface Repository {
   id: string;
@@ -139,7 +140,10 @@ export function RepoManager({ onReposChange, repos: initialRepos }: RepoManagerP
                     </span>
                   )}
                   {repo.status?.clean && (
-                    <span className="repo-clean">✓ Clean</span>
+                    <span className="repo-clean">
+                      <Check size={14} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+                      Clean
+                    </span>
                   )}
                 </div>
               </div>

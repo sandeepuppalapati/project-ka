@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import './EditWorkspace.css';
 import type { Workspace, WorkspaceRepo } from '../types/workspace';
+import { AlertTriangle, Settings } from 'lucide-react';
 
 interface EditWorkspaceProps {
   workspace: Workspace;
@@ -116,7 +117,10 @@ export function EditWorkspace({ workspace, onClose, onSaved }: EditWorkspaceProp
     <div className="edit-workspace-overlay" onClick={onClose}>
       <div className="edit-workspace-modal" onClick={(e) => e.stopPropagation()} onKeyDown={handleKeyDown}>
         <div className="edit-workspace-header">
-          <h2>⚙️ Edit Workspace</h2>
+          <h2>
+            <Settings size={20} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }} />
+            Edit Workspace
+          </h2>
           <button className="edit-workspace-close" onClick={onClose}>×</button>
         </div>
 
@@ -230,7 +234,8 @@ export function EditWorkspace({ workspace, onClose, onSaved }: EditWorkspaceProp
 
           {error && (
             <div className="edit-workspace-error">
-              ⚠️ {error}
+              <AlertTriangle size={16} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+              {error}
             </div>
           )}
         </div>

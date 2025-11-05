@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Briefcase } from 'lucide-react';
+import { Briefcase, Check } from 'lucide-react';
 import './WorkspaceSelector.css';
 
 interface WorkspaceSelectorProps {
@@ -126,7 +126,7 @@ export function WorkspaceSelector({ currentWorkspace, onWorkspaceChange }: Works
                     <div className="workspace-item-path">{workspace.path}</div>
                   </div>
                   {workspace.path === currentWorkspace && (
-                    <span className="workspace-item-check">✓</span>
+                    <span className="workspace-item-check"><Check size={16} /></span>
                   )}
                 </button>
               ))

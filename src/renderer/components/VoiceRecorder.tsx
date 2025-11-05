@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import './VoiceRecorder.css';
+import { AlertTriangle } from 'lucide-react';
 
 interface VoiceRecorderProps {
   onTranscription: (text: string) => void;
@@ -254,7 +255,7 @@ export const VoiceRecorder = forwardRef<VoiceRecorderHandle, VoiceRecorderProps>
 
       {error && (
         <div className="voice-error" title={error}>
-          ⚠️
+          <AlertTriangle size={16} />
         </div>
       )}
 

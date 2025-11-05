@@ -1,6 +1,7 @@
 import { useState, useEffect, useImperativeHandle, forwardRef, useRef } from 'react';
 import Editor from '@monaco-editor/react';
 import type { editor } from 'monaco-editor';
+import { FileText, AlertTriangle } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import './FileViewer.css';
 
@@ -127,7 +128,7 @@ export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
     return (
       <div className="file-viewer empty">
         <div className="empty-state">
-          <span className="empty-icon">📄</span>
+          <span className="empty-icon"><FileText size={64} /></span>
           <p>Select a file to view</p>
         </div>
       </div>
@@ -162,7 +163,7 @@ export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
     <div className="file-viewer">
       {externalChange && (
         <div className="external-change-banner">
-          <span>⚠️ This file has been changed externally</span>
+          <span><AlertTriangle size={16} /> This file has been changed externally</span>
           <div className="banner-actions">
             <button className="banner-button" onClick={handleReload}>Reload</button>
             <button className="banner-button dismiss" onClick={() => setExternalChange(false)}>Dismiss</button>
@@ -171,7 +172,7 @@ export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
       )}
       <div className="file-viewer-header">
         <div className="file-info">
-          <span className="file-icon">📄</span>
+          <span className="file-icon"><FileText size={16} /></span>
           <div className="file-path-container">
             <span className="file-name">{fileName}</span>
             {renderBreadcrumbs()}

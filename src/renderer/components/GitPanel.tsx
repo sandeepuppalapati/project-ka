@@ -1,5 +1,6 @@
 import { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
 import './GitPanel.css';
+import { Trash2, FileText } from 'lucide-react';
 
 interface GitPanelProps {
   repos: Array<{ id: string; path: string; name: string }>;
@@ -126,11 +127,11 @@ export const GitPanel = forwardRef<GitPanelRef, GitPanelProps>(
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'modified': return '📝';
-      case 'untracked': return '➕';
-      case 'deleted': return '🗑️';
-      case 'staged': return '✅';
-      default: return '📄';
+      case 'modified': return <FileText size={14} />;
+      case 'untracked': return <FileText size={14} />;
+      case 'deleted': return <Trash2 size={14} />;
+      case 'staged': return <FileText size={14} />;
+      default: return <FileText size={14} />;
     }
   };
 

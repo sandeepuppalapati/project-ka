@@ -9,6 +9,7 @@ import {
   type PersistedMessage
 } from '../hooks/usePersistence';
 import { VoiceRecorder } from './VoiceRecorder';
+import { AlertTriangle, Trash2, Settings, Folder, X } from 'lucide-react';
 
 interface ToolExecution {
   tool: string;
@@ -403,7 +404,7 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
       const warningMessage: Message = {
         id: Date.now().toString(),
         role: 'assistant',
-        content: `⚠️ Auto-response paused: Too many automatic responses detected. This prevents infinite loops. You can still manually respond if needed.`,
+        content: `Auto-response paused: Too many automatic responses detected. This prevents infinite loops. You can still manually respond if needed.`,
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, warningMessage]);
@@ -1083,7 +1084,8 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
             onClick={handleClearChat}
             title="Clear all messages"
           >
-            🗑️ Clear
+            <Trash2 size={16} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+            Clear
           </button>
           <span className="chat-status">{isBridge ? 'Coordinating' : 'Ready'}</span>
         </div>
@@ -1201,7 +1203,8 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
                         className="tools-toggle"
                         onClick={() => toggleToolsDisplay(message.id)}
                       >
-                        ⚙️ Using tools... {message.toolsCollapsed ? `[▼ Show ${message.tools.length} tools]` : `[▲ Hide ${message.tools.length} tools]`}
+                        <Settings size={16} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+                        Using tools... {message.toolsCollapsed ? `[▼ Show ${message.tools.length} tools]` : `[▲ Hide ${message.tools.length} tools]`}
                       </button>
                       {!message.toolsCollapsed && (
                         <div className="tools-list">
@@ -1294,7 +1297,7 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
         )}
         {currentRepo && (
           <div className="chat-context-bar">
-            <span className="context-label">📁</span>
+            <span className="context-label"><Folder size={16} style={{ display: 'inline', verticalAlign: 'middle' }} /></span>
             <span className="context-path" title={currentRepo.path}>
               {currentRepo.name}
             </span>
@@ -1428,7 +1431,8 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
                 className="chat-cancel"
                 onClick={handleCancel}
               >
-                ✕ Cancel
+                <X size={16} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+                Cancel
               </button>
             ) : (
               <>

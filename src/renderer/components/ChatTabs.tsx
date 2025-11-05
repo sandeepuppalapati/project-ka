@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ChatPanel } from './ChatPanel';
 import './ChatTabs.css';
+import { Folder } from 'lucide-react';
 
 interface Repository {
   id: string;
@@ -45,7 +46,7 @@ export function ChatTabs({ repos, currentFile, activeTabId: controlledActiveTabI
       id: `repo-${repo.id}`,
       type: 'repo' as TabType,
       label: repo.name,
-      icon: '📁',
+      icon: 'folder',
       repoId: repo.id,
       repo,
     })),
@@ -64,7 +65,9 @@ export function ChatTabs({ repos, currentFile, activeTabId: controlledActiveTabI
             onClick={() => setActiveTabId(tab.id)}
             title={tab.type === 'bridge' ? 'Bridge (Agent coordination)' : `Chat with ${tab.label} agent`}
           >
-            <span className="tab-icon">{tab.icon}</span>
+            <span className="tab-icon">
+              {tab.icon === 'folder' ? <Folder size={16} /> : tab.icon}
+            </span>
             <span className="tab-label">{tab.label}</span>
           </button>
         ))}

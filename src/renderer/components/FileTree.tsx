@@ -255,7 +255,7 @@ export function FileTree({ repoPath, repoName, onFileSelect, onViewDiff }: FileT
     return (
       <div className={`file-tree ${isCollapsed ? 'collapsed' : ''}`}>
         <div className="file-tree-header" onClick={() => setIsCollapsed(!isCollapsed)}>
-          <span className="collapse-icon">{isCollapsed ? '▶' : '▼'}</span>
+          <span className="collapse-icon">{isCollapsed ? <ChevronRight size={16} /> : <ChevronDown size={16} />}</span>
           <span>{repoName}</span>
         </div>
         <div className="file-tree-loading">Loading...</div>

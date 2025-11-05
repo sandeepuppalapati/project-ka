@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import * as Diff from 'diff';
 import './DiffViewer.css';
+import { GitCompare } from 'lucide-react';
 
 interface DiffViewerProps {
   filepath: string;
@@ -71,7 +72,7 @@ export function DiffViewer({ filepath, oldContent, newContent, onClose }: DiffVi
     <div className="diff-viewer">
       <div className="diff-header">
         <div className="diff-title">
-          <span className="diff-icon">📊</span>
+          <span className="diff-icon"><GitCompare size={20} /></span>
           <span className="diff-filepath">{filepath}</span>
           <span className="diff-ext">.{getFileExtension(filepath)}</span>
         </div>

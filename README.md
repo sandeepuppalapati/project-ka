@@ -2,7 +2,7 @@
 
 > **"For AI by AI"** - An AI-powered IDE where AI agents autonomously code across multiple repositories
 
-![Version](https://img.shields.io/badge/version-0.4.0-blue.svg)
+![Version](https://img.shields.io/badge/version-0.9.1-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Electron](https://img.shields.io/badge/electron-34.0.0-blue.svg)
 ![React](https://img.shields.io/badge/react-18.3.1-blue.svg)
@@ -23,7 +23,13 @@ AI IDE is a next-generation development environment that revolutionizes how you 
 ✅ **Git Integration** - Stage, commit, and push directly from the IDE
 ✅ **Session Persistence** - All workspace data encrypted and saved automatically
 ✅ **Smart Search** - Find workspaces by name, description, or tags
-✅ **Modern UI** - Beautiful teal-themed interface with Monaco editor
+✅ **Modern UI** - Beautiful blue-themed interface with Monaco editor
+✅ **File Watching** - Auto-refresh file tree when files change externally
+✅ **Voice Input** - Push-to-talk voice input with OpenAI Whisper
+✅ **Terminal Integration** - Built-in terminal with xterm.js
+✅ **High Performance** - Virtual scrolling, lazy loading, and React optimizations
+✅ **Logging System** - Built-in logging with log viewer for debugging
+✅ **Production Ready** - DevTools disabled, error handling, security hardening
 
 ---
 
@@ -189,8 +195,11 @@ You can configure your AI settings in two ways:
    ```
 
 2. **Settings Panel** (⚙️ button in header)
-   - Update API key
+   - Update Anthropic API key
    - Switch between Claude models
+   - Configure OpenAI API key (for voice input)
+   - Adjust log level (debug, info, warn, error)
+   - View, download, and clear application logs
    - Settings persist globally across all workspaces
 
 ### Model Options
@@ -209,6 +218,32 @@ Configure where workspace data is stored:
 
 ---
 
+## 🚀 Performance & Logging
+
+### Performance Optimizations
+
+AI IDE is optimized for large codebases and long-running sessions:
+
+- **Virtual Scrolling**: Only visible file tree nodes are rendered (react-window)
+- **React Optimizations**: Memoization with React.memo, useCallback, useMemo
+- **Lazy Loading**: Monaco editor loads only when opening files
+- **Debouncing**: Git panel and file watcher refreshes are debounced
+- **Reduced Re-renders**: Timer intervals optimized (5s instead of 1s)
+
+### Logging System
+
+Built-in logging for debugging and monitoring:
+
+- **4 Log Levels**: debug, info, warn, error (default: error)
+- **File Rotation**: Logs kept for 7 days, automatically deleted
+- **Log Viewer**: View, search, and download logs from Settings
+- **Performance Metrics**: File operations, AI requests, and startup times tracked
+- **JSON Format**: Structured logs with timestamps, categories, and metadata
+
+Access logs via Settings → Application Logs section.
+
+---
+
 ## 📁 Project Structure
 
 ```
@@ -217,16 +252,25 @@ ai-ide/
 │   ├── main/                # Electron main process
 │   │   ├── main.ts          # App entry point, IPC handlers
 │   │   ├── preload.ts       # Secure IPC bridge
-│   │   └── workspace.ts     # Workspace file operations (encrypted)
+│   │   ├── workspace.ts     # Workspace file operations (encrypted)
+│   │   ├── logger.ts        # Logging system with file rotation
+│   │   ├── terminal.ts      # Terminal integration with node-pty
+│   │   └── fileWatcher.ts   # File watching with chokidar
 │   └── renderer/            # React UI
 │       ├── components/
 │       │   ├── WorkspaceWelcome.tsx
 │       │   ├── CreateWorkspace.tsx
 │       │   ├── EditWorkspace.tsx
+│       │   ├── Settings.tsx
+│       │   ├── Terminal.tsx
 │       │   └── ...
 │       ├── hooks/
+│       ├── contexts/
+│       │   ├── BridgeContext.tsx
+│       │   └── ThemeContext.tsx
 │       ├── types/
-│       │   └── workspace.d.ts
+│       │   ├── workspace.d.ts
+│       │   └── electron.d.ts
 │       └── App.tsx
 ├── docs/                    # Design documentation
 │   └── WORKSPACE_DESIGN.md  # Workspace architecture
@@ -278,7 +322,7 @@ Test the IDE with a real multi-repo project:
 
 ## 🎯 Roadmap
 
-### v0.1 - MVP ✅
+### v0.1-0.3 - Foundation ✅
 
 - [x] Multi-repository support
 - [x] Autonomous AI agents
@@ -287,49 +331,68 @@ Test the IDE with a real multi-repo project:
 - [x] Git integration
 - [x] Keyboard shortcuts
 - [x] Error handling & retry logic
+- [x] Improved UI and loading states
 
-### v0.2 - Enhanced UI ✅
-
-- [x] Improved loading states and progress indicators
-- [x] Polished header with consistent button heights
-- [x] Better error messages and user feedback
-
-### v0.3 - Enhanced UI ✅
-
-- [x] Polished header with consistent button heights
-- [x] Better error messages and user feedback
-- [x] Improved layout and spacing
-
-### v0.4 - Workspaces ✅ (Current)
+### v0.4 - Workspaces ✅
 
 - [x] Workspace creation and management
 - [x] Encrypted workspace storage
 - [x] Workspace metadata (description, tags, lastAccessed)
 - [x] Search and filter workspaces
 - [x] Edit workspace details
-- [x] Two-column welcome layout
 - [x] Workspace-specific Bridge chat
 - [x] State persistence per workspace
 
-### v0.5 - Coming Soon
+### v0.5 - Visual Enhancements ✅
 
-- [ ] Workspace deletion with confirmation
-- [ ] Full state persistence (open files, cursor positions)
-- [ ] Visual diff viewer
-- [ ] File watching & auto-refresh
-- [ ] Voice input (push-to-talk)
+- [x] Visual diff viewer
+- [x] File watching & auto-refresh
+- [x] Workspace deletion with confirmation
+- [x] Full state persistence (open tabs, file tree state)
+
+### v0.6 - Audio & Terminal ✅
+
+- [x] Voice input (push-to-talk with OpenAI Whisper)
+- [x] Terminal integration (xterm.js with node-pty)
+- [x] Voice recorder UI with waveform
+
+### v0.7 - UI Polish ✅
+
+- [x] Icon replacement (emojis → Lucide React icons)
+- [x] Color scheme refresh (teal → soft blue)
+- [x] Improved visual consistency
+
+### v0.8 - Performance ✅
+
+- [x] Virtual scrolling for large file trees
+- [x] React optimizations (memo, useCallback, useMemo)
+- [x] Timer optimizations (reduced re-renders)
+- [x] Monaco editor lazy loading
+- [x] Debounced git panel refresh
+
+### v0.9 - Production Hardening ✅ (Current)
+
+- [x] Comprehensive logging system with log viewer
+- [x] DevTools disabled in production
+- [x] Performance instrumentation
+- [x] Dynamic version display from package.json
+- [x] Error log level default for production
+
+### v1.0 - Coming Soon
+
 - [ ] Search across repos within workspace
-- [ ] Terminal integration
 - [ ] Multiple workspace windows
+- [ ] Workspace import/export
+- [ ] Cost tracking dashboard
 
 ### Future Versions
 
 - [ ] Local model support (Ollama)
 - [ ] Plugin system
 - [ ] Workspace templates
-- [ ] Import/export workspace configuration
-- [ ] Cost tracking & optimization
 - [ ] Collaborative workspaces (team sharing)
+- [ ] Code review workflow
+- [ ] Testing integration
 
 ---
 
@@ -389,5 +452,3 @@ AI IDE uses the Anthropic Claude API (bring your own key). Costs vary based on u
 ---
 
 **Built with ❤️ for developers who want AI to do the heavy lifting**
-
-*Last updated: October 26, 2025*

@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback, useMemo, memo } from 'react';
+import { useState, useEffect, useCallback, useMemo, memo, useRef } from 'react';
 import { Folder, FolderOpen, File, BarChart3, RefreshCw, ChevronDown, ChevronRight } from 'lucide-react';
+import { List } from 'react-window';
 import './FileTree.css';
 
 interface FileTreeProps {
@@ -17,11 +18,17 @@ interface FileNode {
   isExpanded?: boolean;
 }
 
+interface FlatNode extends FileNode {
+  depth: number;
+}
+
 export const FileTree = memo(function FileTree({ repoPath, repoName, onFileSelect, onViewDiff }: FileTreeProps) {
   const [rootNodes, setRootNodes] = useState<FileNode[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; node: FileNode } | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerHeight, setContainerHeight] = useState(400);
 
   useEffect(() => {
     loadDirectory(repoPath);
@@ -219,12 +226,44 @@ export const FileTree = memo(function FileTree({ repoPath, repoName, onFileSelec
     }
   }, []);
 
-  const renderNode = useCallback((node: FileNode, depth: number = 0): JSX.Element => {
+  // Flatten tree structure for virtual scrolling based on expansion state
+  const flattenTree = useCallback((nodes: FileNode[], depth: number = 0): FlatNode[] => {
+    const result: FlatNode[] = [];
+    for (const node of nodes) {
+      result.push({ ...node, depth });
+      if (node.isDirectory && node.isExpanded && node.children) {
+        result.push(...flattenTree(node.children, depth + 1));
+      }
+    }
+    return result;
+  }, []);
+
+  // Memoize flattened tree to prevent recalculation on every render
+  const flatNodes = useMemo(() => flattenTree(rootNodes), [rootNodes, flattenTree]);
+
+  // Calculate container height dynamically
+  useEffect(() => {
+    const updateHeight = () => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        const availableHeight = window.innerHeight - rect.top - 20; // 20px padding
+        setContainerHeight(Math.max(200, Math.min(availableHeight, 800)));
+      }
+    };
+
+    updateHeight();
+    window.addEventListener('resize', updateHeight);
+    return () => window.removeEventListener('resize', updateHeight);
+  }, [isCollapsed]);
+
+  // Row renderer for virtual scrolling
+  const RowComponent = useCallback((props: any) => {
+    const node = flatNodes[props.index];
     return (
-      <div key={node.path}>
+      <div style={props.style}>
         <div
           className={`file-node ${node.isDirectory ? 'directory' : 'file'}`}
-          style={{ paddingLeft: `${depth * 16 + 8}px` }}
+          style={{ paddingLeft: `${node.depth * 16 + 8}px` }}
           onClick={() => handleNodeClick(node)}
           onContextMenu={(e) => handleContextMenu(e, node)}
           draggable={!node.isDirectory}
@@ -242,14 +281,9 @@ export const FileTree = memo(function FileTree({ repoPath, repoName, onFileSelec
           )}
           <span className="name">{node.name}</span>
         </div>
-        {node.isDirectory && node.isExpanded && node.children && (
-          <div className="children">
-            {node.children.map(child => renderNode(child, depth + 1))}
-          </div>
-        )}
       </div>
     );
-  }, [handleNodeClick, handleContextMenu, handleDragStart]);
+  }, [flatNodes, handleNodeClick, handleContextMenu, handleDragStart]);
 
   if (loading) {
     return (
@@ -281,8 +315,20 @@ export const FileTree = memo(function FileTree({ repoPath, repoName, onFileSelec
         </button>
       </div>
       {!isCollapsed && (
-        <div className="file-tree-content">
-          {rootNodes.map(node => renderNode(node))}
+        <div className="file-tree-content" ref={containerRef}>
+          {flatNodes.length > 0 ? (
+            <List
+              defaultHeight={containerHeight}
+              rowComponent={RowComponent}
+              rowCount={flatNodes.length}
+              rowHeight={28}
+              rowProps={{}}
+              overscanCount={5}
+              style={{ width: '100%' }}
+            />
+          ) : (
+            <div style={{ padding: '8px', color: '#888' }}>No files to display</div>
+          )}
         </div>
       )}
       {contextMenu && onViewDiff && (

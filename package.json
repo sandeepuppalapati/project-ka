@@ -24,6 +24,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.66.0",
     "@monaco-editor/react": "^4.7.0",
+    "@types/react-window": "^1.8.8",
     "chokidar": "^4.0.3",
     "diff": "^8.0.2",
     "dotenv": "^17.2.3",

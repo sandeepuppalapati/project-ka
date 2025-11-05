@@ -34,7 +34,7 @@ export function Settings({ onClose }: SettingsProps) {
   const [selectedLogFile, setSelectedLogFile] = useState<string | null>(null);
   const [logContent, setLogContent] = useState<string>('');
   const [logLevel, setLogLevel] = useState<string>('error');
-  const [appVersion, setAppVersion] = useState<string>('0.9.0');
+  const [appVersion, setAppVersion] = useState<string>('');
 
   useEffect(() => {
     // Load settings from electron store and localStorage

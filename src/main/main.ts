@@ -1175,3 +1175,8 @@ ipcMain.handle('logger:getLogLevel', () => {
 ipcMain.handle('logger:setLogLevel', (_event, level: string) => {
   logger.setLogLevel(level as any);
 });
+
+// App version handler
+ipcMain.handle('app:getVersion', () => {
+  return app.getVersion();
+});

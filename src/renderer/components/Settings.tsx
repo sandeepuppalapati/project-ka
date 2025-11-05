@@ -34,6 +34,7 @@ export function Settings({ onClose }: SettingsProps) {
   const [selectedLogFile, setSelectedLogFile] = useState<string | null>(null);
   const [logContent, setLogContent] = useState<string>('');
   const [logLevel, setLogLevel] = useState<string>('error');
+  const [appVersion, setAppVersion] = useState<string>('0.9.0');
 
   useEffect(() => {
     // Load settings from electron store and localStorage
@@ -84,6 +85,10 @@ export function Settings({ onClose }: SettingsProps) {
       if (window.electronAPI?.getLogLevel) {
         const level = await window.electronAPI.getLogLevel();
         setLogLevel(level);
+      }
+      if (window.electronAPI?.getAppVersion) {
+        const version = await window.electronAPI.getAppVersion();
+        setAppVersion(version);
       }
     };
     loadLogs();
@@ -219,7 +224,7 @@ export function Settings({ onClose }: SettingsProps) {
         <div className="settings-header">
           <div>
             <h2><SettingsIcon size={20} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }} /> Settings</h2>
-            <p className="settings-version">AI IDE v0.9.0</p>
+            <p className="settings-version">AI IDE v{appVersion}</p>
           </div>
           <button className="settings-close" onClick={onClose}>×</button>
         </div>

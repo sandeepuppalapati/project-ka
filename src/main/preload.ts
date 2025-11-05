@@ -89,6 +89,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getLogDir: () => ipcRenderer.invoke('logger:getLogDir'),
   getLogLevel: () => ipcRenderer.invoke('logger:getLogLevel'),
   setLogLevel: (level: string) => ipcRenderer.invoke('logger:setLogLevel', level),
+
+  // App APIs
+  getAppVersion: () => ipcRenderer.invoke('app:getVersion'),
 });
 
 // Expose a separate electron API for IPC event handling

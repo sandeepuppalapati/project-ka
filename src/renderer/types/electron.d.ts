@@ -71,6 +71,9 @@ export interface ElectronAPI {
   getLogDir?: () => Promise<string>;
   getLogLevel?: () => Promise<string>;
   setLogLevel?: (level: string) => Promise<void>;
+
+  // App API
+  getAppVersion?: () => Promise<string>;
 }
 
 export interface GitStatus {

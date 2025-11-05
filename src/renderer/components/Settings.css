@@ -284,3 +284,64 @@
 .theme-option svg {
   flex-shrink: 0;
 }
+
+/* Log Viewer Styles */
+.log-line {
+  display: flex;
+  gap: 8px;
+  padding: 4px 0;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  font-size: 11px;
+  border-bottom: 1px solid var(--color-border-primary);
+  word-break: break-word;
+}
+
+.log-line:last-child {
+  border-bottom: none;
+}
+
+.log-timestamp {
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+  min-width: 80px;
+}
+
+.log-level {
+  font-weight: 600;
+  text-transform: uppercase;
+  white-space: nowrap;
+  min-width: 50px;
+}
+
+.log-level-debug {
+  color: #888;
+}
+
+.log-level-info {
+  color: #4a9eff;
+}
+
+.log-level-warn {
+  color: #ffb84d;
+}
+
+.log-level-error {
+  color: #ff4d4d;
+}
+
+.log-category {
+  color: var(--color-primary);
+  white-space: nowrap;
+  min-width: 100px;
+}
+
+.log-message {
+  color: var(--color-text-primary);
+  flex: 1;
+}
+
+.log-data {
+  color: var(--color-text-tertiary);
+  font-style: italic;
+  font-size: 10px;
+}

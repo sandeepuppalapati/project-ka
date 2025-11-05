@@ -81,6 +81,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.on('file:changed', callback);
     return () => ipcRenderer.removeAllListeners('file:changed');
   },
+
+  // Logger APIs
+  getLogFiles: () => ipcRenderer.invoke('logger:getLogFiles'),
+  readLogFile: (filename: string) => ipcRenderer.invoke('logger:readLogFile', filename),
+  clearLogs: () => ipcRenderer.invoke('logger:clearLogs'),
+  getLogDir: () => ipcRenderer.invoke('logger:getLogDir'),
+  getLogLevel: () => ipcRenderer.invoke('logger:getLogLevel'),
+  setLogLevel: (level: string) => ipcRenderer.invoke('logger:setLogLevel', level),
 });
 
 // Expose a separate electron API for IPC event handling

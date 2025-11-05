@@ -63,6 +63,14 @@ export interface ElectronAPI {
   stopFileWatcher?: (repoPath: string) => Promise<void>;
   getWatchedPaths?: () => Promise<string[]>;
   onFileChanged?: (callback: (event: any, data: FileChangeEvent) => void) => () => void;
+
+  // Logger API
+  getLogFiles?: () => Promise<string[]>;
+  readLogFile?: (filename: string) => Promise<string>;
+  clearLogs?: () => Promise<void>;
+  getLogDir?: () => Promise<string>;
+  getLogLevel?: () => Promise<string>;
+  setLogLevel?: (level: string) => Promise<void>;
 }
 
 export interface GitStatus {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Sun, Moon, Monitor, Settings as SettingsIcon, AlertTriangle, Folder, Trash2 } from 'lucide-react';
+import { Sun, Moon, Monitor, Settings as SettingsIcon, AlertTriangle, Folder, Trash2, FileText, Download } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import './Settings.css';
 
@@ -30,6 +30,10 @@ export function Settings({ onClose }: SettingsProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [isValidating, setIsValidating] = useState(false);
+  const [logFiles, setLogFiles] = useState<string[]>([]);
+  const [selectedLogFile, setSelectedLogFile] = useState<string | null>(null);
+  const [logContent, setLogContent] = useState<string>('');
+  const [logLevel, setLogLevel] = useState<string>('info');
 
   useEffect(() => {
     // Load settings from electron store and localStorage
@@ -66,6 +70,35 @@ export function Settings({ onClose }: SettingsProps) {
 
     loadSettings();
   }, []);
+
+  useEffect(() => {
+    // Load log files and log level
+    const loadLogs = async () => {
+      if (window.electronAPI?.getLogFiles) {
+        const files = await window.electronAPI.getLogFiles();
+        setLogFiles(files);
+        if (files.length > 0) {
+          setSelectedLogFile(files[0]); // Select most recent log by default
+        }
+      }
+      if (window.electronAPI?.getLogLevel) {
+        const level = await window.electronAPI.getLogLevel();
+        setLogLevel(level);
+      }
+    };
+    loadLogs();
+  }, []);
+
+  useEffect(() => {
+    // Load selected log file content
+    const loadLogContent = async () => {
+      if (selectedLogFile && window.electronAPI?.readLogFile) {
+        const content = await window.electronAPI.readLogFile(selectedLogFile);
+        setLogContent(content);
+      }
+    };
+    loadLogContent();
+  }, [selectedLogFile]);
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -130,6 +163,53 @@ export function Settings({ onClose }: SettingsProps) {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
       onClose();
+    }
+  };
+
+  const handleLogLevelChange = async (level: string) => {
+    setLogLevel(level);
+    if (window.electronAPI?.setLogLevel) {
+      await window.electronAPI.setLogLevel(level);
+    }
+  };
+
+  const handleClearLogs = async () => {
+    if (confirm('Clear all log files? This cannot be undone.')) {
+      if (window.electronAPI?.clearLogs) {
+        await window.electronAPI.clearLogs();
+        setLogFiles([]);
+        setSelectedLogFile(null);
+        setLogContent('');
+      }
+    }
+  };
+
+  const handleDownloadLog = () => {
+    if (!logContent) return;
+    const blob = new Blob([logContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = selectedLogFile || 'log.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const formatLogLine = (line: string) => {
+    try {
+      const log = JSON.parse(line);
+      const levelClass = `log-level-${log.level}`;
+      return (
+        <div key={log.timestamp} className={`log-line ${levelClass}`}>
+          <span className="log-timestamp">{new Date(log.timestamp).toLocaleTimeString()}</span>
+          <span className={`log-level ${levelClass}`}>{log.level.toUpperCase()}</span>
+          <span className="log-category">[{log.category}]</span>
+          <span className="log-message">{log.message}</span>
+          {log.data && <span className="log-data">{JSON.stringify(log.data)}</span>}
+        </div>
+      );
+    } catch {
+      return <div key={line} className="log-line">{line}</div>;
     }
   };
 
@@ -296,6 +376,79 @@ export function Settings({ onClose }: SettingsProps) {
             </div>
             <p className="settings-help">
               Location where workspace folders will be created. Each workspace stores chats, state, and settings.
+            </p>
+          </div>
+
+          <div className="settings-section">
+            <label>Application Logs</label>
+            <div style={{ marginBottom: '10px' }}>
+              <label style={{ fontSize: '14px', marginBottom: '5px', display: 'block' }}>Log Level</label>
+              <select
+                value={logLevel}
+                onChange={(e) => handleLogLevelChange(e.target.value)}
+                className="settings-input"
+                style={{ width: '200px' }}
+              >
+                <option value="debug">Debug (verbose)</option>
+                <option value="info">Info (default)</option>
+                <option value="warn">Warning</option>
+                <option value="error">Error only</option>
+              </select>
+            </div>
+            <div style={{ marginBottom: '10px' }}>
+              <label style={{ fontSize: '14px', marginBottom: '5px', display: 'block' }}>Log Files</label>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <select
+                  value={selectedLogFile || ''}
+                  onChange={(e) => setSelectedLogFile(e.target.value)}
+                  className="settings-input"
+                  style={{ flex: 1 }}
+                >
+                  {logFiles.map(file => (
+                    <option key={file} value={file}>{file}</option>
+                  ))}
+                  {logFiles.length === 0 && <option value="">No logs available</option>}
+                </select>
+                <button
+                  className="settings-button secondary"
+                  onClick={handleDownloadLog}
+                  disabled={!logContent}
+                  type="button"
+                  style={{ padding: '6px 12px' }}
+                >
+                  <Download size={16} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+                  Download
+                </button>
+                <button
+                  className="settings-button danger"
+                  onClick={handleClearLogs}
+                  disabled={logFiles.length === 0}
+                  type="button"
+                  style={{ padding: '6px 12px' }}
+                >
+                  <Trash2 size={16} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+                  Clear All
+                </button>
+              </div>
+            </div>
+            {logContent && (
+              <div style={{
+                background: 'var(--bg-secondary)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '4px',
+                padding: '12px',
+                maxHeight: '300px',
+                overflow: 'auto',
+                fontSize: '12px',
+                fontFamily: 'monospace'
+              }}>
+                {logContent.split('\n').filter(line => line.trim()).map((line, idx) => (
+                  <div key={idx}>{formatLogLine(line)}</div>
+                ))}
+              </div>
+            )}
+            <p className="settings-help">
+              Application logs for debugging and monitoring. Logs are kept for 7 days and rotated automatically.
             </p>
           </div>
 

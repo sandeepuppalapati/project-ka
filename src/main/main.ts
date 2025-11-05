@@ -10,11 +10,19 @@ import * as dotenv from 'dotenv';
 import * as workspace from './workspace';
 import * as terminal from './terminal';
 import * as fileWatcher from './fileWatcher';
+import { logger } from './logger';
 
 const execAsync = promisify(exec);
 
 // Load environment variables
 dotenv.config();
+
+// Log app startup
+logger.info('app', 'Application starting', {
+  version: app.getVersion(),
+  platform: process.platform,
+  node: process.version
+});
 
 function createWindow() {
   const isDevelopment = process.env.NODE_ENV === 'development';
@@ -382,22 +390,28 @@ ipcMain.handle('fs:readDir', async (_event, dirPath: string) => {
 
 // Read file contents
 ipcMain.handle('fs:readFile', async (_event, filePath: string) => {
+  const startTime = performance.now();
   try {
     const content = await fs.readFile(filePath, 'utf-8');
+    const duration = performance.now() - startTime;
+    logger.debug('fs', `Read file: ${filePath}`, { duration: `${duration.toFixed(2)}ms`, size: `${content.length} bytes` });
     return content;
   } catch (error) {
-    console.error('Read file error:', error);
+    logger.error('fs', `Failed to read file: ${filePath}`, error);
     return null;
   }
 });
 
 // Write file contents
 ipcMain.handle('fs:writeFile', async (_event, filePath: string, content: string) => {
+  const startTime = performance.now();
   try {
     await fs.writeFile(filePath, content, 'utf-8');
+    const duration = performance.now() - startTime;
+    logger.debug('fs', `Wrote file: ${filePath}`, { duration: `${duration.toFixed(2)}ms`, size: `${content.length} bytes` });
     return true;
   } catch (error) {
-    console.error('Write file error:', error);
+    logger.error('fs', `Failed to write file: ${filePath}`, error);
     return false;
   }
 });
@@ -622,6 +636,13 @@ async function retryWithBackoff<T>(
 }
 
 ipcMain.handle('ai:chat', async (_event, messages: Array<{ role: string; content: string }>, context?: ChatContext, sessionId?: string) => {
+  const startTime = performance.now();
+  logger.info('ai', 'AI chat request started', {
+    messageCount: messages.length,
+    sessionId,
+    hasContext: !!context
+  });
+
   try {
     // Try to load settings from file first, fallback to .env
     let apiKey = process.env.ANTHROPIC_API_KEY;
@@ -992,9 +1013,22 @@ Work autonomously - call tools as needed to complete tasks. Don't hesitate to co
     // Send completion event
     _event.sender.send('ai:stream-chunk', { type: 'done', sessionId });
 
+    const duration = performance.now() - startTime;
+    logger.info('ai', 'AI chat completed successfully', {
+      duration: `${duration.toFixed(2)}ms`,
+      sessionId,
+      responseLength: finalResponse.length
+    });
+
     return finalResponse.trim() || 'Task completed';
   } catch (error: any) {
-    console.error('AI chat error:', error);
+    const duration = performance.now() - startTime;
+    logger.error('ai', 'AI chat failed', {
+      duration: `${duration.toFixed(2)}ms`,
+      sessionId,
+      error: error.message,
+      status: error.status
+    });
 
     // Provide user-friendly error messages
     let userMessage = 'An error occurred while communicating with the AI.';
@@ -1115,4 +1149,29 @@ ipcMain.handle('fileWatcher:stop', async (_event, repoPath: string) => {
 
 ipcMain.handle('fileWatcher:getWatchedPaths', async () => {
   return fileWatcher.getWatchedPaths();
+});
+
+// Logger IPC handlers
+ipcMain.handle('logger:getLogFiles', async () => {
+  return await logger.getLogFiles();
+});
+
+ipcMain.handle('logger:readLogFile', async (_event, filename: string) => {
+  return await logger.readLogFile(filename);
+});
+
+ipcMain.handle('logger:clearLogs', async () => {
+  await logger.clearLogs();
+});
+
+ipcMain.handle('logger:getLogDir', () => {
+  return logger.getLogDir();
+});
+
+ipcMain.handle('logger:getLogLevel', () => {
+  return logger.getLogLevel();
+});
+
+ipcMain.handle('logger:setLogLevel', (_event, level: string) => {
+  logger.setLogLevel(level as any);
 });

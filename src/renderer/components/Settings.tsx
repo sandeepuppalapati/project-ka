@@ -33,7 +33,7 @@ export function Settings({ onClose }: SettingsProps) {
   const [logFiles, setLogFiles] = useState<string[]>([]);
   const [selectedLogFile, setSelectedLogFile] = useState<string | null>(null);
   const [logContent, setLogContent] = useState<string>('');
-  const [logLevel, setLogLevel] = useState<string>('info');
+  const [logLevel, setLogLevel] = useState<string>('error');
 
   useEffect(() => {
     // Load settings from electron store and localStorage
@@ -390,9 +390,9 @@ export function Settings({ onClose }: SettingsProps) {
                 style={{ width: '200px' }}
               >
                 <option value="debug">Debug (verbose)</option>
-                <option value="info">Info (default)</option>
+                <option value="info">Info</option>
                 <option value="warn">Warning</option>
-                <option value="error">Error only</option>
+                <option value="error">Error only (default)</option>
               </select>
             </div>
             <div style={{ marginBottom: '10px' }}>

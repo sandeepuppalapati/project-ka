@@ -15,7 +15,7 @@ interface LogEntry {
 class Logger {
   private logDir: string;
   private currentLogFile: string;
-  private logLevel: LogLevel = 'info';
+  private logLevel: LogLevel = 'error';
   private maxLogFiles = 7; // Keep logs for 7 days
   private writeQueue: LogEntry[] = [];
   private isWriting = false;

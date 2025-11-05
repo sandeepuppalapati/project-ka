@@ -1,6 +1,6 @@
 {
   "name": "ai-ide",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "AI-based IDE - For AI by AI",
   "main": "dist/main/main.js",
   "author": {

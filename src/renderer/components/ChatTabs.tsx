@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo, useMemo, useCallback } from 'react';
 import { ChatPanel } from './ChatPanel';
 import './ChatTabs.css';
 import { Folder } from 'lucide-react';
@@ -27,15 +27,15 @@ interface ChatTab {
   repo?: Repository;
 }
 
-export function ChatTabs({ repos, currentFile, activeTabId: controlledActiveTabId, onTabChange }: ChatTabsProps) {
+export const ChatTabs = memo(function ChatTabs({ repos, currentFile, activeTabId: controlledActiveTabId, onTabChange }: ChatTabsProps) {
   const [internalActiveTabId, setInternalActiveTabId] = useState<string>('bridge');
 
   // Use controlled or internal state
   const activeTabId = controlledActiveTabId !== undefined ? controlledActiveTabId : internalActiveTabId;
   const setActiveTabId = onTabChange || setInternalActiveTabId;
 
-  // Build tabs: Bridge first, then one per repo
-  const tabs: ChatTab[] = [
+  // Memoize tabs array to prevent recreation on every render
+  const tabs: ChatTab[] = useMemo(() => [
     {
       id: 'bridge',
       type: 'bridge',
@@ -50,9 +50,9 @@ export function ChatTabs({ repos, currentFile, activeTabId: controlledActiveTabI
       repoId: repo.id,
       repo,
     })),
-  ];
+  ], [repos]);
 
-  const activeTab = tabs.find(tab => tab.id === activeTabId) || tabs[0];
+  const activeTab = useMemo(() => tabs.find(tab => tab.id === activeTabId) || tabs[0], [tabs, activeTabId]);
 
   return (
     <div className="chat-tabs-container">
@@ -92,4 +92,4 @@ export function ChatTabs({ repos, currentFile, activeTabId: controlledActiveTabI
       </div>
     </div>
   );
-}
+});

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { Folder, FolderOpen, File, BarChart3, RefreshCw, ChevronDown, ChevronRight } from 'lucide-react';
 import './FileTree.css';
 
@@ -17,7 +17,7 @@ interface FileNode {
   isExpanded?: boolean;
 }
 
-export function FileTree({ repoPath, repoName, onFileSelect, onViewDiff }: FileTreeProps) {
+export const FileTree = memo(function FileTree({ repoPath, repoName, onFileSelect, onViewDiff }: FileTreeProps) {
   const [rootNodes, setRootNodes] = useState<FileNode[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -62,11 +62,7 @@ export function FileTree({ repoPath, repoName, onFileSelect, onViewDiff }: FileT
     };
   }, [repoPath]);
 
-  const handleRefresh = () => {
-    loadDirectory(repoPath);
-  };
-
-  const loadDirectory = async (dirPath: string) => {
+  const loadDirectory = useCallback(async (dirPath: string) => {
     setLoading(true);
     try {
       const entries = await window.electronAPI.readDir(dirPath);
@@ -110,9 +106,13 @@ export function FileTree({ repoPath, repoName, onFileSelect, onViewDiff }: FileT
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleNodeClick = async (node: FileNode) => {
+  const handleRefresh = useCallback(() => {
+    loadDirectory(repoPath);
+  }, [repoPath, loadDirectory]);
+
+  const handleNodeClick = useCallback(async (node: FileNode) => {
     if (!node.isDirectory) {
       // File clicked - notify parent
       onFileSelect(node.path, node.name);
@@ -183,9 +183,9 @@ export function FileTree({ repoPath, repoName, onFileSelect, onViewDiff }: FileT
         setRootNodes(updateWithChildren(rootNodes));
       }
     }
-  };
+  }, [onFileSelect, rootNodes]);
 
-  const handleContextMenu = (e: React.MouseEvent, node: FileNode) => {
+  const handleContextMenu = useCallback((e: React.MouseEvent, node: FileNode) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -197,18 +197,18 @@ export function FileTree({ repoPath, repoName, onFileSelect, onViewDiff }: FileT
         node
       });
     }
-  };
+  }, []);
 
-  const handleViewDiff = () => {
+  const handleViewDiff = useCallback(() => {
     if (contextMenu && onViewDiff) {
       // Get relative path from repoPath
       const relativePath = contextMenu.node.path.replace(repoPath + '/', '');
       onViewDiff(relativePath);
       setContextMenu(null);
     }
-  };
+  }, [contextMenu, onViewDiff, repoPath]);
 
-  const handleDragStart = (e: React.DragEvent, node: FileNode) => {
+  const handleDragStart = useCallback((e: React.DragEvent, node: FileNode) => {
     if (!node.isDirectory) {
       e.dataTransfer.effectAllowed = 'copy';
       e.dataTransfer.setData('application/json', JSON.stringify({
@@ -217,9 +217,9 @@ export function FileTree({ repoPath, repoName, onFileSelect, onViewDiff }: FileT
         name: node.name
       }));
     }
-  };
+  }, []);
 
-  const renderNode = (node: FileNode, depth: number = 0) => {
+  const renderNode = useCallback((node: FileNode, depth: number = 0): JSX.Element => {
     return (
       <div key={node.path}>
         <div
@@ -249,7 +249,7 @@ export function FileTree({ repoPath, repoName, onFileSelect, onViewDiff }: FileT
         )}
       </div>
     );
-  };
+  }, [handleNodeClick, handleContextMenu, handleDragStart]);
 
   if (loading) {
     return (
@@ -304,4 +304,4 @@ export function FileTree({ repoPath, repoName, onFileSelect, onViewDiff }: FileT
       )}
     </div>
   );
-}
+});

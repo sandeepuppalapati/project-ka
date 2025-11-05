@@ -1,3 +1,4 @@
+import { memo, useCallback } from 'react';
 import './TabBar.css';
 import { FileText, X } from 'lucide-react';
 
@@ -16,18 +17,18 @@ interface TabBarProps {
   onCloseAll?: () => void;
 }
 
-export function TabBar({ tabs, activeTabId, onTabClick, onTabClose, onCloseAll }: TabBarProps) {
-  const handleClose = (e: React.MouseEvent, tabId: string) => {
+export const TabBar = memo(function TabBar({ tabs, activeTabId, onTabClick, onTabClose, onCloseAll }: TabBarProps) {
+  const handleClose = useCallback((e: React.MouseEvent, tabId: string) => {
     e.stopPropagation();
     onTabClose(tabId);
-  };
+  }, [onTabClose]);
 
-  const handleCloseAll = (e: React.MouseEvent) => {
+  const handleCloseAll = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     if (onCloseAll) {
       onCloseAll();
     }
-  };
+  }, [onCloseAll]);
 
   return (
     <div className="tab-bar">
@@ -63,4 +64,4 @@ export function TabBar({ tabs, activeTabId, onTabClick, onTabClose, onCloseAll }
       )}
     </div>
   );
-}
+});

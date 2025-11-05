@@ -1,4 +1,4 @@
-import { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
+import { useState, useEffect, useImperativeHandle, forwardRef, useCallback, useRef } from 'react';
 import './GitPanel.css';
 import { Trash2, FileText } from 'lucide-react';
 
@@ -26,17 +26,9 @@ export const GitPanel = forwardRef<GitPanelRef, GitPanelProps>(
   const [commitMessage, setCommitMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [selectedRepo, setSelectedRepo] = useState<string | null>(null);
+  const refreshTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    loadChangedFiles();
-  }, [repos]);
-
-  // Expose refresh function to parent
-  useImperativeHandle(ref, () => ({
-    refresh: loadChangedFiles
-  }));
-
-  const loadChangedFiles = async () => {
+  const loadChangedFiles = useCallback(async () => {
     const allFiles: ChangedFile[] = [];
 
     for (const repo of repos) {
@@ -56,7 +48,27 @@ export const GitPanel = forwardRef<GitPanelRef, GitPanelProps>(
     if (repos.length > 0 && !selectedRepo) {
       setSelectedRepo(repos[0].path);
     }
-  };
+  }, [repos, selectedRepo]);
+
+  // Debounced refresh function to prevent rapid successive updates
+  const debouncedRefresh = useCallback(() => {
+    if (refreshTimerRef.current) {
+      clearTimeout(refreshTimerRef.current);
+    }
+    refreshTimerRef.current = setTimeout(() => {
+      loadChangedFiles();
+      refreshTimerRef.current = null;
+    }, 500); // 500ms debounce
+  }, [loadChangedFiles]);
+
+  useEffect(() => {
+    loadChangedFiles();
+  }, [repos, loadChangedFiles]);
+
+  // Expose debounced refresh function to parent
+  useImperativeHandle(ref, () => ({
+    refresh: debouncedRefresh
+  }), [debouncedRefresh]);
 
   const handleStageFile = async (file: ChangedFile) => {
     const success = await window.electronAPI.gitAdd(file.repoPath, file.filepath);

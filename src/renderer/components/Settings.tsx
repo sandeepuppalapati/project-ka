@@ -219,7 +219,7 @@ export function Settings({ onClose }: SettingsProps) {
         <div className="settings-header">
           <div>
             <h2><SettingsIcon size={20} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }} /> Settings</h2>
-            <p className="settings-version">AI IDE v0.6.0</p>
+            <p className="settings-version">AI IDE v0.9.0</p>
           </div>
           <button className="settings-close" onClick={onClose}>×</button>
         </div>

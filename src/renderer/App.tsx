@@ -21,6 +21,7 @@ import { Terminal } from './components/Terminal'
 import { DiffViewer } from './components/DiffViewer'
 import { ActivityBar } from './components/ActivityBar'
 import { StatusBar } from './components/StatusBar'
+import { TestRunner } from './components/TestRunner'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useRepositoriesPersistence, useWorkspacePersistence } from './hooks/usePersistence'
 import { useWorkspaceState } from './hooks/useWorkspaceState'
@@ -66,7 +67,7 @@ function App() {
   const [sessionDuration, setSessionDuration] = useState('00:00:00');
   const [diffContent, setDiffContent] = useState<Map<string, { oldContent: string; newContent: string }>>(new Map());
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [activityView, setActivityView] = useState<'files' | 'git' | 'chat' | 'terminal' | 'settings'>('files');
+  const [activityView, setActivityView] = useState<'files' | 'git' | 'chat' | 'tests' | 'terminal' | 'settings'>('files');
   const [isMigrating, setIsMigrating] = useState(false);
   const [migrationError, setMigrationError] = useState<string | null>(null);
   const sessionStartTime = useRef(Date.now());
@@ -811,6 +812,8 @@ ${code}
                         onToggleSidebar={() => setSidebarCollapsed(true)}
                         onViewDiff={handleOpenDiff}
                       />
+                    ) : activityView === 'tests' ? (
+                      <TestRunner repos={repos} />
                     ) : activityView === 'files' ? (
                       <div className="file-trees-container">
                         {repos.map(repo => (

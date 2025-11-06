@@ -1,7 +1,7 @@
-import { Files, GitBranch, MessageSquare, Terminal, Settings } from 'lucide-react';
+import { Files, GitBranch, MessageSquare, Terminal, Settings, FlaskConical } from 'lucide-react';
 import './ActivityBar.css';
 
-type ActivityView = 'files' | 'git' | 'chat' | 'terminal' | 'settings';
+type ActivityView = 'files' | 'git' | 'chat' | 'tests' | 'terminal' | 'settings';
 
 interface ActivityBarProps {
   activeView: ActivityView;
@@ -35,6 +35,14 @@ export function ActivityBar({ activeView, onViewChange, showTerminal }: Activity
           title="AI Chat"
         >
           <MessageSquare size={24} />
+        </button>
+
+        <button
+          className={`activity-bar-item ${activeView === 'tests' ? 'active' : ''}`}
+          onClick={() => onViewChange('tests')}
+          title="Test Runner"
+        >
+          <FlaskConical size={24} />
         </button>
       </div>
 

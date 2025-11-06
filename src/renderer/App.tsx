@@ -9,6 +9,7 @@ import { FileViewer } from './components/FileViewer'
 import { GitPanel } from './components/GitPanel'
 import { TabBar } from './components/TabBar'
 import { QuickOpen } from './components/QuickOpen'
+import { GlobalSearch } from './components/GlobalSearch'
 import { Settings } from './components/Settings'
 import { CreateWorkspace } from './components/CreateWorkspace'
 import { EditWorkspace } from './components/EditWorkspace'
@@ -50,6 +51,7 @@ function App() {
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [showQuickOpen, setShowQuickOpen] = useState(false);
+  const [showGlobalSearch, setShowGlobalSearch] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
   const [showEditWorkspace, setShowEditWorkspace] = useState(false);
@@ -287,12 +289,13 @@ function App() {
     }
   };
 
-  const handleFileSelect = (filePath: string, fileName: string) => {
+  const handleFileSelect = (filePath: string, fileName: string, line?: number) => {
     // Check if tab already exists
     const existingTab = tabs.find(tab => tab.path === filePath);
 
     if (existingTab) {
       setActiveTabId(existingTab.id);
+      // TODO: Scroll to line if provided
     } else {
       // Create new tab
       const newTab: Tab = {
@@ -304,6 +307,7 @@ function App() {
       };
       setTabs([...tabs, newTab]);
       setActiveTabId(newTab.id);
+      // TODO: Scroll to line if provided
     }
   };
 
@@ -416,6 +420,9 @@ function App() {
     onQuickOpen: () => {
       setShowQuickOpen(true);
     },
+    onGlobalSearch: () => {
+      setShowGlobalSearch(true);
+    },
     onToggleSidebar: () => {
       setSidebarCollapsed(!sidebarCollapsed);
     },
@@ -514,6 +521,13 @@ function App() {
           onClose={() => setShowQuickOpen(false)}
         />
       )}
+      {showGlobalSearch && (
+        <GlobalSearch
+          repos={repos}
+          onFileSelect={handleFileSelect}
+          onClose={() => setShowGlobalSearch(false)}
+        />
+      )}
       {showSettings && (
         <Settings onClose={() => setShowSettings(false)} />
       )}
@@ -564,6 +578,10 @@ function App() {
                 <div className="shortcut-item">
                   <span className="shortcut-keys"><kbd>⌘/Ctrl</kbd> + <kbd>P</kbd></span>
                   <span className="shortcut-desc">Quick open file</span>
+                </div>
+                <div className="shortcut-item">
+                  <span className="shortcut-keys"><kbd>⌘/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>F</kbd></span>
+                  <span className="shortcut-desc">Search in all files</span>
                 </div>
               </div>
               <div className="shortcuts-section">

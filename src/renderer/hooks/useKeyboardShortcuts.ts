@@ -6,6 +6,7 @@ interface KeyboardShortcuts {
   onNextTab?: () => void;
   onPrevTab?: () => void;
   onQuickOpen?: () => void;
+  onGlobalSearch?: () => void;
   onToggleSidebar?: () => void;
   onToggleTerminal?: () => void;
 }
@@ -16,6 +17,7 @@ export function useKeyboardShortcuts({
   onNextTab,
   onPrevTab,
   onQuickOpen,
+  onGlobalSearch,
   onToggleSidebar,
   onToggleTerminal,
 }: KeyboardShortcuts) {
@@ -49,9 +51,15 @@ export function useKeyboardShortcuts({
       }
 
       // Cmd/Ctrl + P: Quick open
-      if (modifier && e.key === 'p') {
+      if (modifier && e.key === 'p' && !e.shiftKey) {
         e.preventDefault();
         onQuickOpen?.();
+      }
+
+      // Cmd/Ctrl + Shift + F: Global search
+      if (modifier && e.shiftKey && e.key === 'F') {
+        e.preventDefault();
+        onGlobalSearch?.();
       }
 
       // Cmd/Ctrl + B: Toggle sidebar

@@ -35,6 +35,14 @@ export interface UIState {
   sidebarWidth: number;
   chatPanelWidth: number;
   disconnectedAgents: string[]; // IDs of agents disconnected from Bridge
+  recentFiles?: RecentFile[]; // Recently opened files
+}
+
+export interface RecentFile {
+  path: string;
+  name: string;
+  repoName: string;
+  timestamp: number;
 }
 
 export interface OpenFile {

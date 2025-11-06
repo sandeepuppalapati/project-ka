@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import type { WorkspaceState, UIState, OpenFile } from '../types/workspace';
+import type { WorkspaceState, UIState, OpenFile, RecentFile } from '../types/workspace';
 
 export function useWorkspaceState(workspacePath: string | null) {
   const [state, setState] = useState<UIState>({
@@ -11,6 +11,7 @@ export function useWorkspaceState(workspacePath: string | null) {
     sidebarWidth: 250,
     chatPanelWidth: 400,
     disconnectedAgents: [],
+    recentFiles: [],
   });
 
   const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -29,6 +30,7 @@ export function useWorkspaceState(workspacePath: string | null) {
         sidebarWidth: 250,
         chatPanelWidth: 400,
         disconnectedAgents: [],
+        recentFiles: [],
       });
       workspacePathRef.current = null;
       return;
@@ -181,6 +183,20 @@ export function useWorkspaceState(workspacePath: string | null) {
     });
   }, [debouncedSave]);
 
+  // Add file to recent files (limit to 20 most recent)
+  const addRecentFile = useCallback((file: RecentFile) => {
+    setState(prev => {
+      const recentFiles = prev.recentFiles || [];
+      // Remove existing entry for this file
+      const filtered = recentFiles.filter(f => f.path !== file.path);
+      // Add to front with current timestamp
+      const updated = [{ ...file, timestamp: Date.now() }, ...filtered].slice(0, 20);
+      const newState = { ...prev, recentFiles: updated };
+      debouncedSave(newState);
+      return newState;
+    });
+  }, [debouncedSave]);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -200,6 +216,7 @@ export function useWorkspaceState(workspacePath: string | null) {
     updateSidebarWidth,
     updateChatPanelWidth,
     updateFilePosition,
+    addRecentFile,
     immediateSave,
   };
 }

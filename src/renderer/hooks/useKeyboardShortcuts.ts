@@ -7,6 +7,7 @@ interface KeyboardShortcuts {
   onPrevTab?: () => void;
   onQuickOpen?: () => void;
   onGlobalSearch?: () => void;
+  onRecentFiles?: () => void;
   onToggleSidebar?: () => void;
   onToggleTerminal?: () => void;
 }
@@ -18,6 +19,7 @@ export function useKeyboardShortcuts({
   onPrevTab,
   onQuickOpen,
   onGlobalSearch,
+  onRecentFiles,
   onToggleSidebar,
   onToggleTerminal,
 }: KeyboardShortcuts) {
@@ -62,6 +64,12 @@ export function useKeyboardShortcuts({
         onGlobalSearch?.();
       }
 
+      // Cmd/Ctrl + E: Recent files
+      if (modifier && e.key === 'e' && !e.shiftKey) {
+        e.preventDefault();
+        onRecentFiles?.();
+      }
+
       // Cmd/Ctrl + B: Toggle sidebar
       if (modifier && e.key === 'b') {
         e.preventDefault();
@@ -77,5 +85,5 @@ export function useKeyboardShortcuts({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onSave, onCloseTab, onNextTab, onPrevTab, onQuickOpen, onGlobalSearch, onToggleSidebar, onToggleTerminal]);
+  }, [onSave, onCloseTab, onNextTab, onPrevTab, onQuickOpen, onGlobalSearch, onRecentFiles, onToggleSidebar, onToggleTerminal]);
 }

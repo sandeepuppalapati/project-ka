@@ -10,6 +10,7 @@ import { GitPanel } from './components/GitPanel'
 import { TabBar } from './components/TabBar'
 import { QuickOpen } from './components/QuickOpen'
 import { GlobalSearch } from './components/GlobalSearch'
+import { RecentFiles } from './components/RecentFiles'
 import { Settings } from './components/Settings'
 import { CreateWorkspace } from './components/CreateWorkspace'
 import { EditWorkspace } from './components/EditWorkspace'
@@ -53,6 +54,7 @@ function App() {
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [showQuickOpen, setShowQuickOpen] = useState(false);
   const [showGlobalSearch, setShowGlobalSearch] = useState(false);
+  const [showRecentFiles, setShowRecentFiles] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
   const [showEditWorkspace, setShowEditWorkspace] = useState(false);
@@ -315,6 +317,17 @@ function App() {
       setTabs([...tabs, newTab]);
       setActiveTabId(newTab.id);
     }
+
+    // Add to recent files
+    const repo = repos.find(r => filePath.startsWith(r.path));
+    if (repo) {
+      workspaceState.addRecentFile({
+        path: filePath,
+        name: fileName,
+        repoName: repo.name,
+        timestamp: Date.now(),
+      });
+    }
   };
 
   const handleOpenDiff = async (repoPath: string, filepath: string) => {
@@ -429,6 +442,9 @@ function App() {
     onGlobalSearch: () => {
       setShowGlobalSearch(true);
     },
+    onRecentFiles: () => {
+      setShowRecentFiles(true);
+    },
     onToggleSidebar: () => {
       setSidebarCollapsed(!sidebarCollapsed);
     },
@@ -534,6 +550,13 @@ function App() {
           onClose={() => setShowGlobalSearch(false)}
         />
       )}
+      {showRecentFiles && (
+        <RecentFiles
+          recentFiles={workspaceState.state.recentFiles || []}
+          onFileSelect={handleFileSelect}
+          onClose={() => setShowRecentFiles(false)}
+        />
+      )}
       {showSettings && (
         <Settings onClose={() => setShowSettings(false)} />
       )}
@@ -588,6 +611,10 @@ function App() {
                 <div className="shortcut-item">
                   <span className="shortcut-keys"><kbd>⌘/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>F</kbd></span>
                   <span className="shortcut-desc">Search in all files</span>
+                </div>
+                <div className="shortcut-item">
+                  <span className="shortcut-keys"><kbd>⌘/Ctrl</kbd> + <kbd>E</kbd></span>
+                  <span className="shortcut-desc">Recent files</span>
                 </div>
               </div>
               <div className="shortcuts-section">

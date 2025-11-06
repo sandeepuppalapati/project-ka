@@ -10,6 +10,7 @@ import { GitPanel } from './components/GitPanel'
 import { TabBar } from './components/TabBar'
 import { QuickOpen } from './components/QuickOpen'
 import { GlobalSearch } from './components/GlobalSearch'
+import { FindReplace } from './components/FindReplace'
 import { RecentFiles } from './components/RecentFiles'
 import { Settings } from './components/Settings'
 import { CreateWorkspace } from './components/CreateWorkspace'
@@ -54,6 +55,7 @@ function App() {
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [showQuickOpen, setShowQuickOpen] = useState(false);
   const [showGlobalSearch, setShowGlobalSearch] = useState(false);
+  const [showFindReplace, setShowFindReplace] = useState(false);
   const [showRecentFiles, setShowRecentFiles] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
@@ -442,6 +444,9 @@ function App() {
     onGlobalSearch: () => {
       setShowGlobalSearch(true);
     },
+    onFindReplace: () => {
+      setShowFindReplace(true);
+    },
     onRecentFiles: () => {
       setShowRecentFiles(true);
     },
@@ -550,6 +555,12 @@ function App() {
           onClose={() => setShowGlobalSearch(false)}
         />
       )}
+      {showFindReplace && (
+        <FindReplace
+          repos={repos}
+          onClose={() => setShowFindReplace(false)}
+        />
+      )}
       {showRecentFiles && (
         <RecentFiles
           recentFiles={workspaceState.state.recentFiles || []}
@@ -611,6 +622,10 @@ function App() {
                 <div className="shortcut-item">
                   <span className="shortcut-keys"><kbd>⌘/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>F</kbd></span>
                   <span className="shortcut-desc">Search in all files</span>
+                </div>
+                <div className="shortcut-item">
+                  <span className="shortcut-keys"><kbd>⌘/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>H</kbd></span>
+                  <span className="shortcut-desc">Find and replace in all files</span>
                 </div>
                 <div className="shortcut-item">
                   <span className="shortcut-keys"><kbd>⌘/Ctrl</kbd> + <kbd>E</kbd></span>

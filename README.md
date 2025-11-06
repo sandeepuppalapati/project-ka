@@ -2,7 +2,7 @@
 
 > **"For AI by AI"** - An AI-powered IDE where AI agents autonomously code across multiple repositories
 
-![Version](https://img.shields.io/badge/version-0.10.0-blue.svg)
+![Version](https://img.shields.io/badge/version-0.11.0-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Electron](https://img.shields.io/badge/electron-34.0.0-blue.svg)
 ![React](https://img.shields.io/badge/react-18.3.1-blue.svg)
@@ -33,6 +33,7 @@ AI IDE is a next-generation development environment that revolutionizes how you 
 ✅ **Recent Files** - Quick access to recently opened files with Cmd/Ctrl+E
 ✅ **AI Context Menu** - Right-click code to explain, refactor, fix, comment, or optimize
 ✅ **Test Runner** - Run tests with integrated results display
+✅ **Screen Recording** - Built-in screen capture for creating tutorials and demos
 ✅ **Line Navigation** - Jump to specific lines from search results
 ✅ **High Performance** - Virtual scrolling, lazy loading, and React optimizations
 ✅ **Logging System** - Built-in logging with log viewer for debugging

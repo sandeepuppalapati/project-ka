@@ -1,5 +1,6 @@
 import { useState, useEffect, useImperativeHandle, forwardRef, useRef, lazy, Suspense } from 'react';
 import type { editor } from 'monaco-editor';
+import * as monaco from 'monaco-editor';
 import { FileText, AlertTriangle } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import './FileViewer.css';
@@ -129,6 +130,7 @@ export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
         label: '🤖 Ask AI to Explain',
         contextMenuGroupId: 'ai-actions',
         contextMenuOrder: 1,
+        precondition: 'editorHasSelection',
         run: () => {
           const sel = getSelection();
           if (sel) {
@@ -147,6 +149,7 @@ export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
         label: '🤖 Ask AI to Refactor',
         contextMenuGroupId: 'ai-actions',
         contextMenuOrder: 2,
+        precondition: 'editorHasSelection',
         run: () => {
           const sel = getSelection();
           if (sel) {
@@ -165,6 +168,7 @@ export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
         label: '🤖 Ask AI to Fix Bug',
         contextMenuGroupId: 'ai-actions',
         contextMenuOrder: 3,
+        precondition: 'editorHasSelection',
         run: () => {
           const sel = getSelection();
           if (sel) {
@@ -183,6 +187,7 @@ export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
         label: '🤖 Ask AI to Add Comments',
         contextMenuGroupId: 'ai-actions',
         contextMenuOrder: 4,
+        precondition: 'editorHasSelection',
         run: () => {
           const sel = getSelection();
           if (sel) {
@@ -201,6 +206,7 @@ export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
         label: '🤖 Ask AI to Optimize',
         contextMenuGroupId: 'ai-actions',
         contextMenuOrder: 5,
+        precondition: 'editorHasSelection',
         run: () => {
           const sel = getSelection();
           if (sel) {

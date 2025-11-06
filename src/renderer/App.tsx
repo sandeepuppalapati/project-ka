@@ -413,7 +413,15 @@ ${code}
 \`\`\``;
 
     // Post to Bridge
-    bridge.sendMessage(message);
+    bridge.postToBridge({
+      agentId: 'user',
+      agentName: 'You',
+      type: 'user',
+      content: message,
+      metadata: {
+        filePaths: [fileName]
+      }
+    });
 
     // Switch to Bridge chat tab
     setActiveChatTab('bridge');

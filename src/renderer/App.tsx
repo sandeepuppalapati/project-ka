@@ -402,6 +402,23 @@ function App() {
     gitPanelRef.current?.refresh();
   };
 
+  const handleAskAI = (prompt: string, code: string, fileName: string, lineRange: { start: number; end: number }) => {
+    // Format the message with context
+    const message = `${prompt}
+
+**File:** \`${fileName}\` (lines ${lineRange.start}-${lineRange.end})
+
+\`\`\`
+${code}
+\`\`\``;
+
+    // Post to Bridge
+    bridge.sendMessage(message);
+
+    // Switch to Bridge chat tab
+    setActiveChatTab('bridge');
+  };
+
   const activeTab = tabs.find(tab => tab.id === activeTabId);
   const currentFile = activeTab ? { path: activeTab.path, name: activeTab.name } : null;
 
@@ -843,6 +860,7 @@ function App() {
                                 line={activeTab?.line}
                                 onDirtyChange={handleFileDirtyChange}
                                 onSaved={handleFileSaved}
+                                onAskAI={handleAskAI}
                               />
                             )}
                           </div>

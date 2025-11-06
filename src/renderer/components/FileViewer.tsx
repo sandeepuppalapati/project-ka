@@ -13,6 +13,7 @@ interface FileViewerProps {
   line?: number;
   onDirtyChange?: (isDirty: boolean) => void;
   onSaved?: () => void;
+  onAskAI?: (prompt: string, code: string, fileName: string, lineRange: { start: number; end: number }) => void;
 }
 
 export interface FileViewerRef {
@@ -20,7 +21,7 @@ export interface FileViewerRef {
 }
 
 export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
-  ({ filePath, fileName, line, onDirtyChange, onSaved }, ref) => {
+  ({ filePath, fileName, line, onDirtyChange, onSaved, onAskAI }, ref) => {
   const { actualTheme } = useTheme();
   const [content, setContent] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -101,6 +102,118 @@ export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
 
   const handleEditorMount = (editor: editor.IStandaloneCodeEditor) => {
     editorRef.current = editor;
+
+    // Add AI context menu actions if callback is provided
+    if (onAskAI && fileName) {
+      // Helper to get selected code and line range
+      const getSelection = () => {
+        const selection = editor.getSelection();
+        const model = editor.getModel();
+        if (!selection || !model) return null;
+
+        const selectedText = model.getValueInRange(selection);
+        if (!selectedText) return null;
+
+        return {
+          code: selectedText,
+          lineRange: {
+            start: selection.startLineNumber,
+            end: selection.endLineNumber
+          }
+        };
+      };
+
+      // Add context menu actions
+      editor.addAction({
+        id: 'ai-explain',
+        label: '🤖 Ask AI to Explain',
+        contextMenuGroupId: 'ai-actions',
+        contextMenuOrder: 1,
+        run: () => {
+          const sel = getSelection();
+          if (sel) {
+            onAskAI(
+              'Please explain this code:',
+              sel.code,
+              fileName,
+              sel.lineRange
+            );
+          }
+        }
+      });
+
+      editor.addAction({
+        id: 'ai-refactor',
+        label: '🤖 Ask AI to Refactor',
+        contextMenuGroupId: 'ai-actions',
+        contextMenuOrder: 2,
+        run: () => {
+          const sel = getSelection();
+          if (sel) {
+            onAskAI(
+              'Please refactor this code to improve it:',
+              sel.code,
+              fileName,
+              sel.lineRange
+            );
+          }
+        }
+      });
+
+      editor.addAction({
+        id: 'ai-fix',
+        label: '🤖 Ask AI to Fix Bug',
+        contextMenuGroupId: 'ai-actions',
+        contextMenuOrder: 3,
+        run: () => {
+          const sel = getSelection();
+          if (sel) {
+            onAskAI(
+              'Please help me fix any bugs in this code:',
+              sel.code,
+              fileName,
+              sel.lineRange
+            );
+          }
+        }
+      });
+
+      editor.addAction({
+        id: 'ai-comment',
+        label: '🤖 Ask AI to Add Comments',
+        contextMenuGroupId: 'ai-actions',
+        contextMenuOrder: 4,
+        run: () => {
+          const sel = getSelection();
+          if (sel) {
+            onAskAI(
+              'Please add helpful comments to this code:',
+              sel.code,
+              fileName,
+              sel.lineRange
+            );
+          }
+        }
+      });
+
+      editor.addAction({
+        id: 'ai-optimize',
+        label: '🤖 Ask AI to Optimize',
+        contextMenuGroupId: 'ai-actions',
+        contextMenuOrder: 5,
+        run: () => {
+          const sel = getSelection();
+          if (sel) {
+            onAskAI(
+              'Please optimize this code for better performance:',
+              sel.code,
+              fileName,
+              sel.lineRange
+            );
+          }
+        }
+      });
+    }
   };
 
   // Scroll to specific line when provided

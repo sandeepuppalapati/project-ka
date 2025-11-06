@@ -36,6 +36,7 @@ interface Tab {
   path: string;
   name: string;
   isDirty: boolean;
+  line?: number;
   type?: 'file' | 'diff';
   diffData?: {
     repoPath: string;
@@ -294,8 +295,13 @@ function App() {
     const existingTab = tabs.find(tab => tab.path === filePath);
 
     if (existingTab) {
+      // Update the tab with new line number if provided
+      if (line) {
+        setTabs(tabs.map(tab =>
+          tab.id === existingTab.id ? { ...tab, line } : tab
+        ));
+      }
       setActiveTabId(existingTab.id);
-      // TODO: Scroll to line if provided
     } else {
       // Create new tab
       const newTab: Tab = {
@@ -303,11 +309,11 @@ function App() {
         path: filePath,
         name: fileName,
         isDirty: false,
+        line,
         type: 'file'
       };
       setTabs([...tabs, newTab]);
       setActiveTabId(newTab.id);
-      // TODO: Scroll to line if provided
     }
   };
 
@@ -792,6 +798,7 @@ function App() {
                                 ref={fileViewerRef}
                                 filePath={currentFile?.path || null}
                                 fileName={currentFile?.name || null}
+                                line={activeTab?.line}
                                 onDirtyChange={handleFileDirtyChange}
                                 onSaved={handleFileSaved}
                               />

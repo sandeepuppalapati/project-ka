@@ -10,6 +10,7 @@ const Editor = lazy(() => import('@monaco-editor/react'));
 interface FileViewerProps {
   filePath: string | null;
   fileName: string | null;
+  line?: number;
   onDirtyChange?: (isDirty: boolean) => void;
   onSaved?: () => void;
 }
@@ -19,7 +20,7 @@ export interface FileViewerRef {
 }
 
 export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
-  ({ filePath, fileName, onDirtyChange, onSaved }, ref) => {
+  ({ filePath, fileName, line, onDirtyChange, onSaved }, ref) => {
   const { actualTheme } = useTheme();
   const [content, setContent] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -101,6 +102,18 @@ export const FileViewer = forwardRef<FileViewerRef, FileViewerProps>(
   const handleEditorMount = (editor: editor.IStandaloneCodeEditor) => {
     editorRef.current = editor;
   };
+
+  // Scroll to specific line when provided
+  useEffect(() => {
+    if (editorRef.current && line && line > 0) {
+      // Small delay to ensure editor is fully rendered
+      setTimeout(() => {
+        editorRef.current?.revealLineInCenter(line);
+        editorRef.current?.setPosition({ lineNumber: line, column: 1 });
+        editorRef.current?.focus();
+      }, 100);
+    }
+  }, [line, filePath]);
 
   const getLanguage = (filename: string | null): string => {
     if (!filename) return 'plaintext';

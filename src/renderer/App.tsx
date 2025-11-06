@@ -22,6 +22,7 @@ import { DiffViewer } from './components/DiffViewer'
 import { ActivityBar } from './components/ActivityBar'
 import { StatusBar } from './components/StatusBar'
 import { TestRunner } from './components/TestRunner'
+import { ScreenRecorder } from './components/ScreenRecorder'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useRepositoriesPersistence, useWorkspacePersistence } from './hooks/usePersistence'
 import { useWorkspaceState } from './hooks/useWorkspaceState'
@@ -764,6 +765,9 @@ ${code}
               {showTerminal ? <ChevronDown size={16} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} /> : <ChevronUp size={16} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />}
               Terminal
             </button>
+          )}
+          {currentWorkspace && (
+            <ScreenRecorder />
           )}
           <button
             className="header-settings-btn"

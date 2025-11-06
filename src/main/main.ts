@@ -416,6 +416,24 @@ ipcMain.handle('fs:writeFile', async (_event, filePath: string, content: string)
   }
 });
 
+// Save screen recording
+ipcMain.handle('screen:saveRecording', async (_event, buffer: Buffer) => {
+  try {
+    const videosPath = app.getPath('videos');
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+    const fileName = `ai-ide-recording-${timestamp}.webm`;
+    const filePath = path.join(videosPath, fileName);
+
+    await fs.writeFile(filePath, buffer);
+    logger.info('screen', `Saved recording: ${filePath}`, { size: `${buffer.length} bytes` });
+
+    return { success: true, path: filePath };
+  } catch (error) {
+    logger.error('screen', 'Failed to save recording', error);
+    return { success: false, error: String(error) };
+  }
+});
+
 // Execute shell command
 ipcMain.handle('shell:execute', async (_event, command: string, cwd?: string) => {
   try {

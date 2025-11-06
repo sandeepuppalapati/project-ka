@@ -26,6 +26,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   readFile: (filePath: string) => ipcRenderer.invoke('fs:readFile', filePath),
   writeFile: (filePath: string, content: string) => ipcRenderer.invoke('fs:writeFile', filePath, content),
 
+  // Screen Recording APIs
+  saveRecording: (buffer: Uint8Array) => ipcRenderer.invoke('screen:saveRecording', Buffer.from(buffer)),
+
   // AI APIs
   sendChatMessage: (messages: Array<{ role: string; content: string }>, context?: { filePath?: string; fileContent?: string; repoPath?: string }, sessionId?: string) =>
     ipcRenderer.invoke('ai:chat', messages, context, sessionId),

@@ -57,7 +57,7 @@ export function useKeyboardShortcuts({
       }
 
       // Cmd/Ctrl + Shift + F: Global search
-      if (modifier && e.shiftKey && e.key === 'F') {
+      if (modifier && e.shiftKey && (e.key === 'F' || e.key === 'f')) {
         e.preventDefault();
         onGlobalSearch?.();
       }
@@ -77,5 +77,5 @@ export function useKeyboardShortcuts({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onSave, onCloseTab, onNextTab, onPrevTab, onQuickOpen, onToggleSidebar, onToggleTerminal]);
+  }, [onSave, onCloseTab, onNextTab, onPrevTab, onQuickOpen, onGlobalSearch, onToggleSidebar, onToggleTerminal]);
 }

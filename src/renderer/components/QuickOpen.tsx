@@ -29,19 +29,64 @@ export function QuickOpen({ repos, onFileSelect, onClose }: QuickOpenProps) {
     loadAllFiles();
   }, []);
 
+  // Fuzzy match score - higher is better
+  const fuzzyScore = (str: string, query: string): number => {
+    str = str.toLowerCase();
+    query = query.toLowerCase();
+
+    let score = 0;
+    let queryIndex = 0;
+    let lastMatchIndex = -1;
+
+    for (let i = 0; i < str.length && queryIndex < query.length; i++) {
+      if (str[i] === query[queryIndex]) {
+        // Consecutive matches get bonus
+        score += (lastMatchIndex === i - 1) ? 10 : 5;
+
+        // Start of word match gets bonus
+        if (i === 0 || str[i - 1] === '/' || str[i - 1] === '-' || str[i - 1] === '_') {
+          score += 10;
+        }
+
+        lastMatchIndex = i;
+        queryIndex++;
+      }
+    }
+
+    // All query chars matched
+    if (queryIndex === query.length) {
+      // Exact match at start gets highest score
+      if (str.startsWith(query)) {
+        score += 100;
+      }
+      // Shorter strings are better (more precise match)
+      score += Math.max(0, 50 - str.length);
+      return score;
+    }
+
+    return 0; // No match
+  };
+
   useEffect(() => {
     // Filter files based on search query
     if (!searchQuery) {
       setFilteredFiles(allFiles.slice(0, 50)); // Show first 50
     } else {
       const query = searchQuery.toLowerCase();
-      const filtered = allFiles
-        .filter(file =>
-          file.name.toLowerCase().includes(query) ||
-          file.path.toLowerCase().includes(query)
-        )
-        .slice(0, 50);
-      setFilteredFiles(filtered);
+      const scored = allFiles
+        .map(file => ({
+          file,
+          score: Math.max(
+            fuzzyScore(file.name, query),
+            fuzzyScore(file.path, query) * 0.8 // Path match slightly lower priority
+          )
+        }))
+        .filter(item => item.score > 0)
+        .sort((a, b) => b.score - a.score) // Highest score first
+        .slice(0, 50)
+        .map(item => item.file);
+
+      setFilteredFiles(scored);
       setSelectedIndex(0);
     }
   }, [searchQuery, allFiles]);

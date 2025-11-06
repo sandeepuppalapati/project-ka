@@ -29,35 +29,33 @@ export function ScreenRecorder({ onClose }: ScreenRecorderProps) {
 
   const startRecording = async () => {
     try {
-      // Get screen source using Electron's desktopCapturer
-      const sources = await (window.navigator.mediaDevices as any).getUserMedia({
-        audio: false,
+      // Use standard screen capture API
+      const stream = await navigator.mediaDevices.getDisplayMedia({
         video: {
-          mandatory: {
-            chromeMediaSource: 'desktop',
-            chromeMediaSourceId: 'screen:0:0',
-            minWidth: 1280,
-            maxWidth: 1920,
-            minHeight: 720,
-            maxHeight: 1080
-          }
-        }
-      }).catch(() => {
-        // Fallback to screen capture API
-        return navigator.mediaDevices.getDisplayMedia({
-          video: {
-            width: { ideal: 1920 },
-            height: { ideal: 1080 }
-          },
-          audio: false
-        });
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+          frameRate: { ideal: 30 }
+        },
+        audio: false
       });
 
-      streamRef.current = sources;
+      streamRef.current = stream;
+
+      // Try different codecs until one works
+      let mimeType = 'video/webm;codecs=vp9';
+      if (!MediaRecorder.isTypeSupported(mimeType)) {
+        mimeType = 'video/webm;codecs=vp8';
+      }
+      if (!MediaRecorder.isTypeSupported(mimeType)) {
+        mimeType = 'video/webm';
+      }
+      if (!MediaRecorder.isTypeSupported(mimeType)) {
+        mimeType = 'video/mp4';
+      }
 
       // Create MediaRecorder
-      const mediaRecorder = new MediaRecorder(sources, {
-        mimeType: 'video/webm;codecs=vp9'
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: mimeType
       });
 
       mediaRecorderRef.current = mediaRecorder;

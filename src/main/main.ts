@@ -81,16 +81,40 @@ app.whenReady().then(() => {
   });
 });
 
-app.on('window-all-closed', async () => {
-  // Clean up terminals
-  terminal.closeAllTerminals();
+let isQuitting = false;
 
-  // Clean up file watchers (async with timeout)
-  await fileWatcher.stopAllWatchers();
-
+app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
+});
+
+app.on('before-quit', async (event) => {
+  if (isQuitting) {
+    return; // Already cleaning up
+  }
+
+  // Prevent default quit to do cleanup first
+  event.preventDefault();
+  isQuitting = true;
+
+  logger.info('app', 'Application shutting down');
+
+  try {
+    // Clean up terminals synchronously
+    terminal.closeAllTerminals();
+
+    // Clean up file watchers with timeout (max 2 seconds)
+    await Promise.race([
+      fileWatcher.stopAllWatchers(),
+      new Promise(resolve => setTimeout(resolve, 2000))
+    ]);
+  } catch (error) {
+    logger.error('app', 'Error during cleanup', error);
+  }
+
+  // Now actually quit
+  app.exit(0);
 });
 
 // IPC Handlers

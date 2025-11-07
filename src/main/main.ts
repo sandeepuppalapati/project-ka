@@ -43,9 +43,9 @@ function createWindow() {
     },
   });
 
-  // Enable microphone permissions
+  // Enable microphone and screen capture permissions
   mainWindow.webContents.session.setPermissionRequestHandler((_webContents, permission, callback) => {
-    const allowedPermissions = ['media', 'microphone', 'audioCapture'];
+    const allowedPermissions = ['media', 'microphone', 'audioCapture', 'display-capture'];
     if (allowedPermissions.includes(permission)) {
       callback(true);
     } else {
@@ -55,7 +55,7 @@ function createWindow() {
 
   // Also handle permission checks
   mainWindow.webContents.session.setPermissionCheckHandler((_webContents, permission) => {
-    const allowedPermissions = ['media', 'microphone', 'audioCapture'];
+    const allowedPermissions = ['media', 'microphone', 'audioCapture', 'display-capture'];
     return allowedPermissions.includes(permission);
   });
 

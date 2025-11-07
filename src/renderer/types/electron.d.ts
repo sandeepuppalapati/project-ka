@@ -28,7 +28,9 @@ export interface ElectronAPI {
   readDir: (dirPath: string) => Promise<DirEntry[] | null>;
   readFile: (filePath: string) => Promise<string | null>;
   writeFile: (filePath: string, content: string) => Promise<boolean>;
+  getDesktopSources: () => Promise<Array<{ id: string; name: string; thumbnail: string }>>;
   saveRecording: (buffer: Uint8Array) => Promise<{ success: boolean; path?: string; error?: string }>;
+  showRecordingInFolder: (filePath: string) => Promise<boolean>;
   sendChatMessage: (messages: Array<{ role: string; content: string }>, context?: { filePath?: string; fileContent?: string; repoPath?: string }, sessionId?: string) => Promise<string>;
   onStreamChunk: (callback: (chunk: StreamChunk) => void) => () => void;
   executeCommand: (command: string, cwd?: string) => Promise<{

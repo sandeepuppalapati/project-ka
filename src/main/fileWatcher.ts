@@ -152,3 +152,15 @@ export async function stopAllWatchers(): Promise<void> {
 export function getWatchedPaths(): string[] {
   return Array.from(watchers.keys());
 }
+
+export function stopAllWatchersSync(): void {
+  for (const [repoPath, watcherInfo] of watchers.entries()) {
+    try {
+      watcherInfo.watcher.close();
+      console.log('[FileWatcher] Stopped watching:', repoPath);
+    } catch (err) {
+      console.error('[FileWatcher] Error stopping watcher:', err);
+    }
+  }
+  watchers.clear();
+}

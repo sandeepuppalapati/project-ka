@@ -29,34 +29,79 @@ export function ScreenRecorder({ onClose }: ScreenRecorderProps) {
 
   const startRecording = async () => {
     try {
-      // Use standard screen capture API
-      const stream = await navigator.mediaDevices.getDisplayMedia({
+      console.log('[ScreenRecorder] Getting desktop sources...');
+
+      // Get available desktop sources (screens and windows)
+      const sources = await window.electronAPI.getDesktopSources();
+
+      if (!sources || sources.length === 0) {
+        throw new Error('No screen sources available');
+      }
+
+      console.log('[ScreenRecorder] Found sources:', sources.length);
+
+      // Use the first screen (usually the main display)
+      const screenSource = sources.find(s => s.name.includes('Screen') || s.name.includes('Entire'));
+      const sourceId = screenSource ? screenSource.id : sources[0].id;
+
+      console.log('[ScreenRecorder] Using source:', sourceId);
+
+      // Get media stream using Electron's chromeMediaSource
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
         video: {
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
-          frameRate: { ideal: 30 }
-        },
-        audio: false
+          mandatory: {
+            chromeMediaSource: 'desktop',
+            chromeMediaSourceId: sourceId,
+            minWidth: 1280,
+            maxWidth: 1920,
+            minHeight: 720,
+            maxHeight: 1080
+          }
+        } as any
       });
 
       streamRef.current = stream;
+      console.log('[ScreenRecorder] Screen capture stream acquired');
 
       // Try different codecs until one works
-      let mimeType = 'video/webm;codecs=vp9';
-      if (!MediaRecorder.isTypeSupported(mimeType)) {
-        mimeType = 'video/webm;codecs=vp8';
-      }
-      if (!MediaRecorder.isTypeSupported(mimeType)) {
-        mimeType = 'video/webm';
-      }
-      if (!MediaRecorder.isTypeSupported(mimeType)) {
-        mimeType = 'video/mp4';
+      const codecs = [
+        'video/webm;codecs=vp9',
+        'video/webm;codecs=vp8',
+        'video/webm;codecs=h264',
+        'video/webm',
+        'video/mp4'
+      ];
+
+      console.log('[ScreenRecorder] Checking codec support:');
+      codecs.forEach(codec => {
+        const supported = MediaRecorder.isTypeSupported(codec);
+        console.log(`  ${codec}: ${supported ? 'YES' : 'NO'}`);
+      });
+
+      let supportedCodec = null;
+      for (const codec of codecs) {
+        if (MediaRecorder.isTypeSupported(codec)) {
+          supportedCodec = codec;
+          console.log('[ScreenRecorder] Selected codec:', codec);
+          break;
+        }
       }
 
-      // Create MediaRecorder
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: mimeType
-      });
+      // Create MediaRecorder with supported codec or let it use default
+      let mediaRecorder;
+      try {
+        mediaRecorder = supportedCodec
+          ? new MediaRecorder(stream, { mimeType: supportedCodec })
+          : new MediaRecorder(stream);
+
+        if (!supportedCodec) {
+          console.log('[ScreenRecorder] Using browser default codec');
+        }
+      } catch (err) {
+        console.error('[ScreenRecorder] MediaRecorder creation failed:', err);
+        throw new Error(`Failed to create MediaRecorder: ${err instanceof Error ? err.message : String(err)}`);
+      }
 
       mediaRecorderRef.current = mediaRecorder;
       chunksRef.current = [];
@@ -122,7 +167,12 @@ export function ScreenRecorder({ onClose }: ScreenRecorderProps) {
       const result = await window.electronAPI.saveRecording(uint8Array);
 
       if (result.success && result.path) {
-        alert(`Recording saved successfully!\n\nLocation: ${result.path}`);
+        const showInFolder = confirm(
+          `Recording saved successfully!\n\nLocation: ${result.path}\n\nClick OK to show in folder, or Cancel to close.`
+        );
+        if (showInFolder) {
+          await window.electronAPI.showRecordingInFolder(result.path);
+        }
       } else {
         alert(`Failed to save recording: ${result.error}`);
       }

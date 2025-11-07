@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog, safeStorage } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, safeStorage, desktopCapturer, shell } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs/promises';
 import { exec } from 'child_process';
@@ -69,6 +69,7 @@ function createWindow() {
   } else {
     mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
   }
+
 }
 
 app.whenReady().then(() => {
@@ -81,40 +82,23 @@ app.whenReady().then(() => {
   });
 });
 
-let isQuitting = false;
-
 app.on('window-all-closed', () => {
+  // On macOS, window-all-closed doesn't always fire, so we rely on before-quit
   if (process.platform !== 'darwin') {
     app.quit();
   }
 });
 
-app.on('before-quit', async (event) => {
-  if (isQuitting) {
-    return; // Already cleaning up
-  }
-
-  // Prevent default quit to do cleanup first
+app.on('before-quit', (event) => {
+  // Prevent default to do cleanup
   event.preventDefault();
-  isQuitting = true;
 
-  logger.info('app', 'Application shutting down');
+  // Clean up terminals and file watchers
+  terminal.closeAllTerminals();
+  fileWatcher.stopAllWatchersSync();
 
-  try {
-    // Clean up terminals synchronously
-    terminal.closeAllTerminals();
-
-    // Clean up file watchers with timeout (max 2 seconds)
-    await Promise.race([
-      fileWatcher.stopAllWatchers(),
-      new Promise(resolve => setTimeout(resolve, 2000))
-    ]);
-  } catch (error) {
-    logger.error('app', 'Error during cleanup', error);
-  }
-
-  // Now actually quit
-  app.exit(0);
+  // Force immediate exit with SIGKILL (necessary because node-pty keeps handles open)
+  process.kill(process.pid, 'SIGKILL');
 });
 
 // IPC Handlers
@@ -440,6 +424,24 @@ ipcMain.handle('fs:writeFile', async (_event, filePath: string, content: string)
   }
 });
 
+// Get desktop sources for screen recording
+ipcMain.handle('screen:getDesktopSources', async () => {
+  try {
+    const sources = await desktopCapturer.getSources({
+      types: ['window', 'screen'],
+      thumbnailSize: { width: 150, height: 150 }
+    });
+    return sources.map(source => ({
+      id: source.id,
+      name: source.name,
+      thumbnail: source.thumbnail.toDataURL()
+    }));
+  } catch (error) {
+    logger.error('screen', 'Failed to get desktop sources', error);
+    return [];
+  }
+});
+
 // Save screen recording
 ipcMain.handle('screen:saveRecording', async (_event, buffer: Buffer) => {
   try {
@@ -455,6 +457,17 @@ ipcMain.handle('screen:saveRecording', async (_event, buffer: Buffer) => {
   } catch (error) {
     logger.error('screen', 'Failed to save recording', error);
     return { success: false, error: String(error) };
+  }
+});
+
+// Show recording in file manager
+ipcMain.handle('screen:showRecording', async (_event, filePath: string) => {
+  try {
+    shell.showItemInFolder(filePath);
+    return true;
+  } catch (error) {
+    logger.error('screen', 'Failed to show recording', error);
+    return false;
   }
 });
 

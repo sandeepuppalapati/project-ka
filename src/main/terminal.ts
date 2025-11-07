@@ -66,8 +66,13 @@ export function closeTerminal(terminalId: string): void {
 
 export function closeAllTerminals(): void {
   for (const [id, terminal] of terminals.entries()) {
-    terminal.pty.kill();
-    console.log('[Terminal] Closed:', id);
+    try {
+      // Force kill with SIGKILL
+      terminal.pty.kill('SIGKILL');
+      console.log('[Terminal] Closed:', id);
+    } catch (err) {
+      console.error('[Terminal] Error closing:', id, err);
+    }
   }
   terminals.clear();
 }

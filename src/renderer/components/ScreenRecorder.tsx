@@ -83,7 +83,8 @@ export function ScreenRecorder({ onClose }: ScreenRecorderProps) {
 
     } catch (error) {
       console.error('Failed to start recording:', error);
-      alert('Failed to start recording. Please make sure screen capture permissions are granted.');
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      alert(`Failed to start recording.\n\nError: ${errorMessage}\n\nPlease make sure screen capture permissions are granted.`);
     }
   };
 

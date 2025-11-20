@@ -703,17 +703,25 @@ ipcMain.handle('ai:chat', async (_event, messages: Array<{ role: string; content
     let apiKey = process.env.ANTHROPIC_API_KEY;
     let model = 'claude-sonnet-4-5-20250929';
 
+    // Try to decrypt API key from encrypted file
+    try {
+      if (safeStorage.isEncryptionAvailable()) {
+        const encrypted = await fs.readFile(encryptedApiKeyPath);
+        apiKey = safeStorage.decryptString(encrypted);
+      }
+    } catch {
+      // Encrypted key file doesn't exist, will try .env fallback
+    }
+
+    // Load model from settings file
     try {
       const settingsData = await fs.readFile(settingsFilePath, 'utf-8');
       const settings = JSON.parse(settingsData);
-      if (settings.apiKey) {
-        apiKey = settings.apiKey;
-      }
       if (settings.model) {
         model = settings.model;
       }
     } catch {
-      // Settings file doesn't exist, use .env
+      // Settings file doesn't exist, use defaults
     }
 
     if (!apiKey) {

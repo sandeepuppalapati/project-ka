@@ -53,8 +53,8 @@ AI IDE is a next-generation development environment that revolutionizes how you 
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/ai-ide.git
-   cd ai-ide
+   git clone https://github.com/sandeepuppalapati/project-ka.git
+   cd project-ka
    ```
 
 2. **Install dependencies**
@@ -452,8 +452,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support & Community
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/ai-ide/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/ai-ide/discussions)
+- **Issues**: [GitHub Issues](https://github.com/sandeepuppalapati/project-ka/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/sandeepuppalapati/project-ka/discussions)
 
 ---
 

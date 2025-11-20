@@ -24,7 +24,6 @@ import { StatusBar } from './components/StatusBar'
 import { TestRunner } from './components/TestRunner'
 import { ScreenRecorder } from './components/ScreenRecorder'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
-import { useRepositoriesPersistence, useWorkspacePersistence } from './hooks/usePersistence'
 import { useWorkspaceState } from './hooks/useWorkspaceState'
 import { useBridge } from './contexts/BridgeContext'
 import { hasOldData, migrateToWorkspace } from './utils/migration'
@@ -166,38 +165,6 @@ function App() {
 
     console.log('[App] Workspace unloaded');
   }, [bridge]);
-
-  // Restore repositories from localStorage
-  const handleReposLoad = useCallback((loadedRepos: Repository[]) => {
-    setRepos(loadedRepos);
-    if (loadedRepos.length > 0) {
-      setShowRepoManager(false);
-    }
-  }, []);
-
-  // Restore workspace from localStorage
-  const handleWorkspaceLoad = useCallback((workspace: any) => {
-    if (workspace.openTabs && workspace.openTabs.length > 0) {
-      setTabs(workspace.openTabs);
-      setActiveTabId(workspace.activeTabId);
-    }
-    if (workspace.activeChatTab) {
-      setActiveChatTab(workspace.activeChatTab);
-    }
-  }, []);
-
-  // Persist repositories
-  useRepositoriesPersistence(repos, handleReposLoad);
-
-  // Persist workspace state
-  useWorkspacePersistence(
-    {
-      activeTabId,
-      activeChatTab,
-      openTabs: tabs,
-    },
-    handleWorkspaceLoad
-  );
 
   // Automatic mandatory migration on mount
   useEffect(() => {
@@ -891,6 +858,7 @@ ${code}
                               currentFile={currentFile}
                               activeTabId={activeChatTab}
                               onTabChange={setActiveChatTab}
+                              workspacePath={currentWorkspace}
                             />
                           </div>
                         </Panel>
@@ -903,6 +871,7 @@ ${code}
                           currentFile={currentFile}
                           activeTabId={activeChatTab}
                           onTabChange={setActiveChatTab}
+                          workspacePath={currentWorkspace}
                         />
                       </div>
                     )}

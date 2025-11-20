@@ -37,7 +37,7 @@ export function Settings({ onClose }: SettingsProps) {
   const [appVersion, setAppVersion] = useState<string>('');
 
   useEffect(() => {
-    // Load settings from electron store and localStorage
+    // Load settings from disk
     const loadSettings = async () => {
       // Get default workspace path
       if (window.electronAPI?.getDefaultWorkspacePath) {
@@ -45,7 +45,7 @@ export function Settings({ onClose }: SettingsProps) {
         setWorkspacePath(defaultPath);
       }
 
-      // Try electron store first
+      // Load settings from encrypted disk storage
       if (window.electronAPI?.getSettings) {
         const settings = await window.electronAPI.getSettings();
         if (settings) {
@@ -53,19 +53,6 @@ export function Settings({ onClose }: SettingsProps) {
           setModel(settings.model || 'claude-sonnet-4-5-20250929');
           setOpenaiApiKey(settings.openaiApiKey || '');
           setLogLevel(settings.logLevel || 'error');
-          return;
-        }
-      }
-
-      // Fallback to localStorage
-      const savedSettings = localStorage.getItem('app_settings');
-      if (savedSettings) {
-        const settings: SettingsData = JSON.parse(savedSettings);
-        setApiKey(settings.apiKey || '');
-        setModel(settings.model || 'claude-sonnet-4-5-20250929');
-        setOpenaiApiKey(settings.openaiApiKey || '');
-        if (settings.workspacePath) {
-          setWorkspacePath(settings.workspacePath);
         }
       }
     };
@@ -137,10 +124,7 @@ export function Settings({ onClose }: SettingsProps) {
       workspacePath,
     };
 
-    // Save to localStorage
-    localStorage.setItem('app_settings', JSON.stringify(settings));
-
-    // Also save to electron store via IPC (including log level)
+    // Save to encrypted disk storage via IPC (including log level)
     if (window.electronAPI?.saveSettings) {
       await window.electronAPI.saveSettings({
         ...settings,

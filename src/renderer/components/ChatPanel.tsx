@@ -3,11 +3,10 @@ import ReactMarkdown from 'react-markdown';
 import './ChatPanel.css';
 import { useBridge, BridgeMessage } from '../contexts/BridgeContext';
 import {
-  useChatMessagesPersistence,
   serializeMessage,
   deserializeMessage,
   type PersistedMessage
-} from '../hooks/usePersistence';
+} from '../utils/serialization';
 import { VoiceRecorder } from './VoiceRecorder';
 import { AlertTriangle, Trash2, Settings, Folder, X } from 'lucide-react';
 
@@ -51,9 +50,10 @@ interface ChatPanelProps {
   currentRepo: Repository | null;
   isBridge: boolean;
   allRepos: Repository[];
+  workspacePath: string | null;
 }
 
-export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: ChatPanelProps) {
+export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos, workspacePath }: ChatPanelProps) {
   const bridge = useBridge();
 
   // Generate unique tab ID for persistence - use useMemo to ensure stability
@@ -89,50 +89,59 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
   const abortControllerRef = useRef<AbortController | null>(null);
   const inputHistory = useRef<string[]>([]);
 
-  // Load messages from localStorage
-  const handleMessagesLoad = useCallback((loadedMessages: PersistedMessage[]) => {
-    if (loadedMessages.length > 0) {
-      const deserialized = loadedMessages.map(deserializeMessage);
-      setMessages(deserialized);
-      // Scroll to bottom after loading messages
-      setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
-      }, 100);
-    }
-  }, [tabId]);
-
-  // Persist messages (convert to serializable format) - memoized to prevent unnecessary saves
-  const persistedMessages = useMemo<PersistedMessage[]>(() => {
-    return messages.map(msg => ({
-      ...serializeMessage(msg),
-      commandOutput: msg.command?.output ? {
-        command: msg.command.command,
-        success: msg.command.output.success,
-        output: msg.command.output.stdout || msg.command.output.stderr,
-      } : undefined,
-    }));
-  }, [messages]);
-
-  useChatMessagesPersistence(tabId, persistedMessages, handleMessagesLoad);
-
-  // Listen for storage events to sync clear operations across tabs/components
+  // Load messages from workspace on mount/workspace change
   useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'chat_messages' && e.newValue === null) {
-        // All chats were cleared
-        setMessages([welcomeMessage]);
-      } else if (e.key === 'chat_messages' && e.newValue) {
-        // Check if this tab's messages were cleared
-        const allMessages = JSON.parse(e.newValue);
-        if (!allMessages[tabId]) {
+    if (!workspacePath) {
+      // No workspace, reset to welcome message
+      setMessages([welcomeMessage]);
+      return;
+    }
+
+    const loadMessages = async () => {
+      try {
+        const loadedMessages = await window.electronAPI.loadChat?.(workspacePath, tabId);
+        if (loadedMessages && loadedMessages.length > 0) {
+          const deserialized = loadedMessages.map(deserializeMessage);
+          setMessages(deserialized);
+          // Scroll to bottom after loading messages
+          setTimeout(() => {
+            messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+          }, 100);
+        } else {
+          // No saved messages, use welcome message
           setMessages([welcomeMessage]);
         }
+      } catch (error) {
+        console.error('Failed to load chat messages:', error);
+        setMessages([welcomeMessage]);
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, [tabId, welcomeMessage]);
+    loadMessages();
+  }, [workspacePath, tabId, welcomeMessage]);
+
+  // Auto-save messages to workspace (debounced)
+  useEffect(() => {
+    if (!workspacePath || messages.length === 0) return;
+
+    const timer = setTimeout(async () => {
+      try {
+        const persistedMessages = messages.map(msg => ({
+          ...serializeMessage(msg),
+          commandOutput: msg.command?.output ? {
+            command: msg.command.command,
+            success: msg.command.output.success,
+            output: msg.command.output.stdout || msg.command.output.stderr,
+          } : undefined,
+        }));
+        await window.electronAPI.saveChat?.(workspacePath, tabId, persistedMessages);
+      } catch (error) {
+        console.error('Failed to save chat messages:', error);
+      }
+    }, 2000); // 2 second debounce
+
+    return () => clearTimeout(timer);
+  }, [workspacePath, tabId, messages]);
 
   // Check for OpenAI API key on mount and listen for settings changes
   useEffect(() => {
@@ -189,46 +198,22 @@ export function ChatPanel({ currentFile, currentRepo, isBridge, allRepos }: Chat
     URL.revokeObjectURL(url);
   };
 
-  const handleClearChat = () => {
+  const handleClearChat = async () => {
     if (isBridge) {
-      // Bridge clear: clear bridge AND all agent chats (coordination context)
-      if (confirm('Clear Bridge and all agent chats?\n\nThis will reset all conversations across the entire workspace. This cannot be undone.')) {
-        // Clear bridge messages
-        bridge.messages.length = 0;
-        localStorage.removeItem('bridge_messages');
-
-        // Clear all chat messages
-        localStorage.removeItem('chat_messages');
-
-        // Reset current bridge messages
+      // Bridge clear: clear bridge messages (uses Bridge context which handles persistence)
+      if (confirm('Clear Bridge chat?\n\nThis will reset the Bridge conversation. This cannot be undone.')) {
+        bridge.clearMessages();
         setMessages([welcomeMessage]);
-
-        // Trigger storage event manually for same-window components
-        window.dispatchEvent(new StorageEvent('storage', {
-          key: 'chat_messages',
-          newValue: null,
-          oldValue: localStorage.getItem('chat_messages'),
-          storageArea: localStorage,
-          url: window.location.href,
-        }));
+        // Bridge context handles saving to workspace
+        if (workspacePath) {
+          await bridge.saveMessagesToWorkspace(workspacePath);
+        }
       }
     } else {
       // Agent chat: just clear this agent's chat
       if (confirm('Clear all messages in this chat? This cannot be undone.')) {
         setMessages([welcomeMessage]);
-        // Clear from localStorage
-        const allMessages = JSON.parse(localStorage.getItem('chat_messages') || '{}');
-        delete allMessages[tabId];
-        localStorage.setItem('chat_messages', JSON.stringify(allMessages));
-
-        // Trigger storage event manually for same-window components
-        window.dispatchEvent(new StorageEvent('storage', {
-          key: 'chat_messages',
-          newValue: JSON.stringify(allMessages),
-          oldValue: localStorage.getItem('chat_messages'),
-          storageArea: localStorage,
-          url: window.location.href,
-        }));
+        // Auto-save will persist the cleared state to workspace
       }
     }
   };

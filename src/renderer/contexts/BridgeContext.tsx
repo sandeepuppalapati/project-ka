@@ -3,7 +3,7 @@ import {
   serializeBridgeMessage,
   deserializeBridgeMessage,
   type PersistedBridgeMessage
-} from '../hooks/usePersistence';
+} from '../utils/serialization';
 
 export interface BridgeMessage {
   id: string;

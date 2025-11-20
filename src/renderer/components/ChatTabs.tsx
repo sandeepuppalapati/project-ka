@@ -14,6 +14,7 @@ interface ChatTabsProps {
   currentFile: { path: string; name: string } | null;
   activeTabId?: string;
   onTabChange?: (tabId: string) => void;
+  workspacePath: string | null;
 }
 
 type TabType = 'bridge' | 'repo';
@@ -27,7 +28,7 @@ interface ChatTab {
   repo?: Repository;
 }
 
-export const ChatTabs = memo(function ChatTabs({ repos, currentFile, activeTabId: controlledActiveTabId, onTabChange }: ChatTabsProps) {
+export const ChatTabs = memo(function ChatTabs({ repos, currentFile, activeTabId: controlledActiveTabId, onTabChange, workspacePath }: ChatTabsProps) {
   const [internalActiveTabId, setInternalActiveTabId] = useState<string>('bridge');
 
   // Use controlled or internal state
@@ -86,6 +87,7 @@ export const ChatTabs = memo(function ChatTabs({ repos, currentFile, activeTabId
               currentRepo={tab.repo || null}
               isBridge={tab.type === 'bridge'}
               allRepos={repos}
+              workspacePath={workspacePath}
             />
           </div>
         ))}

@@ -50,6 +50,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveSettings: (settings: { apiKey: string; model: string }) => ipcRenderer.invoke('settings:save', settings),
   getSettings: () => ipcRenderer.invoke('settings:get'),
   validateApiKey: (apiKey: string) => ipcRenderer.invoke('settings:validateApiKey', apiKey),
+  clearSettings: () => ipcRenderer.invoke('settings:clear'),
 
   // Workspace APIs
   getDefaultWorkspacePath: () => ipcRenderer.invoke('workspace:getDefaultPath'),

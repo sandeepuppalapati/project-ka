@@ -39,8 +39,10 @@ export interface ElectronAPI {
     stderr: string;
     exitCode?: number;
   }>;
-  saveSettings?: (settings: { apiKey: string; model: string; openaiApiKey?: string }) => Promise<void>;
-  getSettings?: () => Promise<{ apiKey: string; model: string; openaiApiKey?: string } | null>;
+  saveSettings?: (settings: { apiKey: string; model: string; openaiApiKey?: string; logLevel?: string }) => Promise<void>;
+  getSettings?: () => Promise<{ apiKey: string; model: string; openaiApiKey?: string; logLevel?: string } | null>;
+  validateApiKey?: (apiKey: string) => Promise<{ valid: boolean; error?: string }>;
+  clearSettings?: () => Promise<boolean>;
 
   // Workspace API
   getDefaultWorkspacePath?: () => Promise<string>;

@@ -500,7 +500,7 @@ const settingsFilePath = path.join(app.getPath('userData'), 'settings.json');
 const encryptedApiKeyPath = path.join(app.getPath('userData'), 'api-key.enc');
 const encryptedOpenaiKeyPath = path.join(app.getPath('userData'), 'openai-key.enc');
 
-ipcMain.handle('settings:save', async (_event, settings: { apiKey: string; model: string; openaiApiKey?: string }) => {
+ipcMain.handle('settings:save', async (_event, settings: { apiKey: string; model: string; openaiApiKey?: string; logLevel?: string }) => {
   try {
     // Encrypt and save Anthropic API key separately
     if (settings.apiKey && safeStorage.isEncryptionAvailable()) {
@@ -514,8 +514,16 @@ ipcMain.handle('settings:save', async (_event, settings: { apiKey: string; model
       await fs.writeFile(encryptedOpenaiKeyPath, encrypted);
     }
 
+    // Update log level if provided
+    if (settings.logLevel) {
+      logger.setLogLevel(settings.logLevel as any);
+    }
+
     // Save other settings (without API keys) in plain text
-    const settingsToSave = { model: settings.model };
+    const settingsToSave = {
+      model: settings.model,
+      logLevel: settings.logLevel || logger.getLogLevel()
+    };
     await fs.writeFile(settingsFilePath, JSON.stringify(settingsToSave, null, 2), 'utf-8');
     return true;
   } catch (error) {
@@ -594,14 +602,19 @@ ipcMain.handle('settings:get', async () => {
       }
     }
 
+    // Load log level from settings and apply it
+    const logLevel = settingsData.logLevel || 'error';
+    logger.setLogLevel(logLevel as any);
+
     return {
       apiKey,
       openaiApiKey,
       model: settingsData.model || 'claude-sonnet-4-20250514',
+      logLevel,
     };
   } catch (error) {
     // Return defaults
-    return { apiKey: '', openaiApiKey: '', model: 'claude-sonnet-4-20250514' };
+    return { apiKey: '', openaiApiKey: '', model: 'claude-sonnet-4-20250514', logLevel: 'error' };
   }
 });
 
@@ -632,6 +645,36 @@ ipcMain.handle('settings:validateApiKey', async (_event, apiKey: string) => {
     } else {
       return { valid: false, error: error.message || 'Failed to validate API key' };
     }
+  }
+});
+
+// Clear all settings files
+ipcMain.handle('settings:clear', async () => {
+  try {
+    // Delete settings file
+    try {
+      await fs.unlink(settingsFilePath);
+    } catch (error) {
+      // File doesn't exist, that's fine
+    }
+
+    // Delete encrypted API key files
+    try {
+      await fs.unlink(encryptedApiKeyPath);
+    } catch (error) {
+      // File doesn't exist, that's fine
+    }
+
+    try {
+      await fs.unlink(encryptedOpenaiKeyPath);
+    } catch (error) {
+      // File doesn't exist, that's fine
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Failed to clear settings:', error);
+    return false;
   }
 });
 

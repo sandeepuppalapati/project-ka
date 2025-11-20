@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Sun, Moon, Monitor, Settings as SettingsIcon, AlertTriangle, Folder, Trash2, FileText, Download } from 'lucide-react';
+import { Sun, Moon, Monitor, Settings as SettingsIcon, AlertTriangle, Folder, Trash2, Download } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import './Settings.css';
 
@@ -52,6 +52,7 @@ export function Settings({ onClose }: SettingsProps) {
           setApiKey(settings.apiKey || '');
           setModel(settings.model || 'claude-sonnet-4-5-20250929');
           setOpenaiApiKey(settings.openaiApiKey || '');
+          setLogLevel(settings.logLevel || 'error');
           return;
         }
       }
@@ -139,9 +140,12 @@ export function Settings({ onClose }: SettingsProps) {
     // Save to localStorage
     localStorage.setItem('app_settings', JSON.stringify(settings));
 
-    // Also save to electron store via IPC
+    // Also save to electron store via IPC (including log level)
     if (window.electronAPI?.saveSettings) {
-      await window.electronAPI.saveSettings(settings);
+      await window.electronAPI.saveSettings({
+        ...settings,
+        logLevel
+      });
     }
 
     // Dispatch custom event to notify other components
@@ -153,8 +157,13 @@ export function Settings({ onClose }: SettingsProps) {
     onClose();
   };
 
-  const handleClearStorage = () => {
-    if (confirm('Clear all storage?\n\nThis will delete:\n- All chat history (Bridge and agent chats)\n- All workspace state (open tabs, etc.)\n- Repository list\n- Settings\n\nThis cannot be undone. Continue?')) {
+  const handleClearStorage = async () => {
+    if (confirm('Clear all storage?\n\nThis will delete:\n- All chat history (Bridge and agent chats)\n- All workspace state (open tabs, etc.)\n- Repository list\n- Settings (including API keys)\n\nThis cannot be undone. Continue?')) {
+      // Clear settings files from disk (including encrypted API keys)
+      if (window.electronAPI?.clearSettings) {
+        await window.electronAPI.clearSettings();
+      }
+
       // Clear all localStorage
       localStorage.clear();
 

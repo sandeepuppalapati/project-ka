@@ -378,7 +378,7 @@ Test the IDE with a real multi-repo project:
 - [x] Monaco editor lazy loading
 - [x] Debounced git panel refresh
 
-### v0.9 - Production Hardening ✅ (Current)
+### v0.9 - Production Hardening ✅
 
 - [x] Comprehensive logging system with log viewer
 - [x] DevTools disabled in production
@@ -386,16 +386,34 @@ Test the IDE with a real multi-repo project:
 - [x] Dynamic version display from package.json
 - [x] Error log level default for production
 
-### v1.0 - Coming Soon
+### v1.0 - Stable Release ✅ (Current)
 
-- [ ] Search across repos within workspace
-- [ ] Multiple workspace windows
-- [ ] Workspace import/export
+- [x] Remove redundant localStorage usage
+- [x] Disk-only storage architecture
+- [x] Single source of truth for all data
+- [x] OS-level encryption for sensitive data
+- [x] Unlimited storage (no localStorage quota limits)
+- [x] Clean codebase (-290 lines)
+
+### v1.1 - Multi-Model Support (Planned)
+
+- [ ] OpenAI API integration
+- [ ] Ollama local model support
+- [ ] Model provider abstraction layer
+- [ ] Per-agent model selection
+- [ ] Model switching UI
+
+### v1.2 - Analytics & Management (Planned)
+
 - [ ] Cost tracking dashboard
+- [ ] API usage analytics per workspace
+- [ ] Token usage visualization
+- [ ] Workspace import/export
+- [ ] Search across repos within workspace
 
 ### Future Versions
 
-- [ ] Local model support (Ollama)
+- [ ] Multiple workspace windows
 - [ ] Plugin system
 - [ ] Workspace templates
 - [ ] Collaborative workspaces (team sharing)
